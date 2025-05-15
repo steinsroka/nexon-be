@@ -79,20 +79,14 @@ export class RegisterResponseDto {
   @Expose()
   accessToken: string;
 
-  // @ApiProperty({
-  //   example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  //   description: 'JWT refresh 토큰',
-  // })
-  // refreshToken: string;
-
   @ApiProperty({
     example: {
       id: '64a78e6e5d32a83d8a0d3f4c',
       email: 'user@example.com',
       name: '홍길동',
       role: 'USER',
-      createdAt: '2023-01-01T00:00:00.000Z',
-      updatedAt: '2023-01-01T00:00:00.000Z',
+      createdAt: '2025-01-01T00:00:00.000Z',
+      updatedAt: '2025-01-01T00:00:00.000Z',
     },
     description: '사용자 정보',
   })

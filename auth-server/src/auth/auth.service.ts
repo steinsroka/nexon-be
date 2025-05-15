@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { UserDto } from 'src/user/dtos/user.dto';
 import { UserService } from 'src/user/user.service';
 import { JwtPayloadDto } from './dtos/jwt-payload.dto';
+import { LoginRequestDto } from './dtos/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,36 @@ export class AuthService {
     res: Response,
   ): Promise<{ user: UserDto; accessToken: string }> {
     const user = await this.userService.create(req);
+
+    const payload: JwtPayloadDto = {
+      iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+      sub: user._id,
+      email: user.email,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    const accessToken = this.createAccessToken(payload);
+    const refreshToken = this.createRefreshToken(payload);
+
+    await this.userService.updateRefreshToken(
+      user._id.toString(),
+      refreshToken,
+    );
+
+    this.setRefreshTokenCookie(res, refreshToken);
+
+    const userDto = plainToClass(UserDto, user);
+    return { user: userDto, accessToken };
+  }
+
+  async login(
+    loginDto: LoginRequestDto,
+    res: Response,
+  ): Promise<{ user: UserDto; accessToken: string }> {
+    const user = await this.userService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
 
     const payload: JwtPayloadDto = {
       iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
