@@ -12,16 +12,21 @@ import { PassportModule } from '@nestjs/passport';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>(
-          'MONGODB_URI',
-          'mongodb://localhost:27017/nexon-auth',
-        ),
-      }),
+      useFactory: (configService: ConfigService) => (
+        console.log(configService.get<string>('MONGODB_URI')),
+        console.log(configService.get<string>('PORT')),
+        {
+          uri: configService.get<string>(
+            'MONGODB_URI',
+            'mongodb://localhost:27017/nexon-auth',
+          ),
+        }
+      ),
     }),
     PassportModule,
     JwtModule.registerAsync({

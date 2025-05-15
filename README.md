@@ -68,3 +68,13 @@ npm run prune
 - 인증 서버: TBD
 - 이벤트 서버: TBD
 - 게이트웨이: TBD
+
+## 브랜치 전략
+
+feature - master - (develop - production)
+PR을 통해 기여합니다.
+
+## 주석 전략
+
+`TODO: ` 해야할 일
+`NOTE: ` 기록용
