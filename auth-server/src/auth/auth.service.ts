@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { plainToClass } from 'class-transformer';
@@ -77,6 +77,40 @@ export class AuthService {
 
     const userDto = plainToClass(UserDto, user);
     return { user: userDto, accessToken };
+  }
+
+  async refresh(
+    refreshToken: string,
+    res: Response,
+  ): Promise<{ accessToken: string }> {
+    // TODO: 리프레시 토큰이 만료된 경우에 대한 처리
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+      const user = await this.userService.findOneById(payload.sub.toString());
+
+      const newPayload: JwtPayloadDto = {
+        iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+        sub: user._id,
+        email: user.email,
+        iat: Math.floor(Date.now() / 1000),
+      };
+
+      const accessToken = this.createAccessToken(newPayload);
+      const newRefreshToken = this.createRefreshToken(newPayload);
+
+      await this.userService.updateRefreshToken(
+        user._id.toString(),
+        newRefreshToken,
+      );
+
+      this.setRefreshTokenCookie(res, newRefreshToken);
+
+      return { accessToken };
+    } catch (error) {
+      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+    }
   }
 
   private createAccessToken(payload: JwtPayloadDto): string {
