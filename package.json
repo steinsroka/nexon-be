@@ -11,8 +11,13 @@
     "install:event": "cd event-server && npm install",
     "install:gateway": "cd gateway-server && npm install",
     "install:lib": "cd lib && npm install",
+    "start:dev": "npm run start:dev:auth && npm run start:dev:event run npm run start:dev:gateway",
+    "start:dev:auth": "cd auth-server && npm run start:dev",
+    "start:dev:event": "cd event-server && npm run start:dev",
+    "start:dev:gateway": "cd gateway-server && npm run start:dev",
     "build": "docker-compose build",
     "start": "docker-compose up",
+    "start:detach": "docker-compose up -d",
     "stop": "docker-compose down",
     "logs": "docker-compose logs -f",
     "prune": "docker-compose down --volumes --remove-orphans"
