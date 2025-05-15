@@ -109,10 +109,7 @@ export class AuthService {
 
       return { accessToken };
     } catch (error) {
-      throw new UnauthorizedException(
-        '유효하지 않은 리프레시 토큰입니다',
-        error,
-      );
+      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
     }
   }
 
