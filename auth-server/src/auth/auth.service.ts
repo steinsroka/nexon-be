@@ -83,6 +83,7 @@ export class AuthService {
     refreshToken: string,
     res: Response,
   ): Promise<{ accessToken: string }> {
+    // TODO: 리프레시 토큰이 만료된 경우에 대한 처리
     try {
       const payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),

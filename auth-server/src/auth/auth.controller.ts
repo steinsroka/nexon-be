@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOperation,
@@ -7,10 +7,10 @@ import {
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
+import { Cookies } from './decprators/cookie.decorator';
+import { LoginRequestDto, LoginResponseDto } from './dtos/login.dto';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
 import { Serializer } from './interceptors/serializer';
-import { LoginResponseDto, LoginRequestDto } from './dtos/login.dto';
-import { Cookies } from './decprators/cookie.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
