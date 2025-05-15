@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
 import { Serializer } from './interceptors/serializer';
+import { LoginResponseDto, LoginRequestDto } from './dtos/login.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -24,5 +25,22 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
     return this.authService.register(registerRequestDto, res);
+  }
+
+  @Post('login')
+  @ApiOperation({ summary: '사용자 로그인' })
+  @ApiResponse({
+    status: 200,
+    description: '로그인 성공',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({ status: 400, description: '잘못된 요청' })
+  @ApiResponse({ status: 401, description: '인증 실패' })
+  @Serializer(LoginResponseDto)
+  async login(
+    @Body() loginRequestDto: LoginRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto> {
+    return this.authService.login(loginRequestDto, res);
   }
 }

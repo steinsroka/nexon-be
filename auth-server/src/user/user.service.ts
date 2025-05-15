@@ -54,6 +54,22 @@ export class UserService {
     return user;
   }
 
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('비밀번호가 일치하지 않습니다');
+    }
+
+    return user;
+  }
+
   async updateRefreshToken(
     userId: string,
     refreshToken: string,

@@ -22,6 +22,6 @@
     "logs": "docker-compose logs -f",
     "prune": "docker-compose down --volumes --remove-orphans"
   },
-  "author": "",
+  "author": "steinsroak",
   "license": "UNLICENSED"
 }
