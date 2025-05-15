@@ -1,10 +1,16 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
 import { Serializer } from './interceptors/serializer';
 import { LoginResponseDto, LoginRequestDto } from './dtos/login.dto';
+import { Cookies } from './decprators/cookie.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,5 +48,25 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
     return this.authService.login(loginRequestDto, res);
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: '토큰 갱신' })
+  @ApiCookieAuth('refresh_token')
+  @ApiResponse({
+    status: 200,
+    description: '토큰 갱신 성공',
+    schema: {
+      properties: {
+        accessToken: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: '유효하지 않은 리프레시 토큰' })
+  async refresh(
+    @Cookies('refresh_token') refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ accessToken: string }> {
+    return this.authService.refresh(refreshToken, res);
   }
 }
