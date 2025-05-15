@@ -1,10 +1,13 @@
 {
-  "name": "event",
+  "name": "auth",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": "=18"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
