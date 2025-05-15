@@ -1,0 +1,158 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { plainToClass } from 'class-transformer';
+import { Response } from 'express';
+import { UserDto } from 'src/user/dtos/user.dto';
+import { UserService } from 'src/user/user.service';
+import { JwtPayloadDto } from './dtos/jwt-payload.dto';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  async register(
+    req: {
+      email: string;
+      password: string;
+      checkPassword: string;
+      name: string;
+    },
+    res: Response,
+  ): Promise<{ user: UserDto; accessToken: string }> {
+    const user = await this.userService.create(req);
+
+    const payload: JwtPayloadDto = {
+      iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+      sub: user._id,
+      email: user.email,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    const accessToken = this.createAccessToken(payload);
+    const refreshToken = this.createRefreshToken(payload);
+
+    // 리프레시 토큰을 데이터베이스에 저장
+    await this.userService.updateRefreshToken(
+      user._id.toString(),
+      refreshToken,
+    );
+
+    // HTTP 쿠키에 리프레시 토큰 설정
+    this.setRefreshTokenCookie(res, refreshToken);
+
+    const userDto = plainToClass(UserDto, user);
+    return { user: userDto, accessToken };
+  }
+
+  //   async login(
+  //     loginDto: LoginRequestDto,
+  //     res: Response,
+  //   ): Promise<{ user: UserDto; accessToken: string }> {
+  //     const user = await this.userService.validateUser(
+  //       loginDto.email,
+  //       loginDto.password,
+  //     );
+
+  //     const payload: JwtPayloadDto = {
+  //       iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+  //       sub: user._id,
+  //       email: user.email,
+  //       iat: Math.floor(Date.now() / 1000),
+  //     };
+
+  //     const accessToken = this.createAccessToken(payload);
+  //     const refreshToken = this.createRefreshToken(payload);
+
+  //     // 리프레시 토큰을 데이터베이스에 저장
+  //     await this.userService.updateRefreshToken(user._id.toString(), refreshToken);
+
+  //     // HTTP 쿠키에 리프레시 토큰 설정
+  //     this.setRefreshTokenCookie(res, refreshToken);
+
+  //     const userDto = plainToClass(UserDto, user);
+  //     return { user: userDto, accessToken };
+  //   }
+
+  //   async refresh(
+  //     refreshToken: string,
+  //     res: Response,
+  //   ): Promise<{ accessToken: string }> {
+  //     try {
+  //       // 리프레시 토큰 검증
+  //       const payload = this.jwtService.verify(refreshToken, {
+  //         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+  //       });
+
+  //       const user = await this.userService.findOneById(payload.sub.toString());
+
+  //       // 새 토큰 생성
+  //       const newPayload: JwtPayloadDto = {
+  //         iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+  //         sub: user._id,
+  //         email: user.email,
+  //         iat: Math.floor(Date.now() / 1000),
+  //       };
+
+  //       const accessToken = this.createAccessToken(newPayload);
+  //       const newRefreshToken = this.createRefreshToken(newPayload);
+
+  //       // 데이터베이스에 새 리프레시 토큰 저장
+  //       await this.userService.updateRefreshToken(
+  //         user._id.toString(),
+  //         newRefreshToken,
+  //       );
+
+  //       // HTTP 쿠키에 새 리프레시 토큰 설정
+  //       this.setRefreshTokenCookie(res, newRefreshToken);
+
+  //       return { accessToken };
+  //     } catch (error) {
+  //       throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+  //     }
+  //   }
+
+  //   async logout(userId: string, res: Response): Promise<{ success: boolean }> {
+  //     await this.userService.removeRefreshToken(userId);
+
+  //     // 쿠키 삭제
+  //     res.clearCookie('refresh_token');
+
+  //     return { success: true };
+  //   }
+
+  private createAccessToken(payload: JwtPayloadDto): string {
+    return this.jwtService.sign(payload, {
+      algorithm: 'HS512',
+      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+    });
+  }
+
+  private createRefreshToken(payload: JwtPayloadDto): string {
+    return this.jwtService.sign(payload, {
+      algorithm: 'HS512',
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+    });
+  }
+
+  private setRefreshTokenCookie(res: Response, token: string): void {
+    const isSecureCookie =
+      this.configService.get<string>('NODE_ENV') === 'production';
+    const domain = this.configService.get<string>('COOKIE_DOMAIN');
+
+    res.cookie('refresh_token', token, {
+      httpOnly: true, // 자바스크립트에서 쿠키에 접근할 수 없도록
+      secure: isSecureCookie, // HTTPS에서만 쿠키 전송
+      sameSite: 'strict', // CSRF 방지
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1일 (밀리초)
+      path: '/auth/refresh', // 이 경로에서만 쿠키 사용
+      ...(domain && { domain }), // 도메인이 있을 경우에만 설정
+    });
+  }
+}
