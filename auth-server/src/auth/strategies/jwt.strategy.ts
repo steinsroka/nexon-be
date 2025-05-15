@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayloadDto): Promise<any> {
     try {
       const user = await this.userService.findOneById(payload.sub);
-      
+
       return {
         userId: user._id,
         email: user.email,
@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         role: user.role,
       };
     } catch (error) {
-      throw new UnauthorizedException('접근 권한이 없습니다');
+      throw new UnauthorizedException('접근 권한이 없습니다', error);
     }
   }
 }

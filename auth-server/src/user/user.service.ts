@@ -54,32 +54,6 @@ export class UserService {
     return user;
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email });
-
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
-    }
-
-    return user;
-  }
-
-  async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.userModel.findOne({ email });
-
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다');
-    }
-
-    return user;
-  }
-
   async updateRefreshToken(
     userId: string,
     refreshToken: string,
@@ -91,16 +65,6 @@ export class UserService {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.userModel.findByIdAndUpdate(userId, {
       refreshToken: hashedRefreshToken,
-    });
-  }
-
-  async removeRefreshToken(userId: string): Promise<void> {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('유효하지 않은 ID 형식입니다');
-    }
-
-    await this.userModel.findByIdAndUpdate(userId, {
-      refreshToken: null,
     });
   }
 }
