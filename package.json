@@ -1,0 +1,22 @@
+{
+  "name": "nexon-be",
+  "version": "0.0.1",
+  "description": "nexon be",
+  "engines": {
+    "node": "=18"
+  },
+  "scripts": {
+    "install:all": "npm run install:auth && npm run install:event && npm run install:gateway",
+    "install:auth": "cd auth-server && npm install",
+    "install:event": "cd event-server && npm install",
+    "install:gateway": "cd gateway-server && npm install",
+    "install:lib": "cd lib && npm install",
+    "build": "docker-compose build",
+    "start": "docker-compose up",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "prune": "docker-compose down --volumes --remove-orphans"
+  },
+  "author": "",
+  "license": "UNLICENSED"
+}
