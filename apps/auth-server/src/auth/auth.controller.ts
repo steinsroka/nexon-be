@@ -39,7 +39,6 @@ export class AuthController {
 
   @MessagePattern('auth_logout')
   async logout(@Payload() actant: AuthActant): Promise<{ success: boolean }> {
-    console.log('logout actant:', actant);
     return this.authService.logout(actant);
   }
 }
