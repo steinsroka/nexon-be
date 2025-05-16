@@ -20,8 +20,14 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Serializer } from 'src/auth/interceptors/serializer';
 import { Roles } from 'src/user/decorators/roles.decorator';
 import { RolesGuard } from 'src/user/guards/roles.guard';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateRoleDto } from './dtos/update-role.dto';
+import {
+  CreateUserRequestDto,
+  CreateUserResponseDto,
+} from './dtos/create-user.dto';
+import {
+  UpdateRoleRequestDto,
+  UpdateRoleResponseDto,
+} from './dtos/update-role.dto';
 import { UserDto } from './dtos/user.dto';
 import { UserRoleType } from './schemas/user.schema';
 import { UserService } from './user.service';
@@ -43,8 +49,10 @@ export class UserController {
     description: '잘못된 요청 (이메일 중복, 비밀번호 형식 오류 등)',
   })
   @Serializer(UserDto)
-  async createAdmin(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
-    return this.userService.createAdmin(createUserDto);
+  async createAdmin(
+    @Body() CreateUserRequestDto: CreateUserRequestDto,
+  ): Promise<CreateUserResponseDto> {
+    return this.userService.createAdmin(CreateUserRequestDto);
   }
 
   @Post()
@@ -68,9 +76,9 @@ export class UserController {
   @Serializer(UserDto)
   async createUserByAdmin(
     @Actant() actant: AuthActant,
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UserDto> {
-    return this.userService.createUserByAdmin(actant, createUserDto);
+    @Body() CreateUserRequestDto: CreateUserRequestDto,
+  ): Promise<CreateUserResponseDto> {
+    return this.userService.createUserByAdmin(actant, CreateUserRequestDto);
   }
 
   @Get()
@@ -139,9 +147,9 @@ export class UserController {
   @Serializer(UserDto)
   async updateUserRole(
     @Param('id') id: string,
-    @Body() updateRoleDto: UpdateRoleDto,
+    @Body() updateRoleRequestDto: UpdateRoleRequestDto,
     @Actant() actant: AuthActant,
-  ): Promise<UserDto> {
-    return this.userService.updateUserRole(actant, id, updateRoleDto);
+  ): Promise<UpdateRoleResponseDto> {
+    return this.userService.updateUserRole(actant, id, updateRoleRequestDto);
   }
 }

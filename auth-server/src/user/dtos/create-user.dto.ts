@@ -20,10 +20,11 @@ import {
   PASSWORD_LENGTH_INVALID,
   PASSWORD_REGEX_INVALID,
 } from 'src/auth/dtos/register.dto';
+import { UserDto } from './user.dto';
 
 export const ROLE_INVALID = '유효하지 않은 역할입니다.';
 
-export class CreateUserDto {
+export class CreateUserRequestDto {
   @ApiProperty({
     example: 'user@example.com',
     description: '이메일',
@@ -68,3 +69,5 @@ export class CreateUserDto {
   @IsOptional()
   role?: UserRoleType;
 }
+
+export class CreateUserResponseDto extends UserDto {}

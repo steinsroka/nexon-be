@@ -10,8 +10,8 @@ import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
 import { AuthActant } from 'src/auth/decorators/actant.decorator';
 import { RegisterRequestDto } from '../auth/dtos/register.dto';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateRoleDto } from './dtos/update-role.dto';
+import { CreateUserRequestDto } from './dtos/create-user.dto';
+import { UpdateRoleRequestDto } from './dtos/update-role.dto';
 import { UserDto } from './dtos/user.dto';
 import { User, UserDocument, UserRoleType } from './schemas/user.schema';
 
@@ -20,8 +20,10 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
   private readonly SALT_ROUNDS = 10;
 
-  async createAdmin(createUserDto: CreateUserDto): Promise<UserDto> {
-    const { email, password, name } = createUserDto;
+  async createAdmin(
+    CreateUserRequestDto: CreateUserRequestDto,
+  ): Promise<UserDto> {
+    const { email, password, name } = CreateUserRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -45,9 +47,9 @@ export class UserService {
 
   async createUserByAdmin(
     actant: AuthActant,
-    createUserDto: CreateUserDto,
+    CreateUserRequestDto: CreateUserRequestDto,
   ): Promise<UserDto> {
-    const { email, password, name, role } = createUserDto;
+    const { email, password, name, role } = CreateUserRequestDto;
     const { user } = actant;
 
     if (UserRoleType.ADMIN !== user.role) {
@@ -98,10 +100,10 @@ export class UserService {
   async updateUserRole(
     actant: AuthActant,
     userId: string,
-    updateRoleDto: UpdateRoleDto,
+    updateRoleRequestDto: UpdateRoleRequestDto,
   ): Promise<UserDto> {
     const { user: requestingUser } = actant;
-    const { role: newRole } = updateRoleDto;
+    const { role: newRole } = updateRoleRequestDto;
 
     if (requestingUser.role !== UserRoleType.ADMIN) {
       throw new ForbiddenException('사용자 역할을 변경할 권한이 없습니다');
