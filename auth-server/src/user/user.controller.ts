@@ -137,7 +137,7 @@ export class UserController {
     description: '사용자를 찾을 수 없음',
   })
   @Serializer(UserDto)
-  async updateRole(
+  async updateUserRole(
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
     @Actant() actant: AuthActant,
