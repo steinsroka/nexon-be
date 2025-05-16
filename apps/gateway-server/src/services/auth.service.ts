@@ -45,14 +45,12 @@ export class AuthService {
       console.error('Error during login:', error);
       throw error; // Rethrow the error to be handled by the caller
     }
-    console.log(2222);
   }
 
   async refresh(
     refreshToken: string,
     res: Response,
   ): Promise<RefreshResponseDto> {
-    console.log('111');
     const refreshResponseDto: RefreshResponseDto = await firstValueFrom(
       this.authServiceClient.send('auth_refresh', refreshToken),
     );

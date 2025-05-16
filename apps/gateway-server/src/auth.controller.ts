@@ -58,7 +58,6 @@ export class AuthController {
     @Body() loginRequestDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    console.log(11111);
     return this.authService.login(loginRequestDto, res);
   }
 
@@ -78,8 +77,8 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: '로그아웃' })
   @ApiResponse({
     status: 200,

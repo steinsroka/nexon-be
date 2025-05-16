@@ -1,5 +1,9 @@
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
@@ -8,16 +12,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = UserDto>(
-    err: any,
-    user: TUser,
-    info: any,
-    context: ExecutionContext,
-  ): TUser {
-    console.log('[JwtAuthGuard.handleRequest] user:', user);
-    if (context) {
-      const request = context.switchToHttp().getRequest();
-      request.user = user;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  handleRequest<TUser = UserDto>(err: any, user: TUser, info: any): TUser {
+    if (err || !user) {
+      throw new UnauthorizedException('인증된 사용자가 없습니다');
     }
 
     return user;

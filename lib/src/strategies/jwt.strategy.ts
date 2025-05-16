@@ -16,8 +16,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_ACCESS_SECRET', 'default_jwt_secret'),
+      ignoreExpiration: true,
+      secretOrKey: configService.get('JWT_ACCESS_SECRET', 'access_secret'),
     });
   }
 
@@ -27,8 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('유효하지 않은 토큰입니다');
       }
 
-      // const user = await this.userServiceClient.findOneById(payload.sub);
-      console.log('here');
       const user: UserDto = await firstValueFrom(
         this.userServiceClient.send('user_find_one_by_id', payload.sub),
       );
