@@ -9,7 +9,7 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument, UserRoleType } from './schemas/user.schema';
 import { RegisterRequestDto } from '../auth/dtos/register.dto';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance, plainToInstance } from 'class-transformer';
 import { UserDto } from './dtos/user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthActant } from 'src/auth/decorators/actant.decorator';
@@ -125,7 +125,9 @@ export class UserService {
     });
 
     const savedUser = await newUser.save();
-    return plainToClass(UserDto, savedUser, { excludeExtraneousValues: true });
+    return plainToInstance(UserDto, savedUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   // NOTE: 관리자 생성 (초기 설정용)
@@ -150,6 +152,8 @@ export class UserService {
     });
 
     const savedUser = await newUser.save();
-    return plainToClass(UserDto, savedUser, { excludeExtraneousValues: true });
+    return plainToInstance(UserDto, savedUser, {
+      excludeExtraneousValues: true,
+    });
   }
 }

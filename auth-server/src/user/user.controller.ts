@@ -22,7 +22,7 @@ export class UserController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleType.ADMIN, UserRoleType.OPERATOR)
+  @Roles(UserRoleType.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: '새 사용자 등록 (관리자/운영자 전용)' })
   @ApiResponse({

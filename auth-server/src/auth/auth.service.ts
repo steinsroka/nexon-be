@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { Response } from 'express';
 import { UserDto } from 'src/user/dtos/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -45,7 +45,7 @@ export class AuthService {
 
     this.setRefreshTokenCookie(res, refreshToken);
 
-    const userDto = plainToClass(UserDto, user);
+    const userDto = plainToInstance(UserDto, user);
     return { user: userDto, accessToken };
   }
 
@@ -76,7 +76,7 @@ export class AuthService {
 
     this.setRefreshTokenCookie(res, refreshToken);
 
-    const userDto = plainToClass(UserDto, user);
+    const userDto = plainToInstance(UserDto, user);
     return { user: userDto, accessToken };
   }
 
