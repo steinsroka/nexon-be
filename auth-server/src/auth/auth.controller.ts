@@ -13,27 +13,27 @@ import { Cookies } from './decorators/cookie.decorator';
 import { LoginRequestDto, LoginResponseDto } from './dtos/login.dto';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Serializer } from './interceptors/serializer';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  @ApiOperation({ summary: '사용자 회원가입' })
-  @ApiResponse({
-    status: 201,
-    description: '회원가입 성공',
-    type: RegisterResponseDto,
-  })
-  @ApiResponse({ status: 400, description: '잘못된 요청 (이메일 중복 등)' })
-  @Serializer(RegisterResponseDto)
+  // @Post('register')
+  @MessagePattern('user_search_by_credentials')
+  // @ApiOperation({ summary: '사용자 회원가입' })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: '회원가입 성공',
+  //   type: RegisterResponseDto,
+  // })
+  // @ApiResponse({ status: 400, description: '잘못된 요청 (이메일 중복 등)' })
+  // @Serializer(RegisterResponseDto)
   async register(
     @Body() registerRequestDto: RegisterRequestDto,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    return this.authService.register(registerRequestDto, res);
+    return this.authService.register(registerRequestDto);
   }
 
   @Post('login')
@@ -45,7 +45,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 400, description: '잘못된 요청' })
   @ApiResponse({ status: 401, description: '인증 실패' })
-  @Serializer(LoginResponseDto)
+  // @Serializer(LoginResponseDto)
   async login(
     @Body() loginRequestDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,

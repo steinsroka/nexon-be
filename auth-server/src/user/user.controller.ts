@@ -16,9 +16,13 @@ import {
 } from '@nestjs/swagger';
 import { Actant, AuthActant } from 'src/auth/decorators/actant.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Serializer } from 'src/auth/interceptors/serializer';
+
 import { Roles } from 'src/user/decorators/roles.decorator';
 import { RolesGuard } from 'src/user/guards/roles.guard';
+import {
+  CreateAdminRequestDto,
+  CreateAdminResponseDto,
+} from './dtos/create-admin.dto';
 import {
   CreateUserRequestDto,
   CreateUserResponseDto,
@@ -30,10 +34,6 @@ import {
 import { UserDto } from './dtos/user.dto';
 import { UserRoleType } from './schemas/user.schema';
 import { UserService } from './user.service';
-import {
-  CreateAdminRequestDto,
-  CreateAdminResponseDto,
-} from './dtos/create-admin.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -51,7 +51,7 @@ export class UserController {
     status: 400,
     description: '잘못된 요청 (이메일 중복, 비밀번호 형식 오류 등)',
   })
-  @Serializer(UserDto)
+  // @Serializer(UserDto)
   async createAdmin(
     @Body() createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
@@ -76,7 +76,7 @@ export class UserController {
     status: 403,
     description: '권한 부족',
   })
-  @Serializer(UserDto)
+  // @Serializer(UserDto)
   async createUserByAdmin(
     @Actant() actant: AuthActant,
     @Body() createUserRequestDto: CreateUserRequestDto,
@@ -94,7 +94,7 @@ export class UserController {
     description: '사용자 목록 조회 성공',
     type: [UserDto],
   })
-  @Serializer(UserDto)
+  // @Serializer(UserDto)
   async findAll(): Promise<UserDto[]> {
     return this.userService.findAll();
   }
@@ -118,7 +118,7 @@ export class UserController {
     status: 404,
     description: '사용자를 찾을 수 없음',
   })
-  @Serializer(UserDto)
+  // @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
     return await this.userService.findOneById(id);
   }
@@ -146,7 +146,7 @@ export class UserController {
     status: 404,
     description: '사용자를 찾을 수 없음',
   })
-  @Serializer(UserDto)
+  // @Serializer(UserDto)
   async updateUserRole(
     @Param('id') id: string,
     @Body() updateRoleRequestDto: UpdateRoleRequestDto,

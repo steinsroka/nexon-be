@@ -17,15 +17,12 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(
-    req: {
-      email: string;
-      password: string;
-      checkPassword: string;
-      name: string;
-    },
-    res: Response,
-  ): Promise<{ user: UserDto; accessToken: string }> {
+  async register(req: {
+    email: string;
+    password: string;
+    checkPassword: string;
+    name: string;
+  }): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
     const user = await this.userService.createUser(req);
 
     const payload: JwtPayloadDto = {
@@ -43,10 +40,10 @@ export class AuthService {
       refreshToken,
     );
 
-    this.setRefreshTokenCookie(res, refreshToken);
+    // this.setRefreshTokenCookie(res, refreshToken);
 
     const userDto = plainToInstance(UserDto, user);
-    return { user: userDto, accessToken };
+    return { user: userDto, accessToken, refreshToken };
   }
 
   async login(
