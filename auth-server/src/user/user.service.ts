@@ -10,6 +10,7 @@ import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
 import { AuthActant } from 'src/auth/decorators/actant.decorator';
 import { RegisterRequestDto } from '../auth/dtos/register.dto';
+import { CreateAdminRequestDto } from './dtos/create-admin.dto';
 import { CreateUserRequestDto } from './dtos/create-user.dto';
 import { UpdateRoleRequestDto } from './dtos/update-role.dto';
 import { UserDto } from './dtos/user.dto';
@@ -47,9 +48,9 @@ export class UserService {
 
   async createUserByAdmin(
     actant: AuthActant,
-    CreateUserRequestDto: CreateUserRequestDto,
+    createUserRequestDto: CreateAdminRequestDto,
   ): Promise<UserDto> {
-    const { email, password, name, role } = CreateUserRequestDto;
+    const { email, password, name } = createUserRequestDto;
     const { user } = actant;
 
     if (UserRoleType.ADMIN !== user.role) {
@@ -67,13 +68,11 @@ export class UserService {
       name,
       email,
       password: hashedPassword,
-      role,
+      role: UserRoleType.ADMIN,
     });
 
     const savedUser = await newUser.save();
-    return plainToInstance(UserDto, savedUser, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(UserDto, savedUser);
   }
 
   // TODO: Pagination 추가
@@ -133,9 +132,7 @@ export class UserService {
     user.role = newRole;
     const updatedUser = await user.save();
 
-    return plainToInstance(UserDto, updatedUser, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(UserDto, updatedUser);
   }
 
   /**
