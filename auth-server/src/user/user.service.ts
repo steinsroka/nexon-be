@@ -122,10 +122,7 @@ export class UserService {
     }
 
     // NOTE: 관리자의 역할을 변경하는 것 방지
-    if (
-      userId === requestingUser.id ||
-      requestingUser.role === UserRoleType.ADMIN
-    ) {
+    if (userId === requestingUser.id || user.role === UserRoleType.ADMIN) {
       throw new ForbiddenException('관리자 권한은 변경할 수 없습니다');
     }
 

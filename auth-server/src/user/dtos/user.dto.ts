@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { UserRoleType } from '../schemas/user.schema';
 
 export class UserDto {
@@ -8,11 +8,13 @@ export class UserDto {
     description: '사용자 고유 ID (MongoDB ObjectId)',
   })
   @Expose()
-  @Transform(({ obj }) => {
+  @Transform(({ obj, value }) => {
     if (obj?._id) {
       return obj._id.toString();
     } else if (obj?.id) {
       return typeof obj.id === 'object' ? obj.id.toString() : obj.id;
+    } else if (value) {
+      return typeof value === 'object' ? value.toString() : value;
     }
     return null;
   })
@@ -45,6 +47,7 @@ export class UserDto {
     description: '사용자 생성 일자',
   })
   @Expose()
+  @Type(() => Date)
   createdAt: Date;
 
   @ApiProperty({
@@ -52,5 +55,6 @@ export class UserDto {
     description: '사용자 정보 마지막 수정 일자',
   })
   @Expose()
+  @Type(() => Date)
   updatedAt: Date;
 }

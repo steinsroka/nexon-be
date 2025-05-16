@@ -4,7 +4,6 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './schemas/user.schema';
 import { RolesGuard } from './guards/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -13,14 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
     ]),
   ],
   controllers: [UserController],
-  providers: [
-    UserService,
-    RolesGuard,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-  ],
+  providers: [UserService, RolesGuard],
   exports: [UserService, RolesGuard],
 })
 export class UserModule {}

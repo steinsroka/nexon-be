@@ -31,7 +31,10 @@ import {
 import { UserDto } from './dtos/user.dto';
 import { UserRoleType } from './schemas/user.schema';
 import { UserService } from './user.service';
-import { CreateAdminRequestDto } from './dtos/create-admin.dto';
+import {
+  CreateAdminRequestDto,
+  CreateAdminResponseDto,
+} from './dtos/create-admin.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -51,9 +54,9 @@ export class UserController {
   })
   @Serializer(UserDto)
   async createAdmin(
-    @Body() CreateUserRequestDto: CreateUserRequestDto,
-  ): Promise<CreateUserResponseDto> {
-    return this.userService.createAdmin(CreateUserRequestDto);
+    @Body() createAdminRequestDto: CreateAdminRequestDto,
+  ): Promise<CreateAdminResponseDto> {
+    return this.userService.createAdmin(createAdminRequestDto);
   }
 
   @Post()
@@ -77,9 +80,9 @@ export class UserController {
   @Serializer(UserDto)
   async createUserByAdmin(
     @Actant() actant: AuthActant,
-    @Body() createAdminRequestDto: CreateAdminRequestDto,
+    @Body() createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.userService.createUserByAdmin(actant, createAdminRequestDto);
+    return this.userService.createUserByAdmin(actant, createUserRequestDto);
   }
 
   @Get()

@@ -1,8 +1,4 @@
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserDto } from 'src/user/dtos/user.dto';
 
@@ -12,10 +8,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = UserDto>(err: any, user: TUser): TUser {
-    if (err || !user) {
-      throw err || new UnauthorizedException('접근 권한이 없습니다');
+  handleRequest<TUser = UserDto>(
+    err: any,
+    user: TUser,
+    info: any,
+    context: ExecutionContext,
+  ): TUser {
+    if (context) {
+      const request = context.switchToHttp().getRequest();
+      request.user = user;
     }
-    return user as TUser;
+
+    return user;
   }
 }
