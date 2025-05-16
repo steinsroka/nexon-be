@@ -1,30 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Length,
   Matches,
 } from 'class-validator';
-import { UserRoleType } from '../schemas/user.schema';
 import {
-  PASSWORD_MIN_LEN,
-  PASSWORD_MAX_LEN,
-  PASSWORD_REGEX,
-  NAME_MIN_LEN,
-  NAME_MAX_LEN,
   EMAIL_REGEX_INVALID,
   NAME_LENGTH_INVALID,
+  NAME_MAX_LEN,
+  NAME_MIN_LEN,
   PASSWORD_LENGTH_INVALID,
+  PASSWORD_MAX_LEN,
+  PASSWORD_MIN_LEN,
+  PASSWORD_REGEX,
   PASSWORD_REGEX_INVALID,
 } from 'src/auth/dtos/register.dto';
 import { UserDto } from './user.dto';
 
 export const ROLE_INVALID = '유효하지 않은 역할입니다.';
 
-export class CreateUserRequestDto {
+export class CreateAdminRequestDto {
   @ApiProperty({
     example: 'user@example.com',
     description: '이메일',
@@ -57,17 +54,6 @@ export class CreateUserRequestDto {
   })
   @IsNotEmpty()
   name: string;
-
-  @ApiProperty({
-    example: 'USER',
-    description: '사용자 역할 (관리자만 설정 가능)',
-    enum: UserRoleType,
-    required: false,
-    default: UserRoleType.USER,
-  })
-  @IsEnum(UserRoleType, { message: ROLE_INVALID })
-  @IsOptional()
-  role?: UserRoleType;
 }
 
-export class CreateUserResponseDto extends UserDto {}
+export class CreateAdminResponseDto extends UserDto {}

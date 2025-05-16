@@ -22,11 +22,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayloadDto): Promise<UserDto> {
     try {
+      if (!payload || !payload.sub) {
+        throw new UnauthorizedException('유효하지 않은 토큰입니다');
+      }
+
       const user = await this.userService.findOneById(payload.sub);
 
-      return plainToInstance(UserDto, user);
+      if (!user) {
+        throw new UnauthorizedException('존재하지 않는 사용자입니다');
+      }
+
+      const userDto = plainToInstance(UserDto, user);
+
+      return userDto;
     } catch (error) {
-      throw new UnauthorizedException('접근 권한이 없습니다', error);
+      console.error('[JwtStrategy.validate] error:', error); // TODO: logger
+      throw new UnauthorizedException('접근 권한이 없습니다');
     }
   }
 }

@@ -5,8 +5,11 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { UserDto } from 'src/user/dtos/user.dto';
 import { UserRoleType } from 'src/user/schemas/user.schema';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+
+export type UserRequest = Request & { user: UserDto };
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,21 +21,28 @@ export class RolesGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    if (!requiredRoles) {
+    // NOTE: 역할이 지정되지 않은 경우 모든 사용자 접근 허용
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    const request: UserRequest = context.switchToHttp().getRequest();
+    const user = request.user;
 
-    if (!user) {
+    if (!user || typeof user !== 'object') {
       throw new ForbiddenException('사용자 인증이 필요합니다');
     }
 
-    // 관리자(ADMIN)는 모든 권한을 가짐
+    if (!user.role) {
+      throw new ForbiddenException('사용자 역할 정보가 없습니다');
+    }
+
+    // NOTE: 관리자(ADMIN)는 모든 권한을 가짐
     if (user.role === UserRoleType.ADMIN) {
       return true;
     }
 
+    // NOTE: 필요한 역할 중 하나라도 가지고 있는지 확인
     const hasRole = requiredRoles.some((role) => user.role === role);
 
     if (!hasRole) {
