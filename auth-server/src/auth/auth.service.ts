@@ -7,6 +7,7 @@ import { UserDto } from 'src/user/dtos/user.dto';
 import { UserService } from 'src/user/user.service';
 import { JwtPayloadDto } from './dtos/jwt-payload.dto';
 import { LoginRequestDto } from './dtos/login.dto';
+import { AuthActant } from './decorators/actant.decorator';
 
 @Injectable()
 export class AuthService {
@@ -109,8 +110,22 @@ export class AuthService {
 
       return { accessToken };
     } catch (error) {
-      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+      throw new UnauthorizedException(
+        `유효하지 않은 리프레시 토큰입니다 ${error.message}`,
+      );
     }
+  }
+
+  async logout(
+    actant: AuthActant,
+    res: Response,
+  ): Promise<{ success: boolean }> {
+    const user = actant.user;
+    await this.userService.removeRefreshToken(user.id);
+
+    res.clearCookie('refresh_token');
+
+    return { success: true };
   }
 
   private createAccessToken(payload: JwtPayloadDto): string {

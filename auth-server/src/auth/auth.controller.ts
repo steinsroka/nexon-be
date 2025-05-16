@@ -1,5 +1,6 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCookieAuth,
   ApiOperation,
   ApiResponse,
@@ -7,9 +8,11 @@ import {
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { Cookies } from './decprators/cookie.decorator';
+import { Actant, AuthActant } from './decorators/actant.decorator';
+import { Cookies } from './decorators/cookie.decorator';
 import { LoginRequestDto, LoginResponseDto } from './dtos/login.dto';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Serializer } from './interceptors/serializer';
 
 @ApiTags('auth')
@@ -56,11 +59,6 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: '토큰 갱신 성공',
-    schema: {
-      properties: {
-        accessToken: { type: 'string' },
-      },
-    },
   })
   @ApiResponse({ status: 401, description: '유효하지 않은 리프레시 토큰' })
   async refresh(
@@ -68,5 +66,20 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
     return this.authService.refresh(refreshToken, res);
+  }
+
+  @Post('logout')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '로그아웃' })
+  @ApiResponse({
+    status: 200,
+    description: '로그아웃 성공',
+  })
+  async logout(
+    @Actant() actant: AuthActant,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ success: boolean }> {
+    return this.authService.logout(actant, res);
   }
 }
