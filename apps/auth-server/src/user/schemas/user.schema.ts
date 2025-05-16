@@ -1,12 +1,6 @@
+import { UserRoleType } from '@lib/enums';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-
-export enum UserRoleType {
-  USER = 'USER',
-  OPERATOR = 'OPERATOR',
-  AUDITOR = 'AUDITOR',
-  ADMIN = 'ADMIN',
-}
 
 export type UserDocument = User & Document;
 

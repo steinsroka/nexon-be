@@ -1,6 +1,6 @@
+import { UserDto } from '@lib/dtos/user/user.dto';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserDto } from '../../user/dtos/user.dto';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -14,6 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     info: any,
     context: ExecutionContext,
   ): TUser {
+    console.log('[JwtAuthGuard.handleRequest] user:', user);
     if (context) {
       const request = context.switchToHttp().getRequest();
       request.user = user;

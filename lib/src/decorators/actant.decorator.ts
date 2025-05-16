@@ -1,10 +1,5 @@
+import { ActantType, AuthActant, UnknownActant } from '@lib/types/actant.type';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UserDto } from '../../user/dtos/user.dto';
-
-export type AuthActant = { user: UserDto; ipAddr: string; userAgent: string };
-export type UnknownActant = { ipAddr: string; userAgent: string };
-
-export type ActantType = 'auth' | 'unknown';
 
 export const Actant = createParamDecorator(
   (

@@ -8,14 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
-
-import { RegisterRequestDto } from '../auth/dtos/register.dto';
-import { CreateAdminRequestDto } from './dtos/create-admin.dto';
-import { CreateUserRequestDto } from './dtos/create-user.dto';
-import { UpdateRoleRequestDto } from './dtos/update-role.dto';
-import { UserDto } from './dtos/user.dto';
-import { User, UserDocument, UserRoleType } from './schemas/user.schema';
-import { AuthActant } from '../auth/decorators/actant.decorator';
+import { User, UserDocument } from './schemas/user.schema';
+import { AuthActant } from '@lib/types/actant.type';
+import { UserRoleType } from '@lib/enums';
+import { CreateAdminRequestDto } from '@lib/dtos/user/create-admin.dto';
+import { CreateUserRequestDto } from '@lib/dtos/user/create-user.dto';
+import { UpdateRoleRequestDto } from '@lib/dtos/user/update-role.dto';
+import { UserDto } from '@lib/dtos/user/user.dto';
 
 @Injectable()
 export class UserService {
@@ -136,8 +135,13 @@ export class UserService {
   /**
    * auth 관련 메서드
    */
-  async createUser(registerDto: RegisterRequestDto): Promise<User> {
-    const { email, password, checkPassword, name } = registerDto;
+  async createUser(req: {
+    email: string;
+    password: string;
+    checkPassword: string;
+    name: string;
+  }): Promise<User> {
+    const { email, password, checkPassword, name } = req;
 
     if (password !== checkPassword) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');

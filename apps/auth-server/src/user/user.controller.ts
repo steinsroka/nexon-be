@@ -12,32 +12,37 @@ import {
   ApiOperation,
   ApiParam,
   ApiResponse,
-  ApiTags,
 } from '@nestjs/swagger';
+
+import { UserService } from './user.service';
+import { UserRoleType } from '@lib/enums';
+import { AuthActant } from '@lib/types/actant.type';
+import { Actant, Roles } from '@lib/decorators';
 import {
   CreateAdminRequestDto,
   CreateAdminResponseDto,
-} from './dtos/create-admin.dto';
+} from '@lib/dtos/user/create-admin.dto';
 import {
   CreateUserRequestDto,
   CreateUserResponseDto,
-} from './dtos/create-user.dto';
+} from '@lib/dtos/user/create-user.dto';
 import {
   UpdateRoleRequestDto,
   UpdateRoleResponseDto,
-} from './dtos/update-role.dto';
-import { UserDto } from './dtos/user.dto';
-import { UserRoleType } from './schemas/user.schema';
-import { UserService } from './user.service';
-import { Actant, AuthActant } from '../auth/decorators/actant.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from './decorators/roles.decorator';
-import { RolesGuard } from './guards/roles.guard';
+} from '@lib/dtos/user/update-role.dto';
+import { UserDto } from '@lib/dtos/user/user.dto';
+import { JwtAuthGuard } from '@lib/guards';
+import { RolesGuard } from '@lib/guards/roles.guard';
+import { MessagePattern } from '@nestjs/microservices';
 
-@ApiTags('users')
-@Controller('users')
+@Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @MessagePattern('user_find_one_by_id')
+  async findOneById(id: string): Promise<UserDto> {
+    return this.userService.findOneById(id);
+  }
 
   @Post('admin')
   @ApiOperation({ summary: '관리자 계정 생성 (초기 설정용)' })
