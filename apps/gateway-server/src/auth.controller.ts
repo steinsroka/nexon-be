@@ -29,12 +29,9 @@ export class AuthController {
     @Body() registerRequestDto: RegisterRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    console.log('here1');
     const registerResponseDto: RegisterResponseDto = await firstValueFrom(
       this.userServiceClient.send('auth_register', registerRequestDto),
     );
-
-    console.log('registerResponseDto', registerResponseDto);
 
     const isSecureCookie =
       this.configService.get<string>('NODE_ENV') === 'production';
