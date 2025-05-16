@@ -72,7 +72,8 @@ npm run prune
 ## 브랜치 전략
 
 feature - master - (develop - production)
-PR을 통해 기여합니다.
+
+feature 브랜치를 통해 PR을 생성하여 기여합니다.
 
 ## 주석 전략
 

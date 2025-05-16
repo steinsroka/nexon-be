@@ -83,4 +83,14 @@ export class UserService {
       refreshToken: hashedRefreshToken,
     });
   }
+
+  async removeRefreshToken(userId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException('유효하지 않은 ID 형식입니다');
+    }
+
+    await this.userModel.findByIdAndUpdate(userId, {
+      refreshToken: null,
+    });
+  }
 }
