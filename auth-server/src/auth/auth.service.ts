@@ -26,7 +26,7 @@ export class AuthService {
     },
     res: Response,
   ): Promise<{ user: UserDto; accessToken: string }> {
-    const user = await this.userService.create(req);
+    const user = await this.userService.createUser(req);
 
     const payload: JwtPayloadDto = {
       iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),

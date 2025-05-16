@@ -18,7 +18,7 @@ import { AuthActant } from 'src/auth/decorators/actant.decorator';
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(registerDto: RegisterRequestDto): Promise<User> {
+  async createUser(registerDto: RegisterRequestDto): Promise<User> {
     const { email, password, checkPassword, name } = registerDto;
 
     if (password !== checkPassword) {
@@ -99,7 +99,6 @@ export class UserService {
     });
   }
 
-  // 관리자가 유저 등록
   async createUserByAdmin(
     actant: AuthActant,
     createUserDto: CreateUserDto,
@@ -116,10 +115,8 @@ export class UserService {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
 
-    // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 새 유저 생성
     const newUser = new this.userModel({
       name,
       email,
@@ -131,7 +128,7 @@ export class UserService {
     return plainToClass(UserDto, savedUser, { excludeExtraneousValues: true });
   }
 
-  // 관리자 생성 (초기 설정용)
+  // NOTE: 관리자 생성 (초기 설정용)
   async createAdmin(createUserDto: CreateUserDto): Promise<UserDto> {
     const { email, password, name } = createUserDto;
 

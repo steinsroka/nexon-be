@@ -19,7 +19,7 @@ export class RolesGuard implements CanActivate {
     );
 
     if (!requiredRoles) {
-      return true; // 역할이 지정되지 않은 경우 모든 사용자 접근 허용
+      return true;
     }
 
     const { user } = context.switchToHttp().getRequest();
