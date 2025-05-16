@@ -18,6 +18,7 @@ import { User, UserDocument, UserRoleType } from './schemas/user.schema';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  private readonly SALT_ROUNDS = 10;
 
   async createAdmin(createUserDto: CreateUserDto): Promise<UserDto> {
     const { email, password, name } = createUserDto;
@@ -27,7 +28,7 @@ export class UserService {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     const newUser = new this.userModel({
       name,
@@ -58,7 +59,7 @@ export class UserService {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     const newUser = new this.userModel({
       name,
@@ -73,6 +74,7 @@ export class UserService {
     });
   }
 
+  // TODO: Pagination 추가
   async findAll(): Promise<UserDto[]> {
     const users = await this.userModel.find().exec();
     return users.map((user) =>
@@ -149,7 +151,7 @@ export class UserService {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     const newUser = new this.userModel({
       name,
@@ -183,7 +185,10 @@ export class UserService {
       throw new BadRequestException('유효하지 않은 ID 형식입니다');
     }
 
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const hashedRefreshToken = await bcrypt.hash(
+      refreshToken,
+      this.SALT_ROUNDS,
+    );
     await this.userModel.findByIdAndUpdate(userId, {
       refreshToken: hashedRefreshToken,
     });
