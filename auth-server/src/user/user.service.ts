@@ -22,9 +22,9 @@ export class UserService {
   private readonly SALT_ROUNDS = 10;
 
   async createAdmin(
-    CreateUserRequestDto: CreateUserRequestDto,
+    createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<UserDto> {
-    const { email, password, name } = CreateUserRequestDto;
+    const { email, password, name } = createAdminRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -48,9 +48,9 @@ export class UserService {
 
   async createUserByAdmin(
     actant: AuthActant,
-    createUserRequestDto: CreateAdminRequestDto,
+    createUserRequestDto: CreateUserRequestDto,
   ): Promise<UserDto> {
-    const { email, password, name } = createUserRequestDto;
+    const { email, password, name, role } = createUserRequestDto;
     const { user } = actant;
 
     if (UserRoleType.ADMIN !== user.role) {
@@ -68,7 +68,7 @@ export class UserService {
       name,
       email,
       password: hashedPassword,
-      role: UserRoleType.ADMIN,
+      role,
     });
 
     const savedUser = await newUser.save();
@@ -83,7 +83,7 @@ export class UserService {
     );
   }
 
-  async findOneById(id: string | Types.ObjectId): Promise<User> {
+  async findOneById(id: string | Types.ObjectId): Promise<UserDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw new BadRequestException('유효하지 않은 ID 형식입니다');
     }
@@ -93,7 +93,7 @@ export class UserService {
       throw new NotFoundException('사용자를 찾을 수 없습니다');
     }
 
-    return user;
+    return plainToInstance(UserDto, user);
   }
 
   async updateUserRole(

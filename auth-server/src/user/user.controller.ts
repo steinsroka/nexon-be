@@ -14,7 +14,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { plainToInstance } from 'class-transformer';
 import { Actant, AuthActant } from 'src/auth/decorators/actant.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Serializer } from 'src/auth/interceptors/serializer';
@@ -121,8 +120,7 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
-    const user = await this.userService.findOneById(id);
-    return plainToInstance(UserDto, user, { excludeExtraneousValues: true });
+    return await this.userService.findOneById(id);
   }
 
   @Patch(':id/role')

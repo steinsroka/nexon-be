@@ -93,7 +93,7 @@ export class AuthService {
 
       const newPayload: JwtPayloadDto = {
         iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
-        sub: user._id,
+        sub: user.id,
         email: user.email,
         iat: Math.floor(Date.now() / 1000),
       };
@@ -102,7 +102,7 @@ export class AuthService {
       const newRefreshToken = this.createRefreshToken(newPayload);
 
       await this.userService.updateRefreshToken(
-        user._id.toString(),
+        user.id.toString(),
         newRefreshToken,
       );
 
