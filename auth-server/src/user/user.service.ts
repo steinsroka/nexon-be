@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,12 +9,16 @@ import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument, UserRoleType } from './schemas/user.schema';
 import { RegisterRequestDto } from '../auth/dtos/register.dto';
+import { plainToInstance, plainToInstance } from 'class-transformer';
+import { UserDto } from './dtos/user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { AuthActant } from 'src/auth/decorators/actant.decorator';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(registerDto: RegisterRequestDto): Promise<User> {
+  async createUser(registerDto: RegisterRequestDto): Promise<User> {
     const { email, password, checkPassword, name } = registerDto;
 
     if (password !== checkPassword) {
@@ -91,6 +96,64 @@ export class UserService {
 
     await this.userModel.findByIdAndUpdate(userId, {
       refreshToken: null,
+    });
+  }
+
+  async createUserByAdmin(
+    actant: AuthActant,
+    createUserDto: CreateUserDto,
+  ): Promise<UserDto> {
+    const { email, password, name, role } = createUserDto;
+    const { user } = actant;
+
+    if (UserRoleType.ADMIN !== user.role) {
+      throw new ForbiddenException('사용자를 등록할 권한이 없습니다');
+    }
+
+    const existingUser = await this.userModel.findOne({ email });
+    if (existingUser) {
+      throw new BadRequestException('이미 등록된 이메일입니다');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new this.userModel({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
+
+    const savedUser = await newUser.save();
+    return plainToInstance(UserDto, savedUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  // NOTE: 관리자 생성 (초기 설정용)
+  async createAdmin(createUserDto: CreateUserDto): Promise<UserDto> {
+    const { email, password, name } = createUserDto;
+
+    const existingUser = await this.userModel.findOne({
+      $or: [{ email }],
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('이미 등록된 이메일입니다');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new this.userModel({
+      name,
+      email,
+      password: hashedPassword,
+      role: UserRoleType.ADMIN,
+    });
+
+    const savedUser = await newUser.save();
+    return plainToInstance(UserDto, savedUser, {
+      excludeExtraneousValues: true,
     });
   }
 }
