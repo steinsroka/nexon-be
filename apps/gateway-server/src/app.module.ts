@@ -22,8 +22,7 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
         useFactory: () => ({
           transport: Transport.TCP,
           options: {
-            // url: 'tcp://auth-server:3001',
-            host: '127.0.0.1',
+            host: '0.0.0.0',
             port: 3001,
             // host: configService.get('AUTH_SERVICE_URL'),
             // port: configService.get('AUTH_PORT'),
@@ -31,17 +30,19 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
         }),
         inject: [ConfigService],
       },
-      // {
-      //   name: EVENT_SERVICE,
-      //   useFactory: (configService: ConfigService) => ({
-      //     transport: Transport.TCP,
-      //     options: {
-      //       host: configService.get('EVENT_HOST'),
-      //       port: configService.get('EVENT_PORT'),
-      //     },
-      //   }),
-      //   inject: [ConfigService],
-      // },
+      {
+        name: EVENT_SERVICE,
+        useFactory: () => ({
+          transport: Transport.TCP,
+          options: {
+            host: '127.0.0.1',
+            port: 3002,
+            // host: configService.get('EVENT_HOST'),
+            // port: configService.get('EVENT_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
     PassportModule,
     JwtModule.registerAsync({
@@ -49,7 +50,7 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '15m' },
       }),
     }),
   ],

@@ -1,10 +1,10 @@
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
   ApiOperation,
   ApiResponse,
-  ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -13,23 +13,12 @@ import { Cookies } from './decorators/cookie.decorator';
 import { LoginRequestDto, LoginResponseDto } from './dtos/login.dto';
 import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { MessagePattern } from '@nestjs/microservices';
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @Post('register')
-  // @ApiOperation({ summary: '사용자 회원가입' })
-  // @ApiResponse({
-  //   status: 201,
-  //   description: '회원가입 성공',
-  //   type: RegisterResponseDto,
-  // })
-  // @ApiResponse({ status: 400, description: '잘못된 요청 (이메일 중복 등)' })
-  // @Serializer(RegisterResponseDto)
-  @MessagePattern('user_search_by_credentials')
+  @MessagePattern('auth_register')
   async register(
     registerRequestDto: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
