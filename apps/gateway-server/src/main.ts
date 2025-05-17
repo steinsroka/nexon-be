@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceExceptionFilter } from '@lib/filters/microservice-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -20,7 +19,6 @@ async function bootstrap() {
     origin: configService.get('CORS_ORIGIN', 'http://localhost:3000'), // TODO: set cors origin env
     credentials: true,
   });
-  app.useGlobalFilters(new MicroserviceExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({

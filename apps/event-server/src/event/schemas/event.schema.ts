@@ -1,5 +1,6 @@
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type EventDocument = Event & Document;
 
@@ -17,22 +18,10 @@ export class Condition {
 
 export const ConditionSchema = SchemaFactory.createForClass(Condition);
 
-@Schema({ _id: false })
-export class Reward {
-  @Prop({ required: true })
-  type: string;
-
-  @Prop({ required: true })
-  value: number;
-
-  @Prop()
-  description: string;
-}
-
-export const RewardSchema = SchemaFactory.createForClass(Reward);
-
 @Schema({ timestamps: true })
 export class Event {
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   name: string;
 
@@ -46,13 +35,10 @@ export class Event {
   endDate: Date;
 
   @Prop({ default: 'ACTIVE', enum: ['ACTIVE', 'INACTIVE'] })
-  status: string;
+  status: EventStatusType;
 
   @Prop({ type: [ConditionSchema], default: [] })
   conditions: Condition[];
-
-  @Prop({ type: [RewardSchema], default: [] })
-  rewards: Reward[];
 
   @Prop()
   createdBy: string;
@@ -61,7 +47,7 @@ export class Event {
   createdAt: Date;
 
   @Prop({ default: null })
-  updatedAt: Date;
+  updatedAt: Date; // TODO: 이거 붙어서 나오는 경우가 있는데 왜그런지 확인필요
 
   @Prop({ default: null })
   deletedAt: Date;

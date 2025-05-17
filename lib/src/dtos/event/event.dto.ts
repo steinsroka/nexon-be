@@ -1,10 +1,8 @@
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Condition,
-  Reward,
-} from 'apps/event-server/src/event/schemas/event.schemas';
+
 import { Expose, Transform } from 'class-transformer';
+import { RewardDto } from '../reward/reward.dto';
 
 export class EventDto {
   @ApiProperty({
@@ -71,7 +69,7 @@ export class EventDto {
     description: '이벤트 조건',
   })
   @Expose()
-  conditions: Condition[];
+  conditions: ConditionDto[];
 
   @ApiProperty({
     example: [
@@ -84,7 +82,7 @@ export class EventDto {
     description: '이벤트 보상',
   })
   @Expose()
-  rewards: Reward[];
+  rewards: RewardDto[];
 
   @ApiProperty({
     example: '64a78e6e5d32a83d8a0d3f4c',
@@ -132,29 +130,6 @@ export class ConditionDto {
   @ApiProperty({
     example: '조건 설명',
     description: '조건 설명',
-  })
-  @Expose()
-  description: string;
-}
-
-export class RewardDto {
-  @ApiProperty({
-    example: 'POINT',
-    description: '보상 타입',
-  })
-  @Expose()
-  type: string;
-
-  @ApiProperty({
-    example: 100,
-    description: '보상 값',
-  })
-  @Expose()
-  value: number;
-
-  @ApiProperty({
-    example: '보상 설명',
-    description: '보상 설명',
   })
   @Expose()
   description: string;

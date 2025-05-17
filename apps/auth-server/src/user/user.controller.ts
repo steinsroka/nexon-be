@@ -1,21 +1,9 @@
-import { Body, Controller, Param } from '@nestjs/common';
-
-import { Actant } from '@lib/decorators';
-import {
-  CreateAdminRequestDto,
-  CreateAdminResponseDto,
-} from '@lib/dtos/user/create-admin.dto';
-import {
-  CreateUserRequestDto,
-  CreateUserResponseDto,
-} from '@lib/dtos/user/create-user.dto';
-import {
-  UpdateRoleRequestDto,
-  UpdateRoleResponseDto,
-} from '@lib/dtos/user/update-role.dto';
+import { Controller } from '@nestjs/common';
+import { CreateAdminResponseDto } from '@lib/dtos/user/create-admin.dto';
+import { CreateUserResponseDto } from '@lib/dtos/user/create-user.dto';
+import { UpdateRoleResponseDto } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { AuthActant } from '@lib/types/actant.type';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 
 @Controller()
@@ -23,18 +11,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @MessagePattern('user_create_admin')
-  async createAdmin(
-    @Body() createAdminRequestDto: CreateAdminRequestDto,
-  ): Promise<CreateAdminResponseDto> {
-    return this.userService.createAdmin(createAdminRequestDto);
+  async createAdmin(@Payload() data: any): Promise<CreateAdminResponseDto> {
+    return this.userService.createAdmin(data);
   }
 
   @MessagePattern('user_create_user_by_admin')
   async createUserByAdmin(
-    @Actant() actant: AuthActant,
-    @Body() createUserRequestDto: CreateUserRequestDto,
+    @Payload() data: any,
   ): Promise<CreateUserResponseDto> {
-    return this.userService.createUserByAdmin(actant, createUserRequestDto);
+    return this.userService.createUserByAdmin(data);
   }
 
   @MessagePattern('user_find_all')
@@ -43,16 +28,12 @@ export class UserController {
   }
 
   @MessagePattern('user_find_one_by_id')
-  async findOneById(id: string): Promise<UserDto> {
-    return this.userService.findOneById(id);
+  async findOneById(@Payload() data: any): Promise<UserDto> {
+    return this.userService.findOneById(data);
   }
 
   @MessagePattern('user_update_user_role')
-  async updateUserRole(
-    @Param('id') id: string,
-    @Body() updateRoleRequestDto: UpdateRoleRequestDto,
-    @Actant() actant: AuthActant,
-  ): Promise<UpdateRoleResponseDto> {
-    return this.userService.updateUserRole(actant, id, updateRoleRequestDto);
+  async updateUserRole(@Payload() data: any): Promise<UpdateRoleResponseDto> {
+    return this.userService.updateUserRole(data);
   }
 }

@@ -5,7 +5,7 @@ import {
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
-} from '@lib/dtos/event/paginate-event.dto';
+} from '@lib/dtos/event/paginate-events.dto';
 import {
   UpdateEventRequestDto,
   UpdateEventResponseDto,

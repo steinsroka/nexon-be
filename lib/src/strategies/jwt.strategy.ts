@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
+    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       const user: UserDto = await firstValueFrom(
-        this.userServiceClient.send('user_find_one_by_id', payload.sub),
+        this.authServiceClient.send('user_find_one_by_id', payload.sub),
       );
 
       if (!user) {

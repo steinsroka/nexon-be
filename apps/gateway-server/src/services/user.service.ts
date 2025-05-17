@@ -19,9 +19,9 @@ import { BaseService } from './base.service';
 @Injectable()
 export class UserService extends BaseService {
   constructor(
-    @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
+    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
   ) {
-    super(userServiceClient);
+    super(authServiceClient);
   }
 
   async createAdmin(

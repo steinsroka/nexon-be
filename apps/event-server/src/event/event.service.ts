@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EventDocument } from './schemas/event.schemas';
 import {
   CreateEventRequestDto,
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
 import { AuthActant } from '@lib/types/actant.type';
 import { plainToClass, plainToInstance } from 'class-transformer';
-import { EventDto } from '@lib/dtos/event/event.dto';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   UpdateEventRequestDto,
@@ -18,7 +16,10 @@ import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dt
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
-} from '@lib/dtos/event/paginate-event.dto';
+} from '@lib/dtos/event/paginate-events.dto';
+import { EventDto } from '@lib/dtos/event/event.dto';
+import { EventDocument } from './schemas/event.schema';
+import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 
 @Injectable()
 export class EventService {
@@ -60,8 +61,9 @@ export class EventService {
       .limit(rpp)
       .exec();
     const total = await this.eventModel.countDocuments(filter).exec();
+    const items = events.map((event) => plainToInstance(EventDto, event));
 
-    return { events, total, page, rpp };
+    return PaginationResponseDto.create(items, total, page, rpp);
   }
 
   async createEvent(req: {

@@ -27,7 +27,7 @@ import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dt
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
-} from '@lib/dtos/event/paginate-event.dto';
+} from '@lib/dtos/event/paginate-events.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -49,14 +49,16 @@ export class EventController {
     description: '이벤트 목록 조회 성공',
     type: PaginateEventsResponseDto,
   })
-  @Serializer(PaginateEventsResponseDto)
-  paginateEvents(
+  // @Serializer(PaginateEventsResponseDto) TODO: Generic으로 전달된 타입에 대한 Serializer 적용이 안되고 있어 주석처리
+  async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
     return this.eventService.paginateEvents({ paginateEventsRequestDto });
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: '이벤트 생성' })
   @ApiResponse({
@@ -64,10 +66,8 @@ export class EventController {
     description: '이벤트 생성 성공',
     type: CreateEventResponseDto,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(CreateEventResponseDto)
-  createEvent(
+  async createEvent(
     @Actant() actant: AuthActant,
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
@@ -82,11 +82,15 @@ export class EventController {
     type: GetEventByIdResponseDto,
   })
   @Serializer(GetEventByIdResponseDto)
-  getEventById(@Param('id') id: string): Promise<GetEventByIdResponseDto> {
+  async getEventById(
+    @Param('id') id: string,
+  ): Promise<GetEventByIdResponseDto> {
     return this.eventService.getEventById({ id });
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: '이벤트 수정' })
   @ApiResponse({
@@ -94,10 +98,8 @@ export class EventController {
     description: '이벤트 수정 성공',
     type: UpdateEventResponseDto,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(UpdateEventResponseDto)
-  updateEvent(
+  async updateEvent(
     @Actant() actant: AuthActant,
     @Param('id') id: string,
     @Body() updateEventRequestDto: UpdateEventRequestDto,
@@ -116,7 +118,7 @@ export class EventController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(SoftDeleteEventResponseDto)
-  softDeleteEvent(
+  async softDeleteEvent(
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {
