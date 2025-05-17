@@ -1,5 +1,5 @@
 import { CreateRewardResponseDto } from '@lib/dtos/reward/create-reward.dto';
-import { UpdateRewardResponseDto } from '@lib/dtos/reward/update-reward-request.dto';
+import { UpdateRewardResponseDto } from '@lib/dtos/reward/update-reward.dto';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RewardService } from './reward.service';

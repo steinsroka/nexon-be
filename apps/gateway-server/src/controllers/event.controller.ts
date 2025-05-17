@@ -49,7 +49,7 @@ export class EventController {
     description: '이벤트 목록 조회 성공',
     type: PaginateEventsResponseDto,
   })
-  @Serializer(PaginateEventsResponseDto)
+  // @Serializer(PaginateEventsResponseDto) TODO: Generic으로 전달된 타입에 대한 Serializer 적용이 안되고 있어 주석처리
   async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
@@ -57,6 +57,8 @@ export class EventController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: '이벤트 생성' })
   @ApiResponse({
@@ -64,8 +66,6 @@ export class EventController {
     description: '이벤트 생성 성공',
     type: CreateEventResponseDto,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(CreateEventResponseDto)
   async createEvent(
     @Actant() actant: AuthActant,
@@ -89,6 +89,8 @@ export class EventController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: '이벤트 수정' })
   @ApiResponse({
@@ -96,8 +98,6 @@ export class EventController {
     description: '이벤트 수정 성공',
     type: UpdateEventResponseDto,
   })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(UpdateEventResponseDto)
   async updateEvent(
     @Actant() actant: AuthActant,

@@ -6,7 +6,7 @@ import {
 import {
   UpdateRewardRequestDto,
   UpdateRewardResponseDto,
-} from '@lib/dtos/reward/update-reward-request.dto';
+} from '@lib/dtos/reward/update-reward.dto';
 import { UserRoleType } from '@lib/enums';
 import { JwtAuthGuard } from '@lib/guards';
 import { RolesGuard } from '@lib/guards/roles.guard';
@@ -39,10 +39,12 @@ export class RewardController {
   @Serializer(CreateRewardResponseDto)
   async createReward(
     @Actant() actant: AuthActant,
+    @Param('event_id') eventId: string,
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
     return this.rewardService.createReward({
       actant,
+      eventId,
       createRewardRequestDto,
     });
   }
@@ -57,11 +59,13 @@ export class RewardController {
   @Serializer(UpdateRewardResponseDto)
   async updateReward(
     @Actant() actant: AuthActant,
+    @Param('event_id') eventId: string,
     @Param('id') id: string,
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
   ): Promise<UpdateRewardResponseDto> {
     return this.rewardService.updateReward({
       actant,
+      eventId,
       id,
       updateRewardRequestDto,
     });

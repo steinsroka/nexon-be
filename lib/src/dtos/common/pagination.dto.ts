@@ -4,7 +4,7 @@ import {
   PAGINATION_MIN_RPP,
 } from '@lib/constants/common.constant';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsNumber, Max, Min } from 'class-validator';
 
 export class PaginationRequestDto {
@@ -27,15 +27,20 @@ export class PaginationRequestDto {
 
 export class PaginationResponseDto<T> {
   @ApiProperty({ description: '데이터 목록' })
+  @Expose()
+  @Type((opts) => opts?.newObject?.contructor)
   items: T[];
 
   @ApiProperty({ description: '총 아이템 수' })
+  @Expose()
   total: number;
 
   @ApiProperty({ description: '페이지' })
+  @Expose()
   page: number;
 
   @ApiProperty({ description: '페이지당 아이템 수' })
+  @Expose()
   rpp: number;
 
   constructor(items: T[], total: number, page: number, rpp: number) {

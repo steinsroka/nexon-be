@@ -2,25 +2,18 @@ import {
   CreateRewardRequestDto,
   CreateRewardResponseDto,
 } from '@lib/dtos/reward/create-reward.dto';
-import { GetRewardByIdResponseDto } from '@lib/dtos/reward/get-reward-by-id.dto';
-import {
-  PaginateRewardsRequestDto,
-  PaginateRewardsResponseDto,
-} from '@lib/dtos/reward/paginate-reward.dto';
 import {
   UpdateRewardRequestDto,
   UpdateRewardResponseDto,
-} from '@lib/dtos/reward/update-reward-request.dto';
+} from '@lib/dtos/reward/update-reward.dto';
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { AuthActant } from '@lib/types/actant.type';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
-import { RewardDto } from '@lib/dtos/reward/reward.dto';
 import { plainToInstance } from 'class-transformer';
-import { Reward, RewardDocument } from './schemas/reward.schema';
+import { Model } from 'mongoose';
 import { EventDocument } from '../event/schemas/event.schema';
-import { EventStatusType } from '@lib/enums/event-status-type.enum';
+import { Reward, RewardDocument } from './schemas/reward.schema';
 
 @Injectable()
 export class RewardService {
@@ -38,7 +31,7 @@ export class RewardService {
   }): Promise<CreateRewardResponseDto> {
     const { actant, eventId, createRewardRequestDto } = req;
 
-    const event = await this.eventModel.findOne({ id: eventId }).exec();
+    const event = await this.eventModel.findById(eventId).exec();
 
     if (!event) {
       throw new Error(`Event Not Found id: ${eventId}`);
@@ -64,7 +57,7 @@ export class RewardService {
   }): Promise<UpdateRewardResponseDto> {
     const { actant, eventId, id, updateRewardRequestDto } = req;
 
-    const event = await this.eventModel.findOne({ id: eventId }).exec();
+    const event = await this.eventModel.findById(eventId).exec();
 
     if (!event) {
       throw new Error(`Event Not Found id: ${eventId}`);

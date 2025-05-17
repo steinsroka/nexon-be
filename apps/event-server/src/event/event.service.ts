@@ -19,6 +19,7 @@ import {
 } from '@lib/dtos/event/paginate-events.dto';
 import { EventDto } from '@lib/dtos/event/event.dto';
 import { EventDocument } from './schemas/event.schema';
+import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 
 @Injectable()
 export class EventService {
@@ -62,7 +63,7 @@ export class EventService {
     const total = await this.eventModel.countDocuments(filter).exec();
     const items = events.map((event) => plainToInstance(EventDto, event));
 
-    return { items, total, page, rpp };
+    return PaginationResponseDto.create(items, total, page, rpp);
   }
 
   async createEvent(req: {

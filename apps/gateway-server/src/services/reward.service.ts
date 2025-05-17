@@ -5,7 +5,7 @@ import {
 import {
   UpdateRewardRequestDto,
   UpdateRewardResponseDto,
-} from '@lib/dtos/reward/update-reward-request.dto';
+} from '@lib/dtos/reward/update-reward.dto';
 import { AuthActant } from '@lib/types/actant.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -22,6 +22,7 @@ export class RewardService extends BaseService {
 
   async createReward(req: {
     actant: AuthActant;
+    eventId: string;
     createRewardRequestDto: CreateRewardRequestDto;
   }): Promise<CreateRewardResponseDto> {
     const resp = await this.sendRequest<CreateRewardResponseDto>(
@@ -34,6 +35,7 @@ export class RewardService extends BaseService {
 
   async updateReward(req: {
     actant: AuthActant;
+    eventId: string;
     id: string;
     updateRewardRequestDto: UpdateRewardRequestDto;
   }): Promise<UpdateRewardResponseDto> {

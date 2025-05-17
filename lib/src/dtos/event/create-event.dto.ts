@@ -1,8 +1,9 @@
-import { ConditionDto, EventDto } from './event.dto';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { RewardDto } from '../reward/reward.dto';
+import { ConditionDto, EventDto } from './event.dto';
 
 export class CreateEventRequestDto {
   @ApiProperty({
@@ -24,8 +25,9 @@ export class CreateEventRequestDto {
   @ApiProperty({
     example: '2025-05-01T00:00:00.000Z',
     description: '이벤트 시작 일자',
+    type: Date,
   })
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   startDate: Date;
@@ -33,8 +35,9 @@ export class CreateEventRequestDto {
   @ApiProperty({
     example: '2025-05-31T00:00:00.000Z',
     description: '이벤트 종료 일자',
+    type: Date,
   })
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
   endDate: Date;
@@ -42,12 +45,26 @@ export class CreateEventRequestDto {
   @ApiProperty({
     example: 'ACTIVE',
     description: '이벤트 상태',
-    enum: ['ACTIVE', 'INACTIVE'],
+    enum: EventStatusType,
   })
-  @IsString()
+  @IsEnum(EventStatusType)
   @IsNotEmpty()
-  status: string;
+  status: EventStatusType;
+
+  @ApiProperty({
+    example: [],
+    description: '이벤트 조건',
+    type: [ConditionDto],
+  })
+  @IsNotEmpty()
   conditions: ConditionDto[]; // TODO: import 위치 수정
+
+  @ApiProperty({
+    example: [],
+    description: '이벤트 보상',
+    type: [RewardDto],
+  })
+  @IsNotEmpty()
   rewards: RewardDto[]; // TODO: import 위치 수정
 }
 

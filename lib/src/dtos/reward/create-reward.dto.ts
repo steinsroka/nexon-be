@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RewardDto } from './reward.dto';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateRewardRequestDto {
   @ApiProperty({
@@ -10,7 +9,6 @@ export class CreateRewardRequestDto {
   })
   @IsString() // TODO: enum으로 변경
   @IsNotEmpty()
-  @Expose()
   type: string;
 
   @ApiProperty({
@@ -19,8 +17,16 @@ export class CreateRewardRequestDto {
   })
   @IsNotEmpty()
   @IsNumber()
-  @Expose()
-  value: number;
+  quantity: number;
+
+  @ApiProperty({
+    example: '64a78e6e5d32a83d8a0d3f4c',
+    description: '아이템 아이디',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  itemId?: string;
 
   @ApiProperty({
     example: '보상 설명',
@@ -28,7 +34,6 @@ export class CreateRewardRequestDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Expose()
   description: string;
 }
-export class CreateRewardResponseDto extends RewardDto {}
+export class CreateRewardResponseDto extends RewardDto {} // TODO: Event, Reward모두 출력가능한 객체로 리턴

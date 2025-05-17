@@ -21,10 +21,10 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
   private readonly SALT_ROUNDS = 10;
 
-  async createAdmin(
-    createAdminRequestDto: CreateAdminRequestDto,
-  ): Promise<UserDto> {
-    const { email, password, name } = createAdminRequestDto;
+  async createAdmin(req: {
+    createAdminRequestDto: CreateAdminRequestDto;
+  }): Promise<UserDto> {
+    const { email, password, name } = req.createAdminRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -46,16 +46,10 @@ export class UserService {
     });
   }
 
-  async createUserByAdmin(
-    actant: AuthActant,
-    createUserRequestDto: CreateUserRequestDto,
-  ): Promise<UserDto> {
-    const { email, password, name, role } = createUserRequestDto;
-    const { user } = actant;
-
-    if (UserRoleType.ADMIN !== user.role) {
-      throw new ForbiddenException('사용자를 등록할 권한이 없습니다');
-    }
+  async createUserByAdmin(req: {
+    createUserRequestDto: CreateUserRequestDto;
+  }): Promise<UserDto> {
+    const { email, password, name, role } = req.createUserRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
@@ -96,13 +90,14 @@ export class UserService {
     return plainToInstance(UserDto, user);
   }
 
-  async updateUserRole(
-    actant: AuthActant,
-    userId: string,
-    updateRoleRequestDto: UpdateRoleRequestDto,
-  ): Promise<UserDto> {
-    const { user: requestingUser } = actant;
-    const { role: newRole } = updateRoleRequestDto;
+  async updateUserRole(req: {
+    actant: AuthActant;
+    userId: string;
+    updateRoleRequestDto: UpdateRoleRequestDto;
+  }): Promise<UserDto> {
+    const { user: requestingUser } = req.actant;
+    const { role: newRole } = req.updateRoleRequestDto;
+    const { userId } = req;
 
     if (requestingUser.role !== UserRoleType.ADMIN) {
       throw new ForbiddenException('사용자 역할을 변경할 권한이 없습니다');

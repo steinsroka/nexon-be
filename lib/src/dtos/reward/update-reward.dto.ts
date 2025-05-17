@@ -20,7 +20,16 @@ export class UpdateRewardRequestDto {
   @IsOptional()
   @IsNumber()
   @Expose()
-  value?: number;
+  quantity?: number;
+
+  @ApiProperty({
+    example: '64a78e6e5d32a83d8a0d3f4c',
+    description: '아이템 아이디',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  itemId?: string;
 
   @ApiProperty({
     example: '보상 설명',
