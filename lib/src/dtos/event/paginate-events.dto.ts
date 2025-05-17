@@ -2,9 +2,13 @@ import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
-import { PaginationParam } from '../common/pagination.dto';
+import {
+  PaginationRequestDto,
+  PaginationResponseDto,
+} from '../common/pagination.dto';
+import { EventDto } from './event.dto';
 
-export class PaginateEventsRequestDto extends PaginationParam {
+export class PaginateEventsRequestDto extends PaginationRequestDto {
   @ApiProperty({
     example: 'ACTIVE',
     description: '이벤트 상태',
@@ -41,4 +45,4 @@ export class PaginateEventsRequestDto extends PaginationParam {
   name?: string;
 }
 
-export class PaginateEventsResponseDto {}
+export class PaginateEventsResponseDto extends PaginationResponseDto<EventDto> {}

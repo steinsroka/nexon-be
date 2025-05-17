@@ -10,6 +10,8 @@ import { JwtStrategy } from '@lib/strategies/jwt.strategy';
 import { EventService } from './services/event.service';
 import { UserController } from './controllers/user.controller';
 import { EventController } from './controllers/event.controller';
+import { RewardService } from './services/reward.service';
+import { RewardController } from './controllers/reward.controller';
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';
 export const USER_SERVICE = 'USER_SERVICE';
@@ -76,7 +78,18 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
       }),
     }),
   ],
-  controllers: [AuthController, UserController, EventController],
-  providers: [AuthService, UserService, EventService, JwtStrategy],
+  controllers: [
+    AuthController,
+    UserController,
+    EventController,
+    RewardController,
+  ],
+  providers: [
+    AuthService,
+    UserService,
+    EventService,
+    RewardService,
+    JwtStrategy,
+  ],
 })
 export class AppModule {}

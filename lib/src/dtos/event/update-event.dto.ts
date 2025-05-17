@@ -3,7 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Condition } from 'apps/event-server/src/event/schemas/event.schemas';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { ConditionDto, EventDto, RewardDto } from './event.dto';
+import { ConditionDto, EventDto } from './event.dto';
+import { RewardDto } from '../reward/reward.dto';
 
 export class UpdateEventRequestDto {
   @ApiProperty({

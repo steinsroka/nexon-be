@@ -27,7 +27,7 @@ import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dt
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
-} from '@lib/dtos/event/paginate-event.dto';
+} from '@lib/dtos/event/paginate-events.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -50,7 +50,7 @@ export class EventController {
     type: PaginateEventsResponseDto,
   })
   @Serializer(PaginateEventsResponseDto)
-  paginateEvents(
+  async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
     return this.eventService.paginateEvents({ paginateEventsRequestDto });
@@ -67,7 +67,7 @@ export class EventController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(CreateEventResponseDto)
-  createEvent(
+  async createEvent(
     @Actant() actant: AuthActant,
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
@@ -82,7 +82,9 @@ export class EventController {
     type: GetEventByIdResponseDto,
   })
   @Serializer(GetEventByIdResponseDto)
-  getEventById(@Param('id') id: string): Promise<GetEventByIdResponseDto> {
+  async getEventById(
+    @Param('id') id: string,
+  ): Promise<GetEventByIdResponseDto> {
     return this.eventService.getEventById({ id });
   }
 
@@ -97,7 +99,7 @@ export class EventController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(UpdateEventResponseDto)
-  updateEvent(
+  async updateEvent(
     @Actant() actant: AuthActant,
     @Param('id') id: string,
     @Body() updateEventRequestDto: UpdateEventRequestDto,
@@ -116,7 +118,7 @@ export class EventController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
   @Serializer(SoftDeleteEventResponseDto)
-  softDeleteEvent(
+  async softDeleteEvent(
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {

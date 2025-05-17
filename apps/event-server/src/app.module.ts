@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { EventModule } from './event/event.module';
-import { RewardModule } from './reward/reward.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UserRewardModule } from './user-reward/user-reward.module';
+import { RewardModule } from './reward/reward.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
     }),
     EventModule,
+    UserRewardModule,
     RewardModule,
   ],
   controllers: [AppController],

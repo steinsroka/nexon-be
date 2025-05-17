@@ -8,7 +8,6 @@ import {
 } from '@lib/dtos/event/create-event.dto';
 import { AuthActant } from '@lib/types/actant.type';
 import { plainToClass, plainToInstance } from 'class-transformer';
-import { EventDto } from '@lib/dtos/event/event.dto';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   UpdateEventRequestDto,
@@ -18,7 +17,8 @@ import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dt
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
-} from '@lib/dtos/event/paginate-event.dto';
+} from '@lib/dtos/event/paginate-events.dto';
+import { EventDto } from '@lib/dtos/event/event.dto';
 
 @Injectable()
 export class EventService {
@@ -60,8 +60,9 @@ export class EventService {
       .limit(rpp)
       .exec();
     const total = await this.eventModel.countDocuments(filter).exec();
+    const items = events.map((event) => plainToInstance(EventDto, event));
 
-    return { events, total, page, rpp };
+    return { items, total, page, rpp };
   }
 
   async createEvent(req: {
