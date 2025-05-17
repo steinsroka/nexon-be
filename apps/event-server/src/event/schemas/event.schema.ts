@@ -34,7 +34,7 @@ export class Event {
   @Prop({ required: true })
   endDate: Date;
 
-  @Prop({ default: 'ACTIVE', enum: ['ACTIVE', 'INACTIVE'] })
+  @Prop({ default: EventStatusType.ACTIVE, enum: EventStatusType })
   status: EventStatusType;
 
   @Prop({ type: [ConditionSchema], default: [] })
