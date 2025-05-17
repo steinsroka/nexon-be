@@ -3,11 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthController } from './auth.controller';
-import { UserController } from './user.controller';
+import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
+import { EventService } from './services/event.service';
+import { UserController } from './controllers/user.controller';
+import { EventController } from './controllers/event.controller';
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';
 export const USER_SERVICE = 'USER_SERVICE';
@@ -74,7 +76,7 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
       }),
     }),
   ],
-  controllers: [AuthController, UserController],
-  providers: [AuthService, UserService, JwtStrategy],
+  controllers: [AuthController, UserController, EventController],
+  providers: [AuthService, UserService, EventService, JwtStrategy],
 })
 export class AppModule {}
