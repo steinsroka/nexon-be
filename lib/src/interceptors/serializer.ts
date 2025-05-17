@@ -3,9 +3,9 @@ import {
   ExecutionContext,
   NestInterceptor,
   UseInterceptors,
-} from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { Observable, map } from "rxjs";
+} from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { Observable, map } from 'rxjs';
 
 // TODO: 공통 모듈로 분리
 export interface ClassType<T = any> {
@@ -20,7 +20,7 @@ export class SerializeInterceptor<T> implements NestInterceptor {
   constructor(private readonly classType: ClassType<T>) {}
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>
+    next: CallHandler<any>,
   ): Observable<any> {
     return next.handle().pipe(
       map((data: any) => {
@@ -28,7 +28,7 @@ export class SerializeInterceptor<T> implements NestInterceptor {
           excludeExtraneousValues: true,
           enableImplicitConversion: true,
         });
-      })
+      }),
     );
   }
 }

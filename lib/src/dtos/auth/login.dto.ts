@@ -1,3 +1,13 @@
+import {
+  PASSWORD_MIN_LEN,
+  PASSWORD_MAX_LEN,
+  PASSWORD_REGEX,
+} from '@lib/constants';
+import {
+  EMAIL_REGEX_INVALID,
+  PASSWORD_LENGTH_INVALID,
+  PASSWORD_REGEX_INVALID,
+} from '@lib/msgs';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import {
@@ -7,15 +17,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import {
-  EMAIL_REGEX_INVALID,
-  PASSWORD_MIN_LEN,
-  PASSWORD_MAX_LEN,
-  PASSWORD_LENGTH_INVALID,
-  PASSWORD_REGEX,
-  PASSWORD_REGEX_INVALID,
-} from './register.dto';
-import { UserDto } from '../../user/dtos/user.dto';
+import { UserDto } from '../user/user.dto';
 
 export class LoginRequestDto {
   @ApiProperty({
@@ -48,6 +50,12 @@ export class LoginResponseDto {
   })
   @Expose()
   accessToken: string;
+
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: 'JWT refresh 토큰',
+  })
+  refreshToken: string;
 
   @ApiProperty({
     example: {

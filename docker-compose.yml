@@ -1,11 +1,11 @@
-version: "3.8"
+version: '3.8'
 
 services:
   mongodb:
     image: mongo:latest
     container_name: nexon-mongodb
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongodb_data:/data/db
     networks:
@@ -19,15 +19,15 @@ services:
       dockerfile: Dockerfile
     container_name: nexon-auth-server
     ports:
-      - "3001:3001"
+      - '3001:3001'
     depends_on:
       - mongodb
     environment:
       - NODE_ENV=production
       - MONGODB_HOST=mongodb://mongodb:27017/nexon-auth
-      - JWT_ACCESS_SECRET=access_token_secret
+      - JWT_ACCESS_SECRET=access_secret
       - JWT_ACCESS_EXPIRES_IN=15m
-      - JWT_REFRESH_SECRET=refresh_token_secret
+      - JWT_REFRESH_SECRET=refresh_secret
       - JWT_REFRESH_EXPIRES_IN=7d
       - PORT=3001
     networks:
@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     container_name: nexon-event-server
     ports:
-      - "3002:3002"
+      - '3002:3002'
     depends_on:
       - mongodb
       - auth-server
@@ -57,7 +57,7 @@ services:
       dockerfile: Dockerfile
     container_name: nexon-gateway-server
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       - auth-server
       - event-server

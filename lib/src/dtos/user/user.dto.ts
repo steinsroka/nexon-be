@@ -1,6 +1,6 @@
+import { UserRoleType } from '@lib/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
-import { UserRoleType } from '../schemas/user.schema';
 
 export class UserDto {
   @ApiProperty({

@@ -1,75 +1,44 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
 import {
-  ApiBearerAuth,
-  ApiCookieAuth,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
-import { Response } from 'express';
+  RegisterRequestDto,
+  RegisterResponseDto,
+} from '@lib/dtos/auth/register.dto';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { Actant, AuthActant } from './decorators/actant.decorator';
-import { Cookies } from './decorators/cookie.decorator';
-import { LoginRequestDto, LoginResponseDto } from './dtos/login.dto';
-import { RegisterRequestDto, RegisterResponseDto } from './dtos/register.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuthActant } from '@lib/types/actant.type';
+import {
+  RefreshRequestDto,
+  RefreshResponseDto,
+} from '@lib/dtos/auth/refresh.dto';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern('auth_register')
   async register(
-    registerRequestDto: RegisterRequestDto,
+    @Payload() registerRequestDto: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
-    console.log('register', registerRequestDto);
     return this.authService.register(registerRequestDto);
   }
 
-  @Post('login')
-  @ApiOperation({ summary: '사용자 로그인' })
-  @ApiResponse({
-    status: 200,
-    description: '로그인 성공',
-    type: LoginResponseDto,
-  })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  @ApiResponse({ status: 401, description: '인증 실패' })
-  // @Serializer(LoginResponseDto)
+  @MessagePattern('auth_login')
   async login(
-    @Body() loginRequestDto: LoginRequestDto,
-    @Res({ passthrough: true }) res: Response,
+    @Payload() loginRequestDto: LoginRequestDto,
   ): Promise<LoginResponseDto> {
-    return this.authService.login(loginRequestDto, res);
+    return this.authService.login(loginRequestDto);
   }
 
-  @Post('refresh')
-  @ApiOperation({ summary: '토큰 갱신' })
-  @ApiCookieAuth('refresh_token')
-  @ApiResponse({
-    status: 200,
-    description: '토큰 갱신 성공',
-  })
-  @ApiResponse({ status: 401, description: '유효하지 않은 리프레시 토큰' })
+  @MessagePattern('auth_refresh')
   async refresh(
-    @Cookies('refresh_token') refreshToken: string,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
-    return this.authService.refresh(refreshToken, res);
+    @Payload() refreshRequestDto: RefreshRequestDto,
+  ): Promise<RefreshResponseDto> {
+    return this.authService.refresh(refreshRequestDto);
   }
 
-  @Post('logout')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: '로그아웃' })
-  @ApiResponse({
-    status: 200,
-    description: '로그아웃 성공',
-  })
-  async logout(
-    @Actant() actant: AuthActant,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<{ success: boolean }> {
-    return this.authService.logout(actant, res);
+  @MessagePattern('auth_logout')
+  async logout(@Payload() actant: AuthActant): Promise<{ success: boolean }> {
+    return this.authService.logout(actant);
   }
 }

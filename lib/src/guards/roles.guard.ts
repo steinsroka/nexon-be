@@ -6,9 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { UserDto } from '../dtos/user.dto';
-import { UserRoleType } from '../schemas/user.schema';
-
+import { UserDto } from '@lib/dtos/user/user.dto';
+import { UserRoleType } from '@lib/enums';
 export type UserRequest = Request & { user: UserDto };
 
 @Injectable()

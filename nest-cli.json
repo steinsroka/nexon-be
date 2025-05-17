@@ -6,7 +6,7 @@
   "sourceRoot": "apps/gateway-server/src",
   "compilerOptions": {
     "webpack": false,
-    "tsConfigPath": "apps/gateway-server/tsconfig.app.json",
+    "tsConfigPath": "./tsconfig.json",
     "deleteOutDir": true
   },
   "projects": {
