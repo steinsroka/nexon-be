@@ -11,6 +11,7 @@ async function bootstrap() {
       port: 3001,
     },
   });
+
   app.useGlobalFilters(new MicroserviceExceptionFilter());
 
   await app.listen();

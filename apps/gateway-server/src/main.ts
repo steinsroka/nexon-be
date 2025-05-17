@@ -36,9 +36,11 @@ async function bootstrap() {
     .addCookieAuth('refresh_token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api/docs', app, document);
 
   const port = configService.get('PORT', 3000);
+
   await app.listen(port);
 
   logger.log(`Server is running on http://localhost:${port}/api`);

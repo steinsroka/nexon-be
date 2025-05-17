@@ -51,6 +51,8 @@ export class Event {
 
   @Prop({ default: null })
   deletedAt: Date;
+
+  //TODO: 활성 / 비활성 칼럼 추가
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

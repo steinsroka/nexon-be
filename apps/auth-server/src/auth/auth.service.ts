@@ -39,6 +39,7 @@ export class AuthService {
     );
 
     const userDto = plainToInstance(UserDto, user);
+
     return { user: userDto, accessToken, refreshToken };
   }
 
@@ -74,6 +75,7 @@ export class AuthService {
     refreshToken: string;
   }): Promise<{ accessToken: string; refreshToken: string }> {
     const { refreshToken } = req;
+
     // TODO: 리프레시 토큰이 만료된 경우에 대한 처리
     try {
       const payload = this.jwtService.verify(refreshToken, {
@@ -106,6 +108,7 @@ export class AuthService {
 
   async logout(actant: AuthActant): Promise<{ success: boolean }> {
     const user = actant.user;
+
     await this.userService.removeRefreshToken(user.id);
 
     return { success: true };

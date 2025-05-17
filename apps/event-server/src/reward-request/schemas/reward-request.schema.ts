@@ -54,7 +54,7 @@ export class RewardRequest {
     default: RewardRequestStatusType.REQUESTED,
     enum: RewardRequestStatusType,
   })
-  status: string;
+  status: RewardRequestStatusType;
 
   @Prop({ type: [RewardStatus] })
   rewards: RewardStatus[];
@@ -65,7 +65,7 @@ export class RewardRequest {
 
 export const RewardRequestSchema = SchemaFactory.createForClass(RewardRequest);
 
-RewardRequestSchema.index({ userId: 1, eventId: 1 });
+RewardRequestSchema.index({ userId: 1, eventId: 1 }, { unique: true });
 RewardRequestSchema.index({ status: 1 });
 
 // TODO: 자동으로 보상 지급? / 요청 해야만 지급?
