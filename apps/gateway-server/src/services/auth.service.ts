@@ -9,14 +9,13 @@ import {
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
 import { AuthActant } from '@lib/types/actant.type';
-import { AUTH_SERVICE } from '../app.module';
 import { BaseService } from './base.service';
 import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
 
 @Injectable()
 export class AuthService extends BaseService {
   constructor(
-    @Inject(AUTH_SERVICE) private readonly authServiceClient: ClientProxy,
+    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
     private readonly configService: ConfigService,
   ) {
     super(authServiceClient);

@@ -14,13 +14,12 @@ import {
   UpdateRoleResponseDto,
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { USER_SERVICE } from '../app.module';
 import { BaseService } from './base.service';
 
 @Injectable()
 export class UserService extends BaseService {
   constructor(
-    @Inject(USER_SERVICE) private readonly userServiceClient: ClientProxy,
+    @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
   ) {
     super(userServiceClient);
   }
