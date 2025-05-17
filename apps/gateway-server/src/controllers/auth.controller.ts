@@ -11,9 +11,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Serializer } from '@lib/interceptors';
-import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { AuthService } from './services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
 import { Cookies } from '@lib/decorators/cookie.decorator';
 import { JwtAuthGuard } from '@lib/guards';
@@ -24,10 +23,7 @@ import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: '사용자 회원가입' })

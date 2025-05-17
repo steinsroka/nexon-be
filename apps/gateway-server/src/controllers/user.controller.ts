@@ -32,8 +32,8 @@ import {
   UpdateRoleResponseDto,
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { UserService } from './services/user.service';
 import { RolesGuard } from '@lib/guards/roles.guard';
+import { UserService } from '../services/user.service';
 
 @ApiTags('users')
 @Controller('users')

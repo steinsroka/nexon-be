@@ -25,53 +25,53 @@ export class AuthService extends BaseService {
     registerRequestDto: RegisterRequestDto,
     res: Response,
   ): Promise<RegisterResponseDto> {
-    const registerResponseDto = await this.sendRequest<RegisterResponseDto>(
+    const resp = await this.sendRequest<RegisterResponseDto>(
       'auth_register',
       registerRequestDto,
     );
 
-    this.setRefreshTokenCookie(res, registerResponseDto.refreshToken);
+    this.setRefreshTokenCookie(res, resp.refreshToken);
 
-    return registerResponseDto;
+    return resp;
   }
 
   async login(
     loginRequestDto: LoginRequestDto,
     res: Response,
   ): Promise<LoginResponseDto> {
-    const loginResponseDto = await this.sendRequest<LoginResponseDto>(
+    const resp = await this.sendRequest<LoginResponseDto>(
       'auth_login',
       loginRequestDto,
     );
 
-    this.setRefreshTokenCookie(res, loginResponseDto.refreshToken);
+    this.setRefreshTokenCookie(res, resp.refreshToken);
 
-    return loginResponseDto;
+    return resp;
   }
 
   async refresh(
     refreshToken: string,
     res: Response,
   ): Promise<RefreshResponseDto> {
-    const refreshResponseDto = await this.sendRequest<RefreshResponseDto>(
+    const resp = await this.sendRequest<RefreshResponseDto>(
       'auth_refresh',
       refreshToken,
     );
 
-    this.setRefreshTokenCookie(res, refreshResponseDto.refreshToken);
+    this.setRefreshTokenCookie(res, resp.refreshToken);
 
-    return refreshResponseDto;
+    return resp;
   }
 
   async logout(actant: AuthActant, res: Response): Promise<LogoutResponseDto> {
-    const payload = await this.sendRequest<LogoutResponseDto>(
+    const resp = await this.sendRequest<LogoutResponseDto>(
       'auth_logout',
       actant,
     );
 
     res.clearCookie('refresh_token');
 
-    return payload;
+    return resp;
   }
 
   private setRefreshTokenCookie(res: Response, token: string): void {

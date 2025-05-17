@@ -27,31 +27,39 @@ export class UserService extends BaseService {
   async createAdmin(
     createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
-    return this.sendRequest<CreateAdminResponseDto>(
+    const resp = await this.sendRequest<CreateAdminResponseDto>(
       'user_create_admin',
       createAdminRequestDto,
     );
+
+    return resp;
   }
 
   async createUserByAdmin(
     actant: AuthActant,
     createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.sendRequest<CreateUserResponseDto>(
+    const resp = await this.sendRequest<CreateUserResponseDto>(
       'user_create_user_by_admin',
       {
         actant,
         createUserRequestDto,
       },
     );
+
+    return resp;
   }
 
   async findAll(): Promise<UserDto[]> {
-    return this.sendRequest<UserDto[]>('user_find_all', {});
+    const resp = await this.sendRequest<UserDto[]>('user_find_all', {});
+
+    return resp;
   }
 
   async findOne(id: string): Promise<UserDto> {
-    return this.sendRequest<UserDto>('user_find_one_by_id', id);
+    const resp = await this.sendRequest<UserDto>('user_find_one_by_id', id);
+
+    return resp;
   }
 
   async updateUserRole(
@@ -59,10 +67,15 @@ export class UserService extends BaseService {
     userId: string,
     updateRoleRequestDto: UpdateRoleRequestDto,
   ): Promise<UpdateRoleResponseDto> {
-    return this.sendRequest<UpdateRoleResponseDto>('user_update_user_role', {
-      actant,
-      userId,
-      updateRoleRequestDto,
-    });
+    const resp = await this.sendRequest<UpdateRoleResponseDto>(
+      'user_update_user_role',
+      {
+        actant,
+        userId,
+        updateRoleRequestDto,
+      },
+    );
+
+    return resp;
   }
 }
