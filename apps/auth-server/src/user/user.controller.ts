@@ -1,20 +1,8 @@
-import { Body, Controller, Param } from '@nestjs/common';
-
-import { Actant } from '@lib/decorators';
-import {
-  CreateAdminRequestDto,
-  CreateAdminResponseDto,
-} from '@lib/dtos/user/create-admin.dto';
-import {
-  CreateUserRequestDto,
-  CreateUserResponseDto,
-} from '@lib/dtos/user/create-user.dto';
-import {
-  UpdateRoleRequestDto,
-  UpdateRoleResponseDto,
-} from '@lib/dtos/user/update-role.dto';
+import { Controller } from '@nestjs/common';
+import { CreateAdminResponseDto } from '@lib/dtos/user/create-admin.dto';
+import { CreateUserResponseDto } from '@lib/dtos/user/create-user.dto';
+import { UpdateRoleResponseDto } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { AuthActant } from '@lib/types/actant.type';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 
