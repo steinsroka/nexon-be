@@ -7,6 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsNumber, Max, Min } from 'class-validator';
 
+// TODO: Paginate로 이름 변경
 export class PaginationRequestDto {
   @ApiProperty({ description: '페이지', default: PAGINATION_DEFAULT_PAGE })
   @IsNumber()

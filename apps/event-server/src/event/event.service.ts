@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import {
   CreateEventRequestDto,
   CreateEventResponseDto,
@@ -40,7 +40,7 @@ export class EventService {
       rpp = 10,
     } = paginateEventsRequestDto;
 
-    const filter = {};
+    const filter: FilterQuery<EventDocument> = {};
     if (status) {
       filter['status'] = status;
     }
@@ -57,6 +57,7 @@ export class EventService {
     const skip = (page - 1) * rpp;
     const events = await this.eventModel
       .find(filter)
+      .sort({ id: -1 })
       .skip(skip)
       .limit(rpp)
       .exec();
