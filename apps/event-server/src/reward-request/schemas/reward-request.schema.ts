@@ -70,3 +70,6 @@ RewardRequestSchema.index({ status: 1 });
 
 // TODO: 자동으로 보상 지급? / 요청 해야만 지급?
 // condition validation 하는 로직 고려해서 qualificationData 설계 개선
+// 보상은 즉시 지급되는가?
+// 보상 지급을 요청하지 않았다면 지급이 안되는가?
+// 이걸 Task로 처리하면 보상 "들" 은 한번에 처리할 수 있는가?
