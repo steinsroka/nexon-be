@@ -1,4 +1,15 @@
+import { Actant, Roles } from '@lib/decorators';
+import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
+import {
+  PaginateRewardRequestsRequestDto,
+  PaginateRewardRequestsResponseDto,
+} from '@lib/dtos/reward-request/paginate-reward-requests.dto';
+import { UserRoleType } from '@lib/enums';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtAuthGuard } from '@lib/guards';
+import { RolesGuard } from '@lib/guards/roles.guard';
+import { Serializer } from '@lib/interceptors';
+import { AuthActant } from '@lib/types/actant.type';
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -6,17 +17,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  PaginateRewardRequestsResponseDto,
-  PaginateRewardRequestsRequestDto,
-} from '@lib/dtos/reward-request/paginate-reward-requests.dto';
-import { Serializer } from '@lib/interceptors';
-import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
-import { RewardRequestService } from '../services/reward-request.service';
-import { RolesGuard } from '@lib/guards/roles.guard';
-import { UserRoleType } from '@lib/enums';
-import { Actant, Roles } from '@lib/decorators';
-import { AuthActant } from '@lib/types/actant.type';
+import { GatewayService } from '../gateway.service';
 
 @ApiTags('reward-requests')
 @Controller('reward-requests')
@@ -29,7 +30,7 @@ import { AuthActant } from '@lib/types/actant.type';
   UserRoleType.USER,
 )
 export class RewardRequestController {
-  constructor(private readonly rewardRequestService: RewardRequestService) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @Get()
   @ApiOperation({ summary: '리워드 요청 목록 조회' })
@@ -43,10 +44,11 @@ export class RewardRequestController {
     @Actant() actant: AuthActant,
     @Query() paginateRewardRequestsRequestDto: PaginateRewardRequestsRequestDto,
   ): Promise<PaginateRewardRequestsResponseDto> {
-    return this.rewardRequestService.paginateRewardRequests({
-      actant,
-      paginateRewardRequestsRequestDto,
-    });
+    return this.gatewayService.sendRequest<PaginateRewardRequestsResponseDto>(
+      MicroServiceType.EVENT_SERVICE,
+      'reward_request_paginate_reward_requests',
+      { actant, paginateRewardRequestsRequestDto },
+    );
   }
 
   @Get(':id')
@@ -61,6 +63,10 @@ export class RewardRequestController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<GetRewardRequestByIdResponseDto> {
-    return this.rewardRequestService.getRewardRequestById({ actant, id });
+    return this.gatewayService.sendRequest<GetRewardRequestByIdResponseDto>(
+      MicroServiceType.EVENT_SERVICE,
+      'reward_request_get_reward_request_by_id',
+      { actant, id },
+    );
   }
 }
