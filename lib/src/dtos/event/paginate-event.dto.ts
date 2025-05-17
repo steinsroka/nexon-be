@@ -41,4 +41,4 @@ export class PaginateEventsRequestDto extends PaginationParam {
   name?: string;
 }
 
-export class PaginateEventResponseDto {}
+export class PaginateEventsResponseDto {}

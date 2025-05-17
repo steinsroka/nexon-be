@@ -1,16 +1,21 @@
-import { RegisterResponseDto } from '@lib/dtos/auth/register.dto';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { BaseService } from './base.service';
 import {
   CreateEventRequestDto,
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
-import { AuthActant } from '@lib/types/actant.type';
+import {
+  PaginateEventsRequestDto,
+  PaginateEventsResponseDto,
+} from '@lib/dtos/event/paginate-event.dto';
 import {
   UpdateEventRequestDto,
   UpdateEventResponseDto,
 } from '@lib/dtos/event/update-event.dto';
+import { AuthActant } from '@lib/types/actant.type';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { BaseService } from './base.service';
+import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dto';
 
 @Injectable()
 export class EventService extends BaseService {
@@ -20,8 +25,10 @@ export class EventService extends BaseService {
     super(eventServiceClient);
   }
 
-  async paginateEvents(req: any): Promise<any> {
-    const resp = await this.sendRequest<RegisterResponseDto>(
+  async paginateEvents(req: {
+    paginateEventsRequestDto: PaginateEventsRequestDto;
+  }): Promise<PaginateEventsResponseDto> {
+    const resp = await this.sendRequest<PaginateEventsResponseDto>(
       'event_paginate_events',
       req,
     );
@@ -32,7 +39,7 @@ export class EventService extends BaseService {
   async createEvent(req: {
     actant: AuthActant;
     createEventRequestDto: CreateEventRequestDto;
-  }): Promise<any> {
+  }): Promise<CreateEventResponseDto> {
     const resp = await this.sendRequest<CreateEventResponseDto>(
       'event_create_event',
       req,
@@ -41,7 +48,7 @@ export class EventService extends BaseService {
     return resp;
   }
 
-  async getEventById(req: { id: string }): Promise<any> {
+  async getEventById(req: { id: string }): Promise<GetEventByIdResponseDto> {
     const resp = await this.sendRequest<any>('event_get_event_by_id', req);
 
     return resp;
@@ -60,8 +67,11 @@ export class EventService extends BaseService {
     return resp;
   }
 
-  async softDeleteEvent(req: any): Promise<any> {
-    const resp = await this.sendRequest<RegisterResponseDto>(
+  async softDeleteEvent(req: {
+    actant: AuthActant;
+    id: string;
+  }): Promise<SoftDeleteEventResponseDto> {
+    const resp = await this.sendRequest<SoftDeleteEventResponseDto>(
       'event_soft_delete_event',
       req,
     );

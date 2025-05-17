@@ -24,7 +24,10 @@ import {
   UpdateEventResponseDto,
 } from '@lib/dtos/event/update-event.dto';
 import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dto';
-import { PaginateEventsRequestDto } from '@lib/dtos/event/paginate-event.dto';
+import {
+  PaginateEventsRequestDto,
+  PaginateEventsResponseDto,
+} from '@lib/dtos/event/paginate-event.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -40,7 +43,16 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
-  paginateEvents(@Query() paginateEventsRequestDto: PaginateEventsRequestDto) {
+  @ApiOperation({ summary: '이벤트 목록 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '이벤트 목록 조회 성공',
+    type: PaginateEventsResponseDto,
+  })
+  @Serializer(PaginateEventsResponseDto)
+  paginateEvents(
+    @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
+  ): Promise<PaginateEventsResponseDto> {
     return this.eventService.paginateEvents({ paginateEventsRequestDto });
   }
 

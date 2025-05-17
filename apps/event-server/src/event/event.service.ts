@@ -2,6 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EventDocument } from './schemas/event.schemas';
+import {
+  CreateEventRequestDto,
+  CreateEventResponseDto,
+} from '@lib/dtos/event/create-event.dto';
+import { AuthActant } from '@lib/types/actant.type';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import { EventDto } from '@lib/dtos/event/event.dto';
+import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import {
+  UpdateEventRequestDto,
+  UpdateEventResponseDto,
+} from '@lib/dtos/event/update-event.dto';
+import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dto';
+import {
+  PaginateEventsRequestDto,
+  PaginateEventsResponseDto,
+} from '@lib/dtos/event/paginate-event.dto';
 
 @Injectable()
 export class EventService {
@@ -10,19 +27,17 @@ export class EventService {
   ) {}
 
   async paginateEvents(req: {
-    status?: string;
-    startDate?: Date;
-    endDate?: Date;
-    name?: string;
-    page: number;
-    rpp: number;
-  }): Promise<{
-    events: EventDocument[];
-    total: number;
-    page: number;
-    rpp: number;
-  }> {
-    const { status, startDate, endDate, name, page = 1, rpp = 10 } = req;
+    paginateEventsRequestDto: PaginateEventsRequestDto;
+  }): Promise<PaginateEventsResponseDto> {
+    const { paginateEventsRequestDto } = req;
+    const {
+      status,
+      startDate,
+      endDate,
+      name,
+      page = 1,
+      rpp = 10,
+    } = paginateEventsRequestDto;
 
     const filter = {};
     if (status) {
@@ -44,17 +59,25 @@ export class EventService {
       .skip(skip)
       .limit(rpp)
       .exec();
-    const total = await this.eventModel.countDocuments().exec();
+    const total = await this.eventModel.countDocuments(filter).exec();
 
     return { events, total, page, rpp };
   }
 
-  async createEvent(req: any): Promise<any> {
-    const createdEvent = new this.eventModel(req);
-    return createdEvent.save();
+  async createEvent(req: {
+    actant: AuthActant;
+    createEventRequestDto: CreateEventRequestDto;
+  }): Promise<CreateEventResponseDto> {
+    const { actant, createEventRequestDto } = req;
+
+    const createdEvent = await new this.eventModel(
+      createEventRequestDto,
+    ).save();
+
+    return plainToInstance(CreateEventResponseDto, createdEvent);
   }
 
-  async getEventById(req: { id: string }): Promise<any> {
+  async getEventById(req: { id: string }): Promise<GetEventByIdResponseDto> {
     const { id } = req;
 
     const event = await this.eventModel.findById(id).exec();
@@ -62,25 +85,32 @@ export class EventService {
       throw new Error(`Event Not Found id: ${id}`);
     }
 
-    return event;
+    return plainToInstance(GetEventByIdResponseDto, event);
   }
 
-  async updateEvent(req: { id: string; updateEventDto: any }): Promise<any> {
-    const { id, updateEventDto } = req;
+  async updateEvent(req: {
+    actant: AuthActant;
+    id: string;
+    updateEventRequestDto: UpdateEventRequestDto;
+  }): Promise<UpdateEventResponseDto> {
+    const { actant, id, updateEventRequestDto } = req;
 
     const updatedEvent = await this.eventModel
-      .findByIdAndUpdate(id, updateEventDto, { new: true })
+      .findByIdAndUpdate(id, updateEventRequestDto, { new: true })
       .exec();
 
     if (!updatedEvent) {
       throw new Error(`Event Not Found id: ${id}`);
     }
 
-    return updatedEvent;
+    return plainToInstance(UpdateEventResponseDto, updatedEvent);
   }
 
-  async softDeleteEvent(req: { id: string }): Promise<any> {
-    const { id } = req;
+  async softDeleteEvent(req: {
+    actant: AuthActant;
+    id: string;
+  }): Promise<SoftDeleteEventResponseDto> {
+    const { actant, id } = req;
 
     const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
 
@@ -88,6 +118,6 @@ export class EventService {
       throw new Error(`Event Not Found id: ${id}`);
     }
 
-    return deletedEvent;
+    return plainToClass(SoftDeleteEventResponseDto, deletedEvent);
   }
 }
