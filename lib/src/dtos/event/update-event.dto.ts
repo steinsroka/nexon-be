@@ -1,6 +1,6 @@
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Condition } from 'apps/event-server/src/event/schemas/event.schemas';
+import { Condition } from 'apps/event-server/src/event/schemas/event.schema';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ConditionDto, EventDto } from './event.dto';

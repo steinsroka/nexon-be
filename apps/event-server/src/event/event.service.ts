@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EventDocument } from './schemas/event.schemas';
 import {
   CreateEventRequestDto,
   CreateEventResponseDto,
@@ -19,6 +18,7 @@ import {
   PaginateEventsResponseDto,
 } from '@lib/dtos/event/paginate-events.dto';
 import { EventDto } from '@lib/dtos/event/event.dto';
+import { EventDocument } from './schemas/event.schema';
 
 @Injectable()
 export class EventService {

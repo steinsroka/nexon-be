@@ -1,9 +1,7 @@
-import { EventStatusType } from '@lib/enums/event-status-type.enum';
-import { ApiProperty } from '@nestjs/swagger';
-import { Condition } from 'apps/event-server/src/event/schemas/event.schemas';
-import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ConditionDto, EventDto } from './event.dto';
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { RewardDto } from '../reward/reward.dto';
 
 export class CreateEventRequestDto {
@@ -46,25 +44,11 @@ export class CreateEventRequestDto {
     description: '이벤트 상태',
     enum: ['ACTIVE', 'INACTIVE'],
   })
-  @IsEnum(EventStatusType)
+  @IsString()
   @IsNotEmpty()
-  status: EventStatusType;
-
-  @ApiProperty({
-    type: [Condition],
-    description: '이벤트 조건',
-  })
-  @IsNotEmpty()
-  @Type(() => ConditionDto)
-  conditions: ConditionDto[];
-
-  @ApiProperty({
-    type: [RewardDto],
-    description: '이벤트 보상',
-  })
-  @IsNotEmpty()
-  @Type(() => RewardDto)
-  rewards: RewardDto[];
+  status: string;
+  conditions: ConditionDto[]; // TODO: import 위치 수정
+  rewards: RewardDto[]; // TODO: import 위치 수정
 }
 
 export class CreateEventResponseDto extends EventDto {}

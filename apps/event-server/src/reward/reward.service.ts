@@ -15,10 +15,10 @@ import { AuthActant } from '@lib/types/actant.type';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Reward, RewardDocument } from '../event/schemas/event.schemas';
 import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 import { RewardDto } from '@lib/dtos/reward/reward.dto';
 import { plainToInstance } from 'class-transformer';
+import { Reward, RewardDocument } from './schemas/reward.schema';
 
 @Injectable()
 export class RewardService {
