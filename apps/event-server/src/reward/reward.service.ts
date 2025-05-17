@@ -19,62 +19,60 @@ import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 import { RewardDto } from '@lib/dtos/reward/reward.dto';
 import { plainToInstance } from 'class-transformer';
 import { Reward, RewardDocument } from './schemas/reward.schema';
+import { EventDocument } from '../event/schemas/event.schema';
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 
 @Injectable()
 export class RewardService {
   constructor(
+    @InjectModel(Event.name)
+    private readonly eventModel: Model<EventDocument>,
     @InjectModel(Reward.name)
     private readonly rewardModel: Model<RewardDocument>,
   ) {}
 
-  async paginateRewards(req: {
-    actant: AuthActant;
-    paginateRewardsRequestDto: PaginateRewardsRequestDto;
-  }): Promise<PaginateRewardsResponseDto> {
-    const { paginateRewardsRequestDto } = req;
-    const { page = 1, rpp = 10 } = paginateRewardsRequestDto;
-
-    const skip = (page - 1) * rpp;
-    const rewards = await this.rewardModel.find().skip(skip).limit(rpp).exec();
-    const total = await this.rewardModel.countDocuments().exec();
-    const items = rewards.map((reward) => plainToInstance(RewardDto, reward));
-
-    return PaginationResponseDto.create(items, total, page, rpp);
-  }
-
   async createReward(req: {
     actant: AuthActant;
+    eventId: string;
     createRewardRequestDto: CreateRewardRequestDto;
   }): Promise<CreateRewardResponseDto> {
-    const { createRewardRequestDto } = req;
+    const { actant, eventId, createRewardRequestDto } = req;
 
-    const createdReward = await new this.rewardModel(
-      createRewardRequestDto,
-    ).save();
+    const event = await this.eventModel.findOne({ id: eventId }).exec();
+
+    if (!event) {
+      throw new Error(`Event Not Found id: ${eventId}`);
+    }
+
+    if (event.status !== EventStatusType.ACTIVE) {
+      throw new Error(`Event Not Active id: ${eventId}`);
+    }
+
+    const createdReward = await new this.rewardModel({
+      ...createRewardRequestDto,
+      eventId,
+    }).save();
 
     return plainToInstance(CreateRewardResponseDto, createdReward);
   }
 
-  async getRewardById(req: {
-    actant: AuthActant;
-    id: string;
-  }): Promise<GetRewardByIdResponseDto> {
-    const { id } = req;
-    const reward = await this.rewardModel.findById(id).exec();
-
-    if (!reward) {
-      throw new Error(`Reward Not Found id: ${id}`);
-    }
-
-    return plainToInstance(GetRewardByIdResponseDto, reward);
-  }
-
   async updateReward(req: {
     actant: AuthActant;
+    eventId: string;
     id: string;
     updateRewardRequestDto: UpdateRewardRequestDto;
   }): Promise<UpdateRewardResponseDto> {
-    const { id, updateRewardRequestDto } = req;
+    const { actant, eventId, id, updateRewardRequestDto } = req;
+
+    const event = await this.eventModel.findOne({ id: eventId }).exec();
+
+    if (!event) {
+      throw new Error(`Event Not Found id: ${eventId}`);
+    }
+
+    if (event.status !== EventStatusType.ACTIVE) {
+      throw new Error(`Event Not Active id: ${eventId}`);
+    }
 
     const updatedReward = await this.rewardModel
       .findByIdAndUpdate(id, updateRewardRequestDto, {

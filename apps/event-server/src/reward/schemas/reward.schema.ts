@@ -1,10 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 export type RewardDocument = Reward & Document;
 
 @Schema({ timestamps: true })
 export class Reward {
+  _id: Types.ObjectId;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Event', required: true })
+  eventId: MongooseSchema.Types.ObjectId;
+
   @Prop({ required: true })
   type: string;
 

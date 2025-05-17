@@ -1,5 +1,6 @@
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type EventDocument = Event & Document;
 
@@ -19,6 +20,8 @@ export const ConditionSchema = SchemaFactory.createForClass(Condition);
 
 @Schema({ timestamps: true })
 export class Event {
+  _id: Types.ObjectId;
+
   @Prop({ required: true })
   name: string;
 
@@ -32,7 +35,7 @@ export class Event {
   endDate: Date;
 
   @Prop({ default: 'ACTIVE', enum: ['ACTIVE', 'INACTIVE'] })
-  status: string;
+  status: EventStatusType;
 
   @Prop({ type: [ConditionSchema], default: [] })
   conditions: Condition[];

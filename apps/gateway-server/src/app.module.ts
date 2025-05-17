@@ -39,20 +39,6 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
         inject: [ConfigService],
       },
       {
-        imports: [ConfigModule],
-        name: USER_SERVICE,
-        useFactory: () => ({
-          transport: Transport.TCP,
-          options: {
-            host: '0.0.0.0',
-            port: 3001,
-            // host: configService.get('AUTH_SERVICE_URL'),
-            // port: configService.get('AUTH_PORT'),
-          },
-        }),
-        inject: [ConfigService],
-      },
-      {
         name: EVENT_SERVICE,
         useFactory: () => ({
           transport: Transport.TCP,
