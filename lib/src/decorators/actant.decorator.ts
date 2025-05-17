@@ -9,14 +9,15 @@ export const Actant = createParamDecorator(
     const request = ctx.switchToHttp().getRequest();
 
     const ipAddr =
-      request.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-      request.connection.remoteAddress;
+      request.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
+      request.connection?.remoteAddress ||
+      'unknown';
 
-    const userAgent = request.headers['user-agent'] || 'unknown';
+    const userAgent = request.headers?.['user-agent'] || 'unknown';
 
     if (type === 'auth') {
       return {
-        user: request.user,
+        user: request?.user,
         ipAddr,
         userAgent,
       };

@@ -37,10 +37,13 @@ export class UserService extends BaseService {
     actant: AuthActant,
     createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.sendRequest<CreateUserResponseDto>('user_create_by_admin', {
-      actant,
-      createUserRequestDto,
-    });
+    return this.sendRequest<CreateUserResponseDto>(
+      'user_create_user_by_admin',
+      {
+        actant,
+        createUserRequestDto,
+      },
+    );
   }
 
   async findAll(): Promise<UserDto[]> {
@@ -56,7 +59,7 @@ export class UserService extends BaseService {
     userId: string,
     updateRoleRequestDto: UpdateRoleRequestDto,
   ): Promise<UpdateRoleResponseDto> {
-    return this.sendRequest<UpdateRoleResponseDto>('user_update_role', {
+    return this.sendRequest<UpdateRoleResponseDto>('user_update_user_role', {
       actant,
       userId,
       updateRoleRequestDto,
