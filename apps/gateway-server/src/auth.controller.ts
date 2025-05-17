@@ -19,6 +19,7 @@ import { Cookies } from '@lib/decorators/cookie.decorator';
 import { JwtAuthGuard } from '@lib/guards';
 import { Actant } from '@lib/decorators';
 import { AuthActant } from '@lib/types/actant.type';
+import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -72,7 +73,7 @@ export class AuthController {
   async refresh(
     @Cookies('refresh_token') refreshToken: string,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<RefreshResponseDto> {
     return this.authService.refresh(refreshToken, res);
   }
 

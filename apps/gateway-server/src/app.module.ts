@@ -4,7 +4,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
+import { UserController } from './user.controller';
 import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
 
 export const AUTH_SERVICE = 'AUTH_SERVICE';
@@ -72,7 +74,7 @@ export const EVENT_SERVICE = 'EVENT_SERVICE';
       }),
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController, UserController],
+  providers: [AuthService, UserService, JwtStrategy],
 })
 export class AppModule {}

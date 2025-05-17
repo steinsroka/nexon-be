@@ -1,7 +1,6 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
 import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
@@ -10,19 +9,26 @@ import {
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
 import { AuthActant } from '@lib/types/actant.type';
+import { AUTH_SERVICE } from '../app.module';
+import { BaseService } from './base.service';
+import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
 
-export class AuthService {
+@Injectable()
+export class AuthService extends BaseService {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
+    @Inject(AUTH_SERVICE) private readonly authServiceClient: ClientProxy,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    super(authServiceClient);
+  }
 
   async register(
     registerRequestDto: RegisterRequestDto,
     res: Response,
   ): Promise<RegisterResponseDto> {
-    const registerResponseDto: RegisterResponseDto = await firstValueFrom(
-      this.authServiceClient.send('auth_register', registerRequestDto),
+    const registerResponseDto = await this.sendRequest<RegisterResponseDto>(
+      'auth_register',
+      registerRequestDto,
     );
 
     this.setRefreshTokenCookie(res, registerResponseDto.refreshToken);
@@ -34,25 +40,23 @@ export class AuthService {
     loginRequestDto: LoginRequestDto,
     res: Response,
   ): Promise<LoginResponseDto> {
-    try {
-      const loginResponseDto: LoginResponseDto = await firstValueFrom(
-        this.authServiceClient.send('auth_login', loginRequestDto),
-      );
-      this.setRefreshTokenCookie(res, loginResponseDto.refreshToken);
+    const loginResponseDto = await this.sendRequest<LoginResponseDto>(
+      'auth_login',
+      loginRequestDto,
+    );
 
-      return loginResponseDto;
-    } catch (error) {
-      console.error('Error during login:', error);
-      throw error; // Rethrow the error to be handled by the caller
-    }
+    this.setRefreshTokenCookie(res, loginResponseDto.refreshToken);
+
+    return loginResponseDto;
   }
 
   async refresh(
     refreshToken: string,
     res: Response,
   ): Promise<RefreshResponseDto> {
-    const refreshResponseDto: RefreshResponseDto = await firstValueFrom(
-      this.authServiceClient.send('auth_refresh', refreshToken),
+    const refreshResponseDto = await this.sendRequest<RefreshResponseDto>(
+      'auth_refresh',
+      refreshToken,
     );
 
     this.setRefreshTokenCookie(res, refreshResponseDto.refreshToken);
@@ -60,12 +64,10 @@ export class AuthService {
     return refreshResponseDto;
   }
 
-  async logout(
-    actant: AuthActant,
-    res: Response,
-  ): Promise<{ success: boolean }> {
-    const payload: { success: boolean } = await firstValueFrom(
-      this.authServiceClient.send('auth_logout', actant),
+  async logout(actant: AuthActant, res: Response): Promise<LogoutResponseDto> {
+    const payload = await this.sendRequest<LogoutResponseDto>(
+      'auth_logout',
+      actant,
     );
 
     res.clearCookie('refresh_token');
@@ -79,12 +81,12 @@ export class AuthService {
     const domain = this.configService.get<string>('COOKIE_DOMAIN');
 
     res.cookie('refresh_token', token, {
-      httpOnly: true, // 자바스크립트에서 쿠키에 접근할 수 없도록
-      secure: isSecureCookie, // HTTPS에서만 쿠키 전송
-      sameSite: 'strict', // CSRF 방지
+      httpOnly: true,
+      secure: isSecureCookie,
+      sameSite: 'strict',
       maxAge: 1 * 24 * 60 * 60 * 1000, // 1일 (밀리초)
-      path: '/auth/refresh', // 이 경로에서만 쿠키 사용
-      ...(domain && { domain }), // 도메인이 있을 경우에만 설정
+      path: '/auth/refresh',
+      ...(domain && { domain }),
     });
   }
 }
