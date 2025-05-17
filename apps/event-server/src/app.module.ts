@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { EventModule } from './event/event.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserRewardModule } from './user-reward/user-reward.module';
 import { RewardModule } from './reward/reward.module';
 
 @Module({
@@ -23,7 +22,6 @@ import { RewardModule } from './reward/reward.module';
       }),
     }),
     EventModule,
-    UserRewardModule,
     RewardModule,
   ],
   controllers: [AppController],
