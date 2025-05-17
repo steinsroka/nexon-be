@@ -27,6 +27,7 @@ export class UserService {
     const { email, password, name } = req.createAdminRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
+
     if (existingUser) {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
@@ -41,6 +42,7 @@ export class UserService {
     });
 
     const savedUser = await newUser.save();
+
     return plainToInstance(UserDto, savedUser, {
       excludeExtraneousValues: true,
     });
@@ -52,6 +54,7 @@ export class UserService {
     const { email, password, name, role } = req.createUserRequestDto;
 
     const existingUser = await this.userModel.findOne({ email });
+
     if (existingUser) {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
@@ -66,12 +69,14 @@ export class UserService {
     });
 
     const savedUser = await newUser.save();
+
     return plainToInstance(UserDto, savedUser);
   }
 
   // TODO: Pagination 추가
   async findAll(): Promise<UserDto[]> {
     const users = await this.userModel.find().exec();
+
     return users.map((user) =>
       plainToInstance(UserDto, user, { excludeExtraneousValues: true }),
     );
@@ -83,6 +88,7 @@ export class UserService {
     }
 
     const user = await this.userModel.findById(id);
+
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다');
     }
@@ -112,6 +118,7 @@ export class UserService {
     }
 
     const user = await this.userModel.findById(userId);
+
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다');
     }
@@ -143,6 +150,7 @@ export class UserService {
     }
 
     const existingUser = await this.userModel.findOne({ email });
+
     if (existingUser) {
       throw new BadRequestException('이미 등록된 이메일입니다');
     }
@@ -161,11 +169,13 @@ export class UserService {
 
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.userModel.findOne({ email });
+
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
@@ -185,6 +195,7 @@ export class UserService {
       refreshToken,
       this.SALT_ROUNDS,
     );
+
     await this.userModel.findByIdAndUpdate(userId, {
       refreshToken: hashedRefreshToken,
     });

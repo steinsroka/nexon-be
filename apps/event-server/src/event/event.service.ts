@@ -41,6 +41,7 @@ export class EventService {
     } = paginateEventsRequestDto;
 
     const filter: FilterQuery<EventDocument> = {};
+
     if (status) {
       filter['status'] = status;
     }
@@ -84,6 +85,7 @@ export class EventService {
     const { id } = req;
 
     const event = await this.eventModel.findById(id).exec();
+
     if (!event) {
       throw new Error(`Event Not Found id: ${id}`);
     }

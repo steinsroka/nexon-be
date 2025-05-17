@@ -43,6 +43,19 @@ export default tseslint.config(
           memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
         },
       ],
+      'padding-line-between-statements': [
+        'error',
+        {
+          blankLine: 'always',
+          prev: ['const', 'let', 'var', 'directive'],
+          next: '*',
+        },
+        {
+          blankLine: 'any',
+          prev: ['const', 'let', 'var'],
+          next: ['const', 'let', 'var'],
+        },
+      ],
     },
   },
 );

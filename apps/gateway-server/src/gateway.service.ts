@@ -30,6 +30,7 @@ export class GatewayService {
             throw new Error(`Unknown service: ${service}`);
         }
       })();
+
       return await firstValueFrom(client.send<RES>(pattern, data));
     } catch (error) {
       console.error(
