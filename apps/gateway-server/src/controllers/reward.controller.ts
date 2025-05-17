@@ -19,7 +19,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RewardService } from '../services/reward.service';
+import { GatewayService } from '../gateway.service';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 
 @ApiTags('rewards')
 @Controller('events/:event_id/rewards')
@@ -27,7 +28,7 @@ import { RewardService } from '../services/reward.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
 export class RewardController {
-  constructor(private readonly rewardService: RewardService) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @Post()
   @ApiOperation({ summary: '이벤트에 리워드 추가' })
@@ -42,11 +43,15 @@ export class RewardController {
     @Param('event_id') eventId: string,
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
-    return this.rewardService.createReward({
-      actant,
-      eventId,
-      createRewardRequestDto,
-    });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'reward_create_reward',
+      {
+        actant,
+        eventId,
+        createRewardRequestDto,
+      },
+    );
   }
 
   @Put(':id') // TODO: Patch??
@@ -63,11 +68,15 @@ export class RewardController {
     @Param('id') id: string,
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
   ): Promise<UpdateRewardResponseDto> {
-    return this.rewardService.updateReward({
-      actant,
-      eventId,
-      id,
-      updateRewardRequestDto,
-    });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'reward_update_reward',
+      {
+        actant,
+        eventId,
+        id,
+        updateRewardRequestDto,
+      },
+    );
   }
 }

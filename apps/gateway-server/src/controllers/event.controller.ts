@@ -18,7 +18,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { EventService } from '../services/event.service';
 import {
   UpdateEventRequestDto,
   UpdateEventResponseDto,
@@ -36,11 +35,13 @@ import {
 } from '@nestjs/swagger';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { Serializer } from '@lib/interceptors';
+import { GatewayService } from '../gateway.service';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 
 @ApiTags('events')
 @Controller('events')
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @Get()
   @ApiOperation({ summary: '이벤트 목록 조회' })
@@ -53,7 +54,11 @@ export class EventController {
   async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
-    return this.eventService.paginateEvents({ paginateEventsRequestDto });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_paginate_events',
+      { paginateEventsRequestDto },
+    );
   }
 
   @Post()
@@ -71,7 +76,11 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
-    return this.eventService.createEvent({ actant, createEventRequestDto });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_create_event',
+      { actant, createEventRequestDto },
+    );
   }
 
   @Get(':id')
@@ -85,7 +94,11 @@ export class EventController {
   async getEventById(
     @Param('id') id: string,
   ): Promise<GetEventByIdResponseDto> {
-    return this.eventService.getEventById({ id });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_get_event_by_id',
+      { id },
+    );
   }
 
   @Put(':id')
@@ -104,7 +117,11 @@ export class EventController {
     @Param('id') id: string,
     @Body() updateEventRequestDto: UpdateEventRequestDto,
   ): Promise<UpdateEventResponseDto> {
-    return this.eventService.updateEvent({ actant, id, updateEventRequestDto });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_update_event',
+      { actant, id, updateEventRequestDto },
+    );
   }
 
   @Delete(':id')
@@ -122,6 +139,10 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {
-    return this.eventService.softDeleteEvent({ actant, id });
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_soft_delete_event',
+      { actant, id },
+    );
   }
 }

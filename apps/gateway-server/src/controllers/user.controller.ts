@@ -33,12 +33,13 @@ import {
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
 import { RolesGuard } from '@lib/guards/roles.guard';
-import { UserService } from '../services/user.service';
+import { GatewayService } from '../gateway.service';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @Post('admin')
   @ApiOperation({ summary: '관리자 계정 생성 (초기 설정용)' })
@@ -55,7 +56,11 @@ export class UserController {
   async createAdmin(
     @Body() createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
-    return this.userService.createAdmin(createAdminRequestDto);
+    return this.gatewayService.sendRequest(
+      MicroServiceType.AUTH_SERVICE,
+      'user_create_admin',
+      { createAdminRequestDto },
+    );
   }
 
   @Post()
@@ -81,7 +86,11 @@ export class UserController {
     @Actant() actant: AuthActant,
     @Body() createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.userService.createUserByAdmin(actant, createUserRequestDto);
+    return this.gatewayService.sendRequest(
+      MicroServiceType.AUTH_SERVICE,
+      'user_create_user_by_admin',
+      { actant, createUserRequestDto },
+    );
   }
 
   @Get()
@@ -96,7 +105,11 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findAll(): Promise<UserDto[]> {
-    return this.userService.findAll();
+    return this.gatewayService.sendRequest(
+      MicroServiceType.AUTH_SERVICE,
+      'user_find_all',
+      {},
+    );
   }
 
   @Get(':id')
@@ -120,7 +133,11 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.userService.findOne(id);
+    return this.gatewayService.sendRequest(
+      MicroServiceType.AUTH_SERVICE,
+      'user_find_one',
+      { id },
+    );
   }
 
   @Patch(':id/role')
@@ -152,6 +169,10 @@ export class UserController {
     @Body() updateRoleRequestDto: UpdateRoleRequestDto,
     @Actant() actant: AuthActant,
   ): Promise<UpdateRoleResponseDto> {
-    return this.userService.updateUserRole(actant, id, updateRoleRequestDto);
+    return this.gatewayService.sendRequest(
+      MicroServiceType.AUTH_SERVICE,
+      'user_update_role',
+      { actant, id, updateRoleRequestDto },
+    );
   }
 }

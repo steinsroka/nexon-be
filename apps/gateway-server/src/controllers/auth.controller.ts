@@ -1,7 +1,14 @@
+import { Actant } from '@lib/decorators';
+import { Cookies } from '@lib/decorators/cookie.decorator';
+import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
+import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
 import {
   RegisterRequestDto,
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
+import { JwtAuthGuard } from '@lib/guards';
+import { Serializer } from '@lib/interceptors';
+import { AuthActant } from '@lib/types/actant.type';
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -10,20 +17,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Serializer } from '@lib/interceptors';
 import { Response } from 'express';
-import { AuthService } from '../services/auth.service';
-import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
-import { Cookies } from '@lib/decorators/cookie.decorator';
-import { JwtAuthGuard } from '@lib/guards';
-import { Actant } from '@lib/decorators';
-import { AuthActant } from '@lib/types/actant.type';
-import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
+import { GatewayService } from './../gateway.service';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @Post('register')
   @ApiOperation({ summary: '사용자 회원가입' })
@@ -38,7 +40,15 @@ export class AuthController {
     @Body() registerRequestDto: RegisterRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    return this.authService.register(registerRequestDto, res);
+    const resp = await this.gatewayService.sendRequest<RegisterResponseDto>(
+      MicroServiceType.AUTH_SERVICE,
+      'auth_register',
+      { registerRequestDto },
+    );
+
+    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
+
+    return resp;
   }
 
   @Post('login')
@@ -55,7 +65,15 @@ export class AuthController {
     @Body() loginRequestDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    return this.authService.login(loginRequestDto, res);
+    const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
+      MicroServiceType.AUTH_SERVICE,
+      'auth_login',
+      { loginRequestDto },
+    );
+
+    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
+
+    return resp;
   }
 
   @Post('refresh')
@@ -70,7 +88,15 @@ export class AuthController {
     @Cookies('refresh_token') refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
-    return this.authService.refresh(refreshToken, res);
+    const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
+      MicroServiceType.AUTH_SERVICE,
+      'auth_login',
+      { refreshToken },
+    );
+
+    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
+
+    return resp;
   }
 
   @Post('logout')
@@ -84,7 +110,15 @@ export class AuthController {
   async logout(
     @Actant() actant: AuthActant,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ success: boolean }> {
-    return this.authService.logout(actant, res);
+  ): Promise<LogoutResponseDto> {
+    const resp = await this.gatewayService.sendRequest<LogoutResponseDto>(
+      MicroServiceType.AUTH_SERVICE,
+      'auth_login',
+      { actant },
+    );
+
+    this.gatewayService.clearRefreshTokenCookie(res);
+
+    return resp;
   }
 }
