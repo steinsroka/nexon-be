@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { UserModule } from './user/user.module';
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>(
           'MONGODB_URI',
-          'mongodb://localhost:27017/nexon-auth',
+          'mongodb://localhost:27017/nexon-db',
         ),
       }),
     }),
@@ -34,7 +35,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     AuthModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

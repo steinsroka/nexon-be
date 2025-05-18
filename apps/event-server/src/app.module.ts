@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { EventModule } from './event/event.module';
 import { RewardRequestModule } from './reward-request/reward-request.module';
 import { RewardModule } from './reward/reward.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { RewardModule } from './reward/reward.module';
     RewardModule,
     RewardRequestModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
