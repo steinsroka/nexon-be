@@ -1,4 +1,3 @@
-import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
@@ -6,6 +5,7 @@ import {
   PaginationResponseDto,
 } from '../common/pagination.dto';
 import { RewardRequestDto } from './reward-request.dto';
+import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum copy';
 
 export class PaginateRewardRequestsRequestDto extends PaginationRequestDto {
   @ApiProperty({

@@ -14,5 +14,6 @@ import { EventSchema } from '../event/schemas/event.schema';
   ],
   controllers: [RewardController],
   providers: [RewardService],
+  exports: [RewardService],
 })
 export class RewardModule {}

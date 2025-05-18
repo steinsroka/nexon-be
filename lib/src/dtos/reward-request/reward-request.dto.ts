@@ -1,26 +1,9 @@
-import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum';
+import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum copy';
+import { RewardTransactionStatusType } from '@lib/enums/reward-transaction-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 
-export class QualificationDataDto {
-  @ApiProperty({
-    description: '리워드 요청 자격 여부',
-    type: Boolean,
-    example: true,
-  })
-  @Expose()
-  isRewarable: boolean;
-
-  @ApiProperty({
-    description: '리워드 요청 자격을 위한 사용자 활동',
-    type: [String],
-    example: ['activity1', 'activity2'],
-  })
-  @Expose()
-  userActivities: string[];
-}
-
-export class RewardStatus {
+export class RewardTransactionDto {
   @ApiProperty({
     description: '리워드 ID',
     type: String,
@@ -30,52 +13,20 @@ export class RewardStatus {
   rewardId: string;
 
   @ApiProperty({
-    description: '리워드 타입',
-    type: String,
-    example: 'type',
+    description: '리워드 지급 상태',
+    enum: RewardTransactionStatusType,
+    example: RewardTransactionStatusType.PENDING,
   })
   @Expose()
-  type: string;
+  status: RewardTransactionStatusType;
 
   @ApiProperty({
-    description: '리워드 수량',
-    type: Number,
-    example: 1,
-  })
-  @Expose()
-  quantity: number;
-
-  @ApiProperty({
-    description: '아이템 ID (선택적)',
-    type: String,
-    example: 'itemId',
-  })
-  @Expose()
-  itemId?: string;
-
-  @ApiProperty({
-    description: '리워드 설명',
-    type: String,
-    example: 'description',
-  })
-  @Expose()
-  description: string;
-
-  @ApiProperty({
-    description: '전달 여부',
-    type: Boolean,
-    example: false,
-  })
-  @Expose()
-  delivered?: boolean;
-
-  @ApiProperty({
-    description: '전달 날짜 (선택적)',
+    description: '리워드 전달 날짜',
     type: Date,
     example: new Date(),
   })
   @Expose()
-  deliveredAt?: Date;
+  createdAt: Date;
 }
 
 export class RewardRequestDto {
@@ -104,12 +55,12 @@ export class RewardRequestDto {
   eventId: string;
 
   @ApiProperty({
-    description: '리워드 요청 자격 데이터',
-    type: QualificationDataDto,
+    description: '리워드 요청 자격 여부',
+    type: Boolean,
+    example: true,
   })
   @Expose()
-  @Type(() => QualificationDataDto)
-  qualificationData: QualificationDataDto;
+  isRewarable: boolean;
 
   @ApiProperty({
     description: '리워드 요청 상태',
@@ -121,11 +72,19 @@ export class RewardRequestDto {
 
   @ApiProperty({
     description: '리워드 상태',
-    type: [RewardStatus],
+    type: [RewardTransactionDto],
   })
   @Expose()
-  @Type(() => Array<RewardStatus>)
-  rewards: RewardStatus[];
+  @Type(() => Array<RewardTransactionDto>)
+  rewards: RewardTransactionDto[];
+
+  @ApiProperty({
+    description: '리워드 요청 실패 사유',
+    type: String,
+    example: 'Failed due to insufficient points',
+  })
+  @Expose()
+  failReason: string;
 
   @ApiProperty({
     description: '리워드 요청 생성 날짜',

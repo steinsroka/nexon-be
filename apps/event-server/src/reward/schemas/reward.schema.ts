@@ -13,14 +13,16 @@ export class Reward {
   @Prop({ required: true })
   type: string;
 
-  @Prop({ required: true })
-  quantity: number;
-
   @Prop()
   itemId?: string;
+
+  @Prop({ required: true })
+  quantity: number;
 
   @Prop()
   description: string;
 }
 
 export const RewardSchema = SchemaFactory.createForClass(Reward);
+
+RewardSchema.index({ eventId: 1 });

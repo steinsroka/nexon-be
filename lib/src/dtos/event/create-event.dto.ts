@@ -4,6 +4,7 @@ import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { RewardDto } from '../reward/reward.dto';
 import { ConditionDto, EventDto } from './event.dto';
+import { CreateRewardRequestDto } from '../reward/create-reward.dto';
 
 export class CreateEventRequestDto {
   @ApiProperty({
@@ -62,10 +63,10 @@ export class CreateEventRequestDto {
   @ApiProperty({
     example: [],
     description: '이벤트 보상',
-    type: [RewardDto],
+    type: [CreateRewardRequestDto],
   })
   @IsNotEmpty()
-  rewards: RewardDto[]; // TODO: import 위치 수정
+  rewards: CreateRewardRequestDto[]; // TODO: import 위치 수정
 }
 
 export class CreateEventResponseDto extends EventDto {}

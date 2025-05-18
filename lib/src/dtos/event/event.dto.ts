@@ -1,8 +1,33 @@
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { RewardDto } from '../reward/reward.dto';
+import { EventConditionType } from '@lib/enums/event-condition-type-enum';
+
+export class ConditionDto {
+  @ApiProperty({
+    example: EventConditionType.USER_INVITE,
+    description: '조건 유형',
+    enum: EventConditionType,
+  })
+  @Expose()
+  type: EventConditionType;
+
+  @ApiProperty({
+    example: 100,
+    description: '조건 값',
+  })
+  @Expose()
+  value: string;
+
+  @ApiProperty({
+    example: '조건 설명',
+    description: '조건 설명',
+  })
+  @Expose()
+  description: string;
+}
 
 export class EventDto {
   @ApiProperty({
@@ -40,6 +65,7 @@ export class EventDto {
     example: '2025-05-01T00:00:00.000Z',
     description: '이벤트 시작 일자',
   })
+  @Type(() => Date)
   @Expose()
   startDate: Date;
 
@@ -61,13 +87,14 @@ export class EventDto {
   @ApiProperty({
     example: [
       {
-        type: 'POINT',
-        value: 100,
+        type: EventConditionType.USER_INVITE,
+        value: 1,
         description: '조건 설명',
       },
     ],
     description: '이벤트 조건',
   })
+  @Type(() => ConditionDto)
   @Expose()
   conditions: ConditionDto[];
 
@@ -82,6 +109,7 @@ export class EventDto {
     description: '이벤트 보상',
   })
   @Expose()
+  @Type(() => RewardDto)
   rewards: RewardDto[];
 
   @ApiProperty({
@@ -95,6 +123,7 @@ export class EventDto {
     example: '2025-05-01T00:00:00.000Z',
     description: '이벤트 생성 일자',
   })
+  @Type(() => Date)
   @Expose()
   createdAt: Date;
 
@@ -102,6 +131,7 @@ export class EventDto {
     example: '2025-05-01T00:00:00.000Z',
     description: '이벤트 수정 일자',
   })
+  @Type(() => Date)
   @Expose()
   updatedAt: Date | null;
 
@@ -109,28 +139,6 @@ export class EventDto {
     example: '2025-05-01T00:00:00.000Z',
     description: '이벤트 삭제 일자',
   })
+  @Type(() => Date)
   deletedAt: Date | null;
-}
-
-export class ConditionDto {
-  @ApiProperty({
-    example: 'POINT',
-    description: '조건 타입',
-  })
-  @Expose()
-  type: string;
-
-  @ApiProperty({
-    example: 100,
-    description: '조건 값',
-  })
-  @Expose()
-  value: number;
-
-  @ApiProperty({
-    example: '조건 설명',
-    description: '조건 설명',
-  })
-  @Expose()
-  description: string;
 }

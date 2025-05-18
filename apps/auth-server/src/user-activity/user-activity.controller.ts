@@ -13,4 +13,9 @@ export class UserActivityController {
   ): Promise<CreateUserActivityResponseDto> {
     return this.userActivityService.createUserActivity(data);
   }
+
+  @MessagePattern('user_activity_get_user_activities')
+  async getUserActivities(@Payload() data: any): Promise<any> {
+    return this.userActivityService.getUserActivities(data);
+  }
 }
