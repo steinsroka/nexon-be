@@ -1,6 +1,6 @@
 import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -11,6 +11,7 @@ import { RewardController } from './controllers/reward.controller';
 import { UserController } from './controllers/user.controller';
 import { GatewayService } from './gateway.service';
 import { RewardRequestController } from './controllers/reward-request.controller';
+import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -21,27 +22,23 @@ import { RewardRequestController } from './controllers/reward-request.controller
     ClientsModule.registerAsync([
       {
         imports: [ConfigModule],
-        name: MicroServiceType.AUTH_SERVICE,
-        useFactory: () => ({
+        name: MicroServiceType.AUTH_SERVER,
+        useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: '0.0.0.0',
-            port: 3001,
-            // host: configService.get('AUTH_SERVICE_URL'),
-            // port: configService.get('AUTH_PORT'),
+            host: configService.get('AUTH_SERVER_HOST', '0.0.0.0'),
+            port: configService.get('AUTH_SERVER_PORT', 3001),
           },
         }),
         inject: [ConfigService],
       },
       {
-        name: MicroServiceType.EVENT_SERVICE,
-        useFactory: () => ({
+        name: MicroServiceType.EVENT_SERVER,
+        useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: '127.0.0.1',
-            port: 3002,
-            // host: configService.get('EVENT_HOST'),
-            // port: configService.get('EVENT_PORT'),
+            host: configService.get('EVENT_SERVER_HOST', '0.0.0.0'),
+            port: configService.get('EVENT_SERVER_PORT', 3002),
           },
         }),
         inject: [ConfigService],
@@ -68,4 +65,8 @@ import { RewardRequestController } from './controllers/reward-request.controller
   ],
   providers: [JwtStrategy, GatewayService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+  }
+}

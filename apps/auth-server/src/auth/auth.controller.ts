@@ -1,44 +1,32 @@
-import { LoginRequestDto, LoginResponseDto } from '@lib/dtos/auth/login.dto';
-import {
-  RegisterRequestDto,
-  RegisterResponseDto,
-} from '@lib/dtos/auth/register.dto';
+import { LoginResponseDto } from '@lib/dtos/auth/login.dto';
+import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
+import { RefreshResponseDto } from '@lib/dtos/auth/refresh.dto';
+import { RegisterResponseDto } from '@lib/dtos/auth/register.dto';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { AuthActant } from '@lib/types/actant.type';
-import {
-  RefreshRequestDto,
-  RefreshResponseDto,
-} from '@lib/dtos/auth/refresh.dto';
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern('auth_register')
-  async register(
-    @Payload() registerRequestDto: RegisterRequestDto,
-  ): Promise<RegisterResponseDto> {
-    return this.authService.register(registerRequestDto);
+  async register(@Payload() data: any): Promise<RegisterResponseDto> {
+    return this.authService.register(data);
   }
 
   @MessagePattern('auth_login')
-  async login(
-    @Payload() loginRequestDto: LoginRequestDto,
-  ): Promise<LoginResponseDto> {
-    return this.authService.login(loginRequestDto);
+  async login(@Payload() data: any): Promise<LoginResponseDto> {
+    return this.authService.login(data);
   }
 
   @MessagePattern('auth_refresh')
-  async refresh(
-    @Payload() refreshRequestDto: RefreshRequestDto,
-  ): Promise<RefreshResponseDto> {
-    return this.authService.refresh(refreshRequestDto);
+  async refresh(@Payload() data: any): Promise<RefreshResponseDto> {
+    return this.authService.refresh(data);
   }
 
   @MessagePattern('auth_logout')
-  async logout(@Payload() actant: AuthActant): Promise<{ success: boolean }> {
-    return this.authService.logout(actant);
+  async logout(@Payload() data: any): Promise<LogoutResponseDto> {
+    return this.authService.logout(data);
   }
 }

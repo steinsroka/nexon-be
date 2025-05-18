@@ -57,7 +57,7 @@ export class UserController {
     @Body() createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'user_create_admin',
       { createAdminRequestDto },
     );
@@ -87,7 +87,7 @@ export class UserController {
     @Body() createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'user_create_user_by_admin',
       { actant, createUserRequestDto },
     );
@@ -106,7 +106,7 @@ export class UserController {
   @Serializer(UserDto)
   async findAll(): Promise<UserDto[]> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'user_find_all',
       {},
     );
@@ -134,7 +134,7 @@ export class UserController {
   @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'user_find_one',
       { id },
     );
@@ -170,7 +170,7 @@ export class UserController {
     @Actant() actant: AuthActant,
   ): Promise<UpdateRoleResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'user_update_role',
       { actant, id, updateRoleRequestDto },
     );

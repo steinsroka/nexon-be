@@ -96,6 +96,16 @@ export class UserService {
     return plainToInstance(UserDto, user);
   }
 
+  async findOneByEmail(email: string): Promise<UserDto> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다');
+    }
+
+    return plainToInstance(UserDto, user);
+  }
+
   async updateUserRole(req: {
     actant: AuthActant;
     userId: string;
@@ -138,18 +148,20 @@ export class UserService {
    * auth 관련 메서드
    */
   async createUser(req: {
-    email: string;
-    password: string;
-    checkPassword: string;
-    name: string;
+    registerRequestDto: {
+      email: string;
+      password: string;
+      checkPassword: string;
+      name: string;
+    };
   }): Promise<User> {
-    const { email, password, checkPassword, name } = req;
+    const { email, password, checkPassword, name } = req.registerRequestDto;
 
     if (password !== checkPassword) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
 
-    const existingUser = await this.userModel.findOne({ email });
+    const existingUser = await this.userModel.findOne({ email: email });
 
     if (existingUser) {
       throw new BadRequestException('이미 등록된 이메일입니다');
@@ -158,8 +170,8 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     const newUser = new this.userModel({
-      name,
-      email,
+      name: name,
+      email: email,
       password: hashedPassword,
       role: UserRoleType.USER,
     });

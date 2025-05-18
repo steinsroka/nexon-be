@@ -41,7 +41,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
     const resp = await this.gatewayService.sendRequest<RegisterResponseDto>(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'auth_register',
       { registerRequestDto },
     );
@@ -66,7 +66,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
     const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'auth_login',
       { loginRequestDto },
     );
@@ -89,7 +89,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
     const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'auth_login',
       { refreshToken },
     );
@@ -112,7 +112,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<LogoutResponseDto> {
     const resp = await this.gatewayService.sendRequest<LogoutResponseDto>(
-      MicroServiceType.AUTH_SERVICE,
+      MicroServiceType.AUTH_SERVER,
       'auth_login',
       { actant },
     );

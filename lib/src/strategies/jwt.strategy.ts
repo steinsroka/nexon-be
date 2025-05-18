@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
+    @Inject('AUTH_SERVER') private readonly authServiceClient: ClientProxy,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

@@ -44,7 +44,7 @@ export class RewardController {
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'reward_create_reward',
       {
         actant,
@@ -69,7 +69,7 @@ export class RewardController {
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
   ): Promise<UpdateRewardResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'reward_update_reward',
       {
         actant,
