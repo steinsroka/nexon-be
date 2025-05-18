@@ -6,6 +6,7 @@ import { CreateEventResponseDto } from '@lib/dtos/event/create-event.dto';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { UpdateEventResponseDto } from '@lib/dtos/event/update-event.dto';
 import { SoftDeleteEventResponseDto } from '@lib/dtos/event/soft-delete-event.dto';
+import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 
 @Controller()
 export class EventController {
@@ -38,5 +39,12 @@ export class EventController {
     @Payload() event: any,
   ): Promise<SoftDeleteEventResponseDto> {
     return this.eventService.softDeleteEvent(event);
+  }
+
+  @MessagePattern('event_create_event_reward_request')
+  async createEventRewardRequest(
+    @Payload() event: any,
+  ): Promise<CreateEventRewardRequestResponseDto> {
+    return this.eventService.createEventRewardRequest(event);
   }
 }

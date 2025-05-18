@@ -57,7 +57,7 @@ export class RewardRequest {
   status: RewardRequestStatusType;
 
   @Prop({ type: [RewardStatus] })
-  rewards: RewardStatus[];
+  rewards: RewardStatus[]; // TODO: 이름 안햇갈리게 수정
 
   @Prop({ default: Date.now() })
   requestedAt: Date;

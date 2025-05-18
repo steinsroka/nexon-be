@@ -37,6 +37,7 @@ import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { Serializer } from '@lib/interceptors';
 import { GatewayService } from '../gateway.service';
 import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -142,6 +143,27 @@ export class EventController {
     return this.gatewayService.sendRequest(
       MicroServiceType.EVENT_SERVICE,
       'event_soft_delete_event',
+      { actant, id },
+    );
+  }
+
+  @Post(':id/reward-request')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '이벤트 리워드 요청' })
+  @ApiResponse({
+    status: 200,
+    description: '이벤트 리워드 요청 성공',
+    type: CreateEventRewardRequestResponseDto,
+  })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleType.USER)
+  async createEventRewardRequest(
+    @Actant() actant: AuthActant,
+    @Param('id') id: string,
+  ): Promise<CreateEventRewardRequestResponseDto> {
+    return this.gatewayService.sendRequest(
+      MicroServiceType.EVENT_SERVICE,
+      'event_create_event_reward_request',
       { actant, id },
     );
   }
