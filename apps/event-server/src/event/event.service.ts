@@ -70,14 +70,12 @@ export class EventService {
 
     const total = await this.eventModel.countDocuments(filter).exec();
     const items = events.map((event) => {
-      console.log(event);
       return plainToInstance(EventDto, event, {
         enableCircularCheck: true, // 순환 참조 감지 활성화
         excludeExtraneousValues: true, // @Expose 데코레이터가 있는 속성만 변환
       });
     });
 
-    console.log('items', items);
     return PaginationResponseDto.create(items, total, page, rpp);
   }
 
@@ -93,7 +91,6 @@ export class EventService {
     // 이벤트 생성
     const createdEvent = await new this.eventModel(eventData).save();
 
-    console.log('createdEvent', createdEvent);
     // 이벤트 생성 후 관련 보상 생성
     if (rewards && rewards.length > 0) {
       const res = await this.rewardModel.insertMany(
@@ -104,8 +101,6 @@ export class EventService {
           };
         }),
       );
-
-      console.log('res', res);
     }
 
     return plainToInstance(CreateEventResponseDto, createdEvent, {

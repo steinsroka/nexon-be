@@ -44,7 +44,6 @@ export class RewardRequestService {
   }): Promise<PaginateRewardRequestsResponseDto> {
     const { actant, paginateRewardRequestsRequestDto } = req;
 
-    console.log(actant, paginateRewardRequestsRequestDto);
     const {
       page = 1,
       rpp = 10,
