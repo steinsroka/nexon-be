@@ -9,10 +9,10 @@ import { AuthController } from './controllers/auth.controller';
 import { EventController } from './controllers/event.controller';
 import { RewardController } from './controllers/reward.controller';
 import { UserController } from './controllers/user.controller';
-import { GatewayService } from './gateway.service';
 import { RewardRequestController } from './controllers/reward-request.controller';
 import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
 import { UserActivityController } from './controllers/user-activity.controller';
+import { GatewayService } from './gateway.service';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { UserActivityController } from './controllers/user-activity.controller';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get('AUTH_SERVER_HOST', '0.0.0.0'),
+            host: configService.get('AUTH_SERVER_HOST', 'localhost'),
             port: configService.get('AUTH_SERVER_PORT', 3001),
           },
         }),
@@ -38,7 +38,7 @@ import { UserActivityController } from './controllers/user-activity.controller';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get('EVENT_SERVER_HOST', '0.0.0.0'),
+            host: configService.get('EVENT_SERVER_HOST', 'localhost'),
             port: configService.get('EVENT_SERVER_PORT', 3002),
           },
         }),
@@ -67,7 +67,7 @@ import { UserActivityController } from './controllers/user-activity.controller';
   ],
   providers: [JwtStrategy, GatewayService],
 })
-export class AppModule implements NestModule {
+export class GatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggingMiddleware).forRoutes('*');
   }

@@ -90,7 +90,7 @@ export class AuthController {
   ): Promise<RefreshResponseDto> {
     const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
       MicroServiceType.AUTH_SERVER,
-      'auth_login',
+      'auth_refresh',
       { refreshToken },
     );
 
@@ -113,7 +113,7 @@ export class AuthController {
   ): Promise<LogoutResponseDto> {
     const resp = await this.gatewayService.sendRequest<LogoutResponseDto>(
       MicroServiceType.AUTH_SERVER,
-      'auth_login',
+      'auth_logout',
       { actant },
     );
 

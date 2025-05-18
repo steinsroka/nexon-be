@@ -3,10 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { AppController } from './app.controller';
 import { UserActivityModule } from './user-activity/user-activity.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -37,7 +36,6 @@ import { UserActivityModule } from './user-activity/user-activity.module';
     AuthModule,
     UserActivityModule,
   ],
-  controllers: [AppController],
   providers: [],
 })
-export class AppModule {}
+export class AuthServerModule {}

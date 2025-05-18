@@ -4,6 +4,7 @@ services:
   mongodb:
     image: mongo:latest
     container_name: nexon-mongodb
+    restart: always
     ports:
       - '27017:27017'
     volumes:
@@ -15,7 +16,7 @@ services:
 
   auth-server:
     build:
-      context: ./auth-server
+      context: .
       dockerfile: Dockerfile
     container_name: nexon-auth-server
     ports:
@@ -23,19 +24,22 @@ services:
     depends_on:
       - mongodb
     environment:
-      - NODE_ENV=production
-      - MONGODB_HOST=mongodb://mongodb:27017/nexon-auth
+      - NODE_ENV=local
+      - SERVICE_NAME=AuthServer
+      - MONGODB_URI=mongodb://mongodb:27017/nexon-db
       - JWT_ACCESS_SECRET=access_secret
       - JWT_ACCESS_EXPIRES_IN=15m
       - JWT_REFRESH_SECRET=refresh_secret
       - JWT_REFRESH_EXPIRES_IN=7d
+      - JWT_ISSUER='nexon-auth-server'
       - PORT=3001
     networks:
       - nexon-network
+    command: ['node', 'dist/apps/auth-server/src/main']
 
   event-server:
     build:
-      context: ./event-server
+      context: .
       dockerfile: Dockerfile
     container_name: nexon-event-server
     ports:
@@ -44,16 +48,17 @@ services:
       - mongodb
       - auth-server
     environment:
-      - NODE_ENV=production
-      - MONGODB_HOST=mongodb://mongodb:27017/nexon-event
-      - AUTH_SERVER_URL=http://auth-server:3001
+      - SERVICE_NAME=EventServer
+      - NODE_ENV=local
+      - MONGODB_URI=mongodb://mongodb:27017/nexon-db
       - PORT=3002
     networks:
       - nexon-network
+    command: ['node', 'dist/apps/event-server/src/main']
 
   gateway-server:
     build:
-      context: ./gateway-server
+      context: .
       dockerfile: Dockerfile
     container_name: nexon-gateway-server
     ports:
@@ -62,12 +67,19 @@ services:
       - auth-server
       - event-server
     environment:
-      - NODE_ENV=production
-      - AUTH_SERVER_URL=http://auth-server:3001
-      - EVENT_SERVER_URL=http://event-server:3002
+      - NODE_ENV=local
+      - AUTH_SERVER_HOST=auth-server
+      - AUTH_SERVER_PORT=3001
+      - EVENT_SERVER_HOST=event-server
+      - EVENT_SERVER_PORT=3002
       - PORT=3000
+      - JWT_ACCESS_SECRET=access_secret
+      - JWT_ACCESS_EXPIRES_IN=15m
+      - JWT_REFRESH_SECRET=refresh_secret
+      - JWT_REFRESH_EXPIRES_IN=1d
     networks:
       - nexon-network
+    command: ['node', 'dist/apps/gateway-server/src/main']
 
 networks:
   nexon-network:
