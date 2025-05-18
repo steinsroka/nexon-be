@@ -25,6 +25,9 @@ export class User {
   role: UserRoleType;
 
   @Prop({ type: String, default: null })
+  inviteeEmail: string;
+
+  @Prop({ type: String, default: null })
   refreshToken: string | null;
 
   @Prop({ default: Date.now })

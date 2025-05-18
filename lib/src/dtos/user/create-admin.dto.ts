@@ -8,17 +8,17 @@ import {
 } from 'class-validator';
 import { UserDto } from './user.dto';
 import {
-  PASSWORD_MIN_LEN,
-  PASSWORD_MAX_LEN,
-  PASSWORD_REGEX,
-  NAME_MIN_LEN,
   NAME_MAX_LEN,
+  NAME_MIN_LEN,
+  PASSWORD_MAX_LEN,
+  PASSWORD_MIN_LEN,
+  PASSWORD_REGEX,
 } from '@lib/constants';
 import {
   EMAIL_REGEX_INVALID,
+  NAME_LENGTH_INVALID,
   PASSWORD_LENGTH_INVALID,
   PASSWORD_REGEX_INVALID,
-  NAME_LENGTH_INVALID,
 } from '@lib/msgs';
 
 export const ROLE_INVALID = '유효하지 않은 역할입니다.';

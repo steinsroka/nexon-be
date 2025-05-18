@@ -12,6 +12,7 @@ import { UserController } from './controllers/user.controller';
 import { GatewayService } from './gateway.service';
 import { RewardRequestController } from './controllers/reward-request.controller';
 import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
+import { UserActivityController } from './controllers/user-activity.controller';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
   controllers: [
     AuthController,
     UserController,
+    UserActivityController,
     EventController,
     RewardController,
     RewardRequestController,
