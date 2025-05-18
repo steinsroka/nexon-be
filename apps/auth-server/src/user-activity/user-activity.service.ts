@@ -10,6 +10,7 @@ import { plainToInstance } from 'class-transformer';
 import { CreateUserActivityResponseDto } from '@lib/dtos/user-activity/create-user-activity.dto';
 import { AuthActant } from '@lib/types';
 import { UserRoleType } from '@lib/enums';
+import { UserActivityDto } from '@lib/dtos/user-activity/user-activity.dto';
 
 @Injectable()
 export class UserActivityService {
@@ -39,5 +40,19 @@ export class UserActivityService {
     const savedUserActivity = await newUserActivity.save();
 
     return plainToInstance(CreateUserActivityResponseDto, savedUserActivity);
+  }
+
+  async getUserActivities(req: { userId: string }): Promise<{
+    userActivities: UserActivityDto[];
+  }> {
+    const { userId } = req;
+
+    const userActivities = await this.userActivityModel
+      .find({ userId })
+      .sort({ id: -1 });
+
+    return {
+      userActivities: plainToInstance(UserActivityDto, userActivities),
+    };
   }
 }

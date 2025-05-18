@@ -12,7 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
-import { EventDocument } from '../event/schemas/event.schema';
+import { Event, EventDocument } from '../event/schemas/event.schema';
 import { Reward, RewardDocument } from './schemas/reward.schema';
 
 @Injectable()
@@ -23,6 +23,12 @@ export class RewardService {
     @InjectModel(Reward.name)
     private readonly rewardModel: Model<RewardDocument>,
   ) {}
+
+  async getRewardsByEventId(req: { eventId: string }): Promise<Reward[]> {
+    const rewards = await this.rewardModel.find(req).exec();
+
+    return rewards;
+  }
 
   async createReward(req: {
     actant: AuthActant;

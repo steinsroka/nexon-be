@@ -48,7 +48,7 @@ export class Event {
   createdAt: Date;
 
   @Prop({ default: null })
-  updatedAt: Date; // TODO: 이거 붙어서 나오는 경우가 있는데 왜그런지 확인필요
+  updatedAt: Date; // TODO: 이거 값이 들어가서 나오는 경우가 있는데 왜그런지 확인필요
 
   @Prop({ default: null })
   deletedAt: Date;
@@ -57,5 +57,5 @@ export class Event {
 export const EventSchema = SchemaFactory.createForClass(Event);
 
 // 인덱스 추가
-EventSchema.index({ status: 1, startDate: 1, endDate: 1 });
-EventSchema.index({ name: 'text' });
+// EventSchema.index({ status: 1, startDate: 1, endDate: 1 });
+// EventSchema.index({ name: 'text' });
