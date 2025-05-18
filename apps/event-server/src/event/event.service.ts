@@ -139,6 +139,7 @@ export class EventService {
     return plainToClass(SoftDeleteEventResponseDto, deletedEvent);
   }
 
+  // TODO: 이하 코드 전체를 rewardRequestService로 이동
   async createEventRewardRequest(req: {
     actant: AuthActant;
     id: string;

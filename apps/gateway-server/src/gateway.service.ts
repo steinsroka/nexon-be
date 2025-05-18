@@ -4,12 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class GatewayService {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
-    @Inject('EVENT_SERVICE') private readonly eventServiceClient: ClientProxy,
+    @Inject('AUTH_SERVER') private readonly authServiceClient: ClientProxy,
+    @Inject('EVENT_SERVER') private readonly eventServiceClient: ClientProxy,
+    @Inject(REQUEST) private request: Request,
     private readonly configService: ConfigService,
   ) {}
 
@@ -18,28 +20,23 @@ export class GatewayService {
     pattern: string,
     data: REQ,
   ): Promise<RES> {
-    try {
-      const client = (() => {
-        switch (service) {
-          case MicroServiceType.AUTH_SERVICE:
-            return this.authServiceClient;
-          case MicroServiceType.EVENT_SERVICE:
-            return this.eventServiceClient;
-          default:
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            throw new Error(`Unknown service: ${service}`);
-        }
-      })();
+    const client = (() => {
+      switch (service) {
+        case MicroServiceType.AUTH_SERVER:
+          return this.authServiceClient;
+        case MicroServiceType.EVENT_SERVER:
+          return this.eventServiceClient;
+        default:
+          throw new Error(`Unknown service: ${service as string}`);
+      }
+    })();
 
-      return await firstValueFrom(client.send<RES>(pattern, data));
-    } catch (error) {
-      console.error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `[GatewayService.sendRequest] service: ${service} pattern: ${pattern} data: ${data}}`,
-        error,
-      );
-      throw error;
-    }
+    return await firstValueFrom(
+      client.send<RES>(pattern, {
+        ...data,
+        traceId: this.request['traceId'],
+      }),
+    );
   }
 
   public setRefreshTokenCookie(res: Response, token: string): void {

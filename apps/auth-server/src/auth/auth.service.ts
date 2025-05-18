@@ -1,3 +1,4 @@
+import { RegisterRequestDto } from '@lib/dtos/auth/register.dto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -6,6 +7,7 @@ import { UserService } from '../user/user.service';
 import { JwtPayload } from '@lib/types';
 import { AuthActant } from '@lib/types/actant.type';
 import { UserDto } from '@lib/dtos/user/user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -16,10 +18,7 @@ export class AuthService {
   ) {}
 
   async register(req: {
-    email: string;
-    password: string;
-    checkPassword: string;
-    name: string;
+    registerRequestDto: RegisterRequestDto;
   }): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
     const user = await this.userService.createUser(req);
 

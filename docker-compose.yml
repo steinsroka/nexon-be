@@ -46,7 +46,7 @@ services:
     environment:
       - NODE_ENV=production
       - MONGODB_HOST=mongodb://mongodb:27017/nexon-event
-      - AUTH_SERVICE_URL=http://auth-server:3001
+      - AUTH_SERVER_URL=http://auth-server:3001
       - PORT=3002
     networks:
       - nexon-network
@@ -63,8 +63,8 @@ services:
       - event-server
     environment:
       - NODE_ENV=production
-      - AUTH_SERVICE_URL=http://auth-server:3001
-      - EVENT_SERVICE_URL=http://event-server:3002
+      - AUTH_SERVER_URL=http://auth-server:3001
+      - EVENT_SERVER_URL=http://event-server:3002
       - PORT=3000
     networks:
       - nexon-network

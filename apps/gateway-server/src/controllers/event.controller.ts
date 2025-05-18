@@ -56,7 +56,7 @@ export class EventController {
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_paginate_events',
       { paginateEventsRequestDto },
     );
@@ -78,7 +78,7 @@ export class EventController {
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_create_event',
       { actant, createEventRequestDto },
     );
@@ -96,7 +96,7 @@ export class EventController {
     @Param('id') id: string,
   ): Promise<GetEventByIdResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_get_event_by_id',
       { id },
     );
@@ -119,7 +119,7 @@ export class EventController {
     @Body() updateEventRequestDto: UpdateEventRequestDto,
   ): Promise<UpdateEventResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_update_event',
       { actant, id, updateEventRequestDto },
     );
@@ -141,7 +141,7 @@ export class EventController {
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_soft_delete_event',
       { actant, id },
     );
@@ -162,7 +162,7 @@ export class EventController {
     @Param('id') id: string,
   ): Promise<CreateEventRewardRequestResponseDto> {
     return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'event_create_event_reward_request',
       { actant, id },
     );

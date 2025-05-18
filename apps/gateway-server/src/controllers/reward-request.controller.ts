@@ -45,7 +45,7 @@ export class RewardRequestController {
     @Query() paginateRewardRequestsRequestDto: PaginateRewardRequestsRequestDto,
   ): Promise<PaginateRewardRequestsResponseDto> {
     return this.gatewayService.sendRequest<PaginateRewardRequestsResponseDto>(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'reward_request_paginate_reward_requests',
       { actant, paginateRewardRequestsRequestDto },
     );
@@ -64,7 +64,7 @@ export class RewardRequestController {
     @Param('id') id: string,
   ): Promise<GetRewardRequestByIdResponseDto> {
     return this.gatewayService.sendRequest<GetRewardRequestByIdResponseDto>(
-      MicroServiceType.EVENT_SERVICE,
+      MicroServiceType.EVENT_SERVER,
       'reward_request_get_reward_request_by_id',
       { actant, id },
     );
