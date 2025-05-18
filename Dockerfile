@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build:all
+RUN npm run build
 
-CMD ["node", "dist/apps/gateway/main"] 
+CMD ["node", "dist/apps/gateway-server/main"] 

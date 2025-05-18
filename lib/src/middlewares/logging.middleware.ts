@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
-  private logger = new Logger('HTTPrequest');
+  private logger = new Logger('HttpRequest');
 
   use(req: Request, res: Response, next: NextFunction) {
     const { method, originalUrl, ip } = req;

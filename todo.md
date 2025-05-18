@@ -1,0 +1,6 @@
+- 로그 한번만 나오도록
+- msa 에러처리, dto처리
+- testing
+- redis
+- mongodb replica set for transaction
+- 데이터 시드 작업..?
