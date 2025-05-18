@@ -53,13 +53,20 @@ export class AuthService {
       }
 
       await this.userActivityService.createUserActivity({
-        userId: user._id.toString(),
+        userId: invitee.id,
         createUserActivityRequestDto: {
           // TODO: 요청이 불편해서 변경필요
           type: UserActivityType.USER_INVITE,
         },
       });
     }
+
+    await this.userActivityService.createUserActivity({
+      userId: user._id.toString(),
+      createUserActivityRequestDto: {
+        type: UserActivityType.LOGIN,
+      },
+    });
 
     const userDto = plainToInstance(UserDto, user);
 
