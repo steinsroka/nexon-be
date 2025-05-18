@@ -10,6 +10,7 @@ import { EventController } from './controllers/event.controller';
 import { RewardController } from './controllers/reward.controller';
 import { UserController } from './controllers/user.controller';
 import { GatewayService } from './gateway.service';
+import { RewardRequestController } from './controllers/reward-request.controller';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { GatewayService } from './gateway.service';
     UserController,
     EventController,
     RewardController,
+    RewardRequestController,
   ],
   providers: [JwtStrategy, GatewayService],
 })

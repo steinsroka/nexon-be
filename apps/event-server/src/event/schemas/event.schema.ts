@@ -1,3 +1,4 @@
+import { EventConditionType } from '@lib/enums/event-condition-type-enum';
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
@@ -6,11 +7,11 @@ export type EventDocument = Event & Document;
 
 @Schema({ _id: false })
 export class Condition {
-  @Prop({ required: true })
-  type: string;
+  @Prop({ default: EventConditionType.USER_INVITE, enum: EventConditionType })
+  type: EventConditionType; // USER_INVITE, LOGIN_CONSECUTIVE_DAYS, QUEST_CLEAR, LOGIN_AT
 
   @Prop({ required: true })
-  value: number;
+  value: string;
 
   @Prop()
   description: string;
@@ -51,8 +52,6 @@ export class Event {
 
   @Prop({ default: null })
   deletedAt: Date;
-
-  //TODO: 활성 / 비활성 칼럼 추가
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
