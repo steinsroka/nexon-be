@@ -1,6 +1,5 @@
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Condition } from 'apps/event-server/src/event/schemas/event.schema';
 import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ConditionDto, EventDto } from './event.dto';
@@ -52,7 +51,7 @@ export class UpdateEventRequestDto {
   status: EventStatusType;
 
   @ApiProperty({
-    type: [Condition],
+    type: [ConditionDto],
     description: '이벤트 조건',
   })
   @IsNotEmpty()

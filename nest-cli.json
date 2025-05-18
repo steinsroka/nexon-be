@@ -10,15 +10,6 @@
     "deleteOutDir": true
   },
   "projects": {
-    "gateway-server": {
-      "type": "application",
-      "root": "apps/gateway-server",
-      "entryFile": "main",
-      "sourceRoot": "apps/gateway-server/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gateway-server/tsconfig.app.json"
-      }
-    },
     "auth-server": {
       "type": "application",
       "root": "apps/auth-server",
@@ -35,6 +26,15 @@
       "sourceRoot": "apps/event-server/src",
       "compilerOptions": {
         "tsConfigPath": "apps/event-server/tsconfig.app.json"
+      }
+    },
+    "gateway-server": {
+      "type": "application",
+      "root": "apps/gateway-server",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway-server/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway-server/tsconfig.app.json"
       }
     },
     "lib": {

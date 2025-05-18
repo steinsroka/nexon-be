@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { MicroserviceExceptionFilter } from '@lib/filters/microservice-exception.filter';
+import { EventServerModule } from './event-server.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AppModule, {
+  const app = await NestFactory.createMicroservice(EventServerModule, {
     transport: Transport.TCP,
     options: {
-      host: '0.0.0.0',
+      host: 'localhost',
       port: 3002,
     },
   });

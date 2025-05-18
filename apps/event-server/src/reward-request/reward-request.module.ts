@@ -32,7 +32,7 @@ import {
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get('AUTH_SERVER_HOST', '0.0.0.0'),
+            host: configService.get('AUTH_SERVER_HOST', 'localhost'),
             port: configService.get('AUTH_SERVER_PORT', 3001),
           },
         }),

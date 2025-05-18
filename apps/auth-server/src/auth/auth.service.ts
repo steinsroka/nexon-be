@@ -159,7 +159,7 @@ export class AuthService {
     return this.jwtService.sign(payload, {
       algorithm: 'HS512',
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '15m'),
     });
   }
 
@@ -167,7 +167,7 @@ export class AuthService {
     return this.jwtService.sign(payload, {
       algorithm: 'HS512',
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '1h'),
     });
   }
 }
