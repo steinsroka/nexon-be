@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AppController } from './app.controller';
+import { UserActivityModule } from './user-activity/user-activity.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AppController } from './app.controller';
     }),
     UserModule,
     AuthModule,
+    UserActivityModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 import { REQUEST } from '@nestjs/core';
 
+// TODO: sendRequest를 추상화 하고 MSA별로 메서드 분리..?
 @Injectable()
 export class GatewayService {
   constructor(

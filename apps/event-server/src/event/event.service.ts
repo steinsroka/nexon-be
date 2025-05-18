@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import {
@@ -29,6 +29,9 @@ import {
 import { Reward, RewardDocument } from '../reward/schemas/reward.schema';
 import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum';
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
+import { ClientProxy } from '@nestjs/microservices';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class EventService {
@@ -38,6 +41,7 @@ export class EventService {
     private readonly rewardRequestModel: Model<RewardRequestDocument>,
     @InjectModel(Reward.name)
     private readonly rewardModel: Model<RewardDocument>,
+    @Inject(MicroServiceType.AUTH_SERVER) private authClient: ClientProxy,
   ) {}
 
   async paginateEvents(req: {
@@ -140,6 +144,20 @@ export class EventService {
   }
 
   // TODO: 이하 코드 전체를 rewardRequestService로 이동
+  /**
+   * auth-server로부터 사용자 활동 정보를 가져옵니다.
+   */
+  private async getUserActivities(userId: string): Promise<any[]> {
+    try {
+      return await firstValueFrom(
+        this.authClient.send('user_get_activities', userId),
+      );
+    } catch (error) {
+      console.error('Failed to get user activities:', error);
+      return [];
+    }
+  }
+
   async createEventRewardRequest(req: {
     actant: AuthActant;
     id: string;
@@ -176,7 +194,8 @@ export class EventService {
       throw new Error(`Reward request already exists for event: ${id}`);
     }
 
-    const userActivities = [];
+    // auth-server에서 사용자 활동 정보를 가져옵니다.
+    const userActivities = await this.getUserActivities(actant.user.id);
 
     const isRewardable = this.getQualificationData(event, userActivities);
     const rewards = await this.rewardModel.find({

@@ -1,25 +1,31 @@
-import { RegisterRequestDto } from '@lib/dtos/auth/register.dto';
+import { LoginRequestDto } from '@lib/dtos/auth/login.dto';
+import {
+  RegisterRequestDto,
+  RegisterResponseDto,
+} from '@lib/dtos/auth/register.dto';
+import { UserDto } from '@lib/dtos/user/user.dto';
+import { UserActivityType } from '@lib/enums/user-activity-type-enum';
+import { JwtPayload } from '@lib/types';
+import { AuthActant } from '@lib/types/actant.type';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
+import { UserActivityService } from '../user-activity/user-activity.service';
 import { UserService } from '../user/user.service';
-import { JwtPayload } from '@lib/types';
-import { AuthActant } from '@lib/types/actant.type';
-import { UserDto } from '@lib/dtos/user/user.dto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly userActivityService: UserActivityService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
   async register(req: {
     registerRequestDto: RegisterRequestDto;
-  }): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
+  }): Promise<RegisterResponseDto> {
     const user = await this.userService.createUser(req);
 
     const payload: JwtPayload = {
@@ -37,16 +43,44 @@ export class AuthService {
       refreshToken,
     );
 
+    if (req.registerRequestDto.inviteeEmail === 'admin') {
+      const invitee = await this.userService.findOneByEmail(
+        req.registerRequestDto.inviteeEmail,
+      );
+
+      if (!invitee) {
+        throw new UnauthorizedException('초대해준 유저가 존재하지 않습니다.');
+      }
+
+      await this.userActivityService.createUserActivity({
+        userId: invitee.id,
+        createUserActivityRequestDto: {
+          // TODO: 요청이 불편해서 변경필요
+          type: UserActivityType.USER_INVITE,
+        },
+      });
+    }
+
+    await this.userActivityService.createUserActivity({
+      userId: user._id.toString(),
+      createUserActivityRequestDto: {
+        type: UserActivityType.LOGIN,
+      },
+    });
+
     const userDto = plainToInstance(UserDto, user);
 
-    return { user: userDto, accessToken, refreshToken };
+    return plainToInstance(RegisterResponseDto, {
+      user: userDto,
+      accessToken,
+      refreshToken,
+    });
   }
 
   async login(req: {
-    email: string;
-    password: string;
+    loginRequestDto: LoginRequestDto;
   }): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
-    const { email, password } = req;
+    const { email, password } = req.loginRequestDto;
     // TODO: 이미 로그인되어있는 유저가 다시 로그인 시도할 경우에 대한 처리
     const user = await this.userService.validateUser(email, password);
 
@@ -64,6 +98,14 @@ export class AuthService {
       user._id.toString(),
       refreshToken,
     );
+
+    // NOTE: 정책에 따라 로그인 기록 간격 추가 필요
+    await this.userActivityService.createUserActivity({
+      userId: user._id.toString(),
+      createUserActivityRequestDto: {
+        type: UserActivityType.LOGIN,
+      },
+    });
 
     const userDto = plainToInstance(UserDto, user);
 

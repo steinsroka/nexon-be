@@ -3,6 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -70,6 +71,15 @@ export class RegisterRequestDto {
   })
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({
+    example: 'user@example.com',
+    description: '초대한사람 email',
+    required: false,
+  })
+  @IsEmail({}, { message: EMAIL_REGEX_INVALID })
+  @IsOptional()
+  inviteeEmail?: string;
 }
 
 export class RegisterResponseDto {
