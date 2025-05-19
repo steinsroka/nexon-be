@@ -18,7 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RewardGatewayService } from '../services/reward-gateway.service';
+import { RewardService } from '../services/reward.service';
 
 @ApiTags('rewards')
 @Controller('events/:event_id/rewards')
@@ -26,7 +26,7 @@ import { RewardGatewayService } from '../services/reward-gateway.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
 export class RewardController {
-  constructor(private readonly rewardGatewayService: RewardGatewayService) {}
+  constructor(private readonly rewardService: RewardService) {}
 
   @Post()
   @ApiOperation({ summary: '이벤트에 리워드 추가' })
@@ -40,10 +40,7 @@ export class RewardController {
     @Param('event_id') eventId: string,
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
-    return this.rewardGatewayService.createReward(
-      eventId,
-      createRewardRequestDto,
-    );
+    return this.rewardService.createReward(eventId, createRewardRequestDto);
   }
 
   @Put(':id') // TODO: Patch??
@@ -59,10 +56,6 @@ export class RewardController {
     @Param('id') id: string,
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
   ): Promise<UpdateRewardResponseDto> {
-    return this.rewardGatewayService.updateReward(
-      eventId,
-      id,
-      updateRewardRequestDto,
-    );
+    return this.rewardService.updateReward(eventId, id, updateRewardRequestDto);
   }
 }

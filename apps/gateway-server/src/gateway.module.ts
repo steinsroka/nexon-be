@@ -6,6 +6,7 @@ import {
 import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,14 +18,13 @@ import { RewardRequestController } from './controllers/reward-request.controller
 import { RewardController } from './controllers/reward.controller';
 import { UserActivityController } from './controllers/user-activity.controller';
 import { UserController } from './controllers/user.controller';
-import { AuthGatewayService } from './services/auth-gateway.service';
-import { EventGatewayService } from './services/event-gateway.service';
-import { RewardGatewayService } from './services/reward-gateway.service';
-import { RewardRequestGatewayService } from './services/reward-request-gateway.service';
+import { AuthService } from './services/auth.service';
+import { EventService } from './services/event.service';
+import { RewardRequestService } from './services/reward-request.service';
+import { RewardService } from './services/reward.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
-import { UserActivityGatewayService } from './services/user-activity-gateway.service';
-import { UserGatewayService } from './services/user-gateway.service';
-import { CacheModule } from '@nestjs/cache-manager';
+import { UserActivityService } from './services/user-activity.service';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -93,12 +93,12 @@ import { CacheModule } from '@nestjs/cache-manager';
   providers: [
     JwtStrategy,
     TokenBlacklistService,
-    AuthGatewayService,
-    EventGatewayService,
-    RewardGatewayService,
-    RewardRequestGatewayService,
-    UserGatewayService,
-    UserActivityGatewayService,
+    AuthService,
+    EventService,
+    RewardService,
+    RewardRequestService,
+    UserService,
+    UserActivityService,
   ],
 })
 export class GatewayModule implements NestModule {

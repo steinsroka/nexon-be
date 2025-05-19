@@ -16,7 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { RewardRequestGatewayService } from '../services/reward-request-gateway.service';
+import { RewardRequestService } from '../services/reward-request.service';
 
 @ApiTags('reward-requests')
 @Controller('reward-requests')
@@ -29,9 +29,7 @@ import { RewardRequestGatewayService } from '../services/reward-request-gateway.
   UserRoleType.USER,
 )
 export class RewardRequestController {
-  constructor(
-    private readonly rewardRequestGatewayService: RewardRequestGatewayService,
-  ) {}
+  constructor(private readonly rewardRequestService: RewardRequestService) {}
 
   @Get()
   @ApiOperation({ summary: '리워드 요청 목록 조회' })
@@ -45,7 +43,7 @@ export class RewardRequestController {
     @Actant() actant: AuthActant,
     @Query() paginateRewardRequestsRequestDto: PaginateRewardRequestsRequestDto,
   ): Promise<PaginateRewardRequestsResponseDto> {
-    return this.rewardRequestGatewayService.paginateRewardRequests(
+    return this.rewardRequestService.paginateRewardRequests(
       actant,
       paginateRewardRequestsRequestDto,
     );
@@ -63,6 +61,6 @@ export class RewardRequestController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<GetRewardRequestByIdResponseDto> {
-    return this.rewardRequestGatewayService.getRewardRequestById(actant, id);
+    return this.rewardRequestService.getRewardRequestById(actant, id);
   }
 }

@@ -26,18 +26,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { AuthGatewayService } from '../services/auth-gateway.service';
 import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
 import { TokenBlacklistService } from '../services/token-blacklist.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { AuthService } from '../services/auth.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authGatewayService: AuthGatewayService,
-    private readonly tokenBlacklistService: TokenBlacklistService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: '사용자 회원가입' })
@@ -52,10 +49,7 @@ export class AuthController {
     @Body() registerRequestDto: RegisterRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    const resp = await this.authGatewayService.register(registerRequestDto);
-
-    this.authGatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-    return resp;
+    return this.authService.register(registerRequestDto, res);
   }
 
   @Post('login')
@@ -72,10 +66,7 @@ export class AuthController {
     @Body() loginRequestDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    const resp = await this.authGatewayService.login(loginRequestDto);
-
-    this.authGatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-    return resp;
+    return this.authService.login(loginRequestDto, res);
   }
 
   @Post('refresh')
@@ -90,20 +81,7 @@ export class AuthController {
     @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
-    // 토큰이 블랙리스트에 있는지 확인
-    const isBlacklisted =
-      await this.tokenBlacklistService.isBlacklisted(refreshToken);
-
-    if (isBlacklisted) {
-      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
-    }
-
-    const resp = await this.authGatewayService.refresh(refreshToken);
-
-    await this.tokenBlacklistService.addToBlacklist(refreshToken);
-
-    this.authGatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-    return resp;
+    return this.authService.refresh(refreshToken, res);
   }
 
   @Post('logout')
@@ -115,29 +93,19 @@ export class AuthController {
     description: '로그아웃 성공',
   })
   async logout(
+    @Req() req: Request,
     @Actant() actant: AuthActant,
     @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
     @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken?: string,
   ): Promise<LogoutResponseDto> {
     const authorization = req.headers.authorization;
-    const resp = await this.authGatewayService.logout(actant);
+    const resp = await this.authService.logout(
+      actant,
+      res,
+      authorization,
+      refreshToken,
+    );
 
-    // 액세스 토큰을 블랙리스트에 추가
-    if (authorization) {
-      console.log(authorization);
-      const token = authorization.split(' ')[1]; // Bearer 토큰에서 실제 토큰 부분만 추출
-
-      if (token) {
-        await this.tokenBlacklistService.addToBlacklist(token);
-      }
-    }
-
-    if (refreshToken) {
-      await this.tokenBlacklistService.addToBlacklist(refreshToken);
-    }
-
-    this.authGatewayService.clearRefreshTokenCookie(res);
     return resp;
   }
 }

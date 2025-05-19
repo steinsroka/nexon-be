@@ -35,13 +35,13 @@ import {
 } from '@nestjs/swagger';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { Serializer } from '@lib/interceptors';
-import { EventGatewayService } from '../services/event-gateway.service';
+import { EventService } from '../services/event.service';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 
 @ApiTags('events')
 @Controller('events')
 export class EventController {
-  constructor(private readonly eventGatewayService: EventGatewayService) {}
+  constructor(private readonly eventService: EventService) {}
 
   @Get()
   @ApiOperation({ summary: '이벤트 목록 조회' })
@@ -54,7 +54,7 @@ export class EventController {
   async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
-    return this.eventGatewayService.paginateEvents(paginateEventsRequestDto);
+    return this.eventService.paginateEvents(paginateEventsRequestDto);
   }
 
   @Post()
@@ -72,7 +72,7 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
-    return this.eventGatewayService.createEvent(actant, createEventRequestDto);
+    return this.eventService.createEvent(actant, createEventRequestDto);
   }
 
   @Get(':id')
@@ -86,7 +86,7 @@ export class EventController {
   async getEventById(
     @Param('id') id: string,
   ): Promise<GetEventByIdResponseDto> {
-    return this.eventGatewayService.getEventById(id);
+    return this.eventService.getEventById(id);
   }
 
   @Put(':id')
@@ -105,11 +105,7 @@ export class EventController {
     @Param('id') id: string,
     @Body() updateEventRequestDto: UpdateEventRequestDto,
   ): Promise<UpdateEventResponseDto> {
-    return this.eventGatewayService.updateEvent(
-      actant,
-      id,
-      updateEventRequestDto,
-    );
+    return this.eventService.updateEvent(actant, id, updateEventRequestDto);
   }
 
   @Delete(':id')
@@ -127,7 +123,7 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {
-    return this.eventGatewayService.softDeleteEvent(actant, id);
+    return this.eventService.softDeleteEvent(actant, id);
   }
 
   @Post(':id/reward-request')
@@ -144,6 +140,6 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<CreateEventRewardRequestResponseDto> {
-    return this.eventGatewayService.createEventRewardRequest(actant, id);
+    return this.eventService.createEventRewardRequest(actant, id);
   }
 }

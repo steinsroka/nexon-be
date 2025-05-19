@@ -8,10 +8,10 @@ import { AuthActant } from '@lib/types/actant.type';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { REQUEST } from '@nestjs/core';
-import { BaseGatewayService } from './base-gateway.service';
+import { BaseGatewayService } from './base.service';
 
 @Injectable()
-export class RewardRequestGatewayService extends BaseGatewayService {
+export class RewardRequestService extends BaseGatewayService {
   constructor(
     @Inject(MicroServiceType.EVENT_SERVER)
     protected readonly eventServiceClient: ClientProxy,

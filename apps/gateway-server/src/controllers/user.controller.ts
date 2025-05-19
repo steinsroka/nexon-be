@@ -33,12 +33,12 @@ import {
   UpdateRoleResponseDto,
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { UserGatewayService } from '../services/user-gateway.service';
+import { UserService } from '../services/user.service';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userGatewayService: UserGatewayService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post('admin')
   @ApiOperation({ summary: '관리자 계정 생성 (초기 설정용)' })
@@ -55,7 +55,7 @@ export class UserController {
   async createAdmin(
     @Body() createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
-    return this.userGatewayService.createAdmin(createAdminRequestDto);
+    return this.userService.createAdmin(createAdminRequestDto);
   }
 
   @Post()
@@ -81,10 +81,7 @@ export class UserController {
     @Actant() actant: AuthActant,
     @Body() createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.userGatewayService.createUserByAdmin(
-      actant,
-      createUserRequestDto,
-    );
+    return this.userService.createUserByAdmin(actant, createUserRequestDto);
   }
 
   @Get()
@@ -99,7 +96,7 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findAll(): Promise<UserDto[]> {
-    return this.userGatewayService.findAll();
+    return this.userService.findAll();
   }
 
   @Get(':id')
@@ -123,7 +120,7 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.userGatewayService.findOne(id);
+    return this.userService.findOne(id);
   }
 
   @Patch(':id/role')
@@ -155,10 +152,6 @@ export class UserController {
     @Body() updateRoleRequestDto: UpdateRoleRequestDto,
     @Actant() actant: AuthActant,
   ): Promise<UpdateRoleResponseDto> {
-    return this.userGatewayService.updateUserRole(
-      id,
-      updateRoleRequestDto,
-      actant,
-    );
+    return this.userService.updateUserRole(id, updateRoleRequestDto, actant);
   }
 }
