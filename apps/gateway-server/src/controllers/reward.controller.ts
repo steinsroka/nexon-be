@@ -8,7 +8,6 @@ import {
   UpdateRewardResponseDto,
 } from '@lib/dtos/reward/update-reward.dto';
 import { UserRoleType } from '@lib/enums';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtAuthGuard } from '@lib/guards';
 import { RolesGuard } from '@lib/guards/roles.guard';
 import { Serializer } from '@lib/interceptors';
@@ -19,7 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GatewayService } from '../gateway.service';
+import { RewardGatewayService } from '../services/reward-gateway.service';
 
 @ApiTags('rewards')
 @Controller('events/:event_id/rewards')
@@ -27,7 +26,7 @@ import { GatewayService } from '../gateway.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleType.OPERATOR, UserRoleType.ADMIN)
 export class RewardController {
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly rewardGatewayService: RewardGatewayService) {}
 
   @Post()
   @ApiOperation({ summary: '이벤트에 리워드 추가' })
@@ -41,13 +40,9 @@ export class RewardController {
     @Param('event_id') eventId: string,
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'reward_create_reward',
-      {
-        eventId,
-        createRewardRequestDto,
-      },
+    return this.rewardGatewayService.createReward(
+      eventId,
+      createRewardRequestDto,
     );
   }
 
@@ -64,14 +59,10 @@ export class RewardController {
     @Param('id') id: string,
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
   ): Promise<UpdateRewardResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'reward_update_reward',
-      {
-        eventId,
-        id,
-        updateRewardRequestDto,
-      },
+    return this.rewardGatewayService.updateReward(
+      eventId,
+      id,
+      updateRewardRequestDto,
     );
   }
 }

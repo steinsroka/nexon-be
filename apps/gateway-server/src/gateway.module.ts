@@ -1,9 +1,10 @@
-import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { DEFAULT_JWT_ACCESS_EXPIRES } from '@lib/constants/auth.constant';
 import {
   DEFAULT_AUTH_SERVER_PORT,
   DEFAULT_EVENT_SERVER_PORT,
 } from '@lib/constants/common.constant';
-import { DEFAULT_JWT_ACCESS_EXPIRES } from '@lib/constants/auth.constant';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -12,12 +13,16 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './controllers/auth.controller';
 import { EventController } from './controllers/event.controller';
-import { RewardController } from './controllers/reward.controller';
-import { UserController } from './controllers/user.controller';
 import { RewardRequestController } from './controllers/reward-request.controller';
-import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
+import { RewardController } from './controllers/reward.controller';
 import { UserActivityController } from './controllers/user-activity.controller';
-import { GatewayService } from './gateway.service';
+import { UserController } from './controllers/user.controller';
+import { AuthGatewayService } from './services/auth-gateway.service';
+import { EventGatewayService } from './services/event-gateway.service';
+import { RewardGatewayService } from './services/reward-gateway.service';
+import { RewardRequestGatewayService } from './services/reward-request-gateway.service';
+import { UserActivityGatewayService } from './services/user-activity-gateway.service';
+import { UserGatewayService } from './services/user-gateway.service';
 
 @Module({
   imports: [
@@ -79,7 +84,15 @@ import { GatewayService } from './gateway.service';
     RewardController,
     RewardRequestController,
   ],
-  providers: [JwtStrategy, GatewayService],
+  providers: [
+    JwtStrategy,
+    AuthGatewayService,
+    EventGatewayService,
+    RewardGatewayService,
+    RewardRequestGatewayService,
+    UserGatewayService,
+    UserActivityGatewayService,
+  ],
 })
 export class GatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
