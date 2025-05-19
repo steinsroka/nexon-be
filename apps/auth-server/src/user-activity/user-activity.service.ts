@@ -25,7 +25,7 @@ export class UserActivityService {
     createUserActivityRequestDto: CreateUserActivityRequestDto;
   }): Promise<CreateUserActivityResponseDto> {
     const { actant, userId, createUserActivityRequestDto } = req;
-    const { type, value } = createUserActivityRequestDto;
+    const { type, metadata } = createUserActivityRequestDto;
 
     if (actant?.user.role === UserRoleType.USER && actant?.user.id !== userId) {
       throw new UnauthorizedException('본인의 활동 기록만 추가할 수 있습니다.');
@@ -34,7 +34,7 @@ export class UserActivityService {
     const newUserActivity = await this.userActivityModel.create({
       userId,
       type,
-      value,
+      metadata,
     });
 
     return plainToInstance(CreateUserActivityResponseDto, newUserActivity);

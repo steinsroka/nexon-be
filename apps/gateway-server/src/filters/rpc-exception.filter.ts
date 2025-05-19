@@ -17,16 +17,13 @@ export class RpcExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    // 요청 추적을 위한 traceId
     const traceId = request['traceId'] || 'no-trace-id';
 
-    // 마이크로서비스에서 반환된 예외 정보 추출
     const status = this.extractStatusCode(exception);
     const code = this.extractErrorCode(exception);
     const message = this.extractErrorMessage(exception);
     const service = this.extractServiceName(exception);
 
-    // 응답 형식화
     const errorResponse = {
       statusCode: status,
       message: message,
@@ -37,7 +34,6 @@ export class RpcExceptionFilter implements ExceptionFilter {
       path: request.url,
     };
 
-    // 상세 로그 기록
     this.logger.error(`
       Status: ${status}
       Error: ${message}
@@ -48,7 +44,6 @@ export class RpcExceptionFilter implements ExceptionFilter {
       ${exception.stack || ''}
     `);
 
-    // 클라이언트에 응답
     response.status(status).json(errorResponse);
   }
 
@@ -57,7 +52,6 @@ export class RpcExceptionFilter implements ExceptionFilter {
       return exception.getStatus();
     }
 
-    // RPC 예외에서 상태 코드 추출 시도
     if (exception?.error?.status) {
       return exception.error.status;
     }

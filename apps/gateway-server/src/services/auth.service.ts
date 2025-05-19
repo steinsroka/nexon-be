@@ -90,10 +90,8 @@ export class AuthService extends BaseGatewayService {
       actant,
     });
 
-    // 액세스 토큰을 블랙리스트에 추가
     if (authorization) {
-      console.log(authorization);
-      const token = authorization.split(' ')[1]; // Bearer 토큰에서 실제 토큰 부분만 추출
+      const token = authorization.split(' ')[1];
 
       if (token) {
         await this.tokenBlacklistService.addToBlacklist(token);

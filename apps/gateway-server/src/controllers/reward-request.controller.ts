@@ -1,5 +1,5 @@
 import { Actant, Roles } from '@lib/decorators';
-import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
+import { GetRewardRequestSummaryByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
 import {
   PaginateRewardRequestsRequestDto,
   PaginateRewardRequestsResponseDto,
@@ -22,12 +22,7 @@ import { RewardRequestService } from '../services/reward-request.service';
 @Controller('reward-requests')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(
-  UserRoleType.ADMIN,
-  UserRoleType.AUDITOR,
-  UserRoleType.OPERATOR,
-  UserRoleType.USER,
-)
+@Roles(UserRoleType.ADMIN, UserRoleType.AUDITOR, UserRoleType.USER)
 export class RewardRequestController {
   constructor(private readonly rewardRequestService: RewardRequestService) {}
 
@@ -54,13 +49,13 @@ export class RewardRequestController {
   @ApiResponse({
     status: 200,
     description: '리워드 요청 상세 조회 성공',
-    type: GetRewardRequestByIdResponseDto,
+    type: GetRewardRequestSummaryByIdResponseDto,
   })
-  @Serializer(GetRewardRequestByIdResponseDto)
-  async getRewardRequestById(
+  @Serializer(GetRewardRequestSummaryByIdResponseDto)
+  async getRewardRequestSummaryById(
     @Actant() actant: AuthActant,
     @Param('id') id: string,
-  ): Promise<GetRewardRequestByIdResponseDto> {
-    return this.rewardRequestService.getRewardRequestById(actant, id);
+  ): Promise<GetRewardRequestSummaryByIdResponseDto> {
+    return this.rewardRequestService.getRewardRequestSummaryById(actant, id);
   }
 }

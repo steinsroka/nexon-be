@@ -2,6 +2,8 @@ import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.e
 import { RewardTransactionStatusType } from '@lib/enums/reward-transaction-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import { UserDto } from '../user/user.dto';
+import { EventDto } from '../event/event.dto';
 
 export class RewardTransactionDto {
   @ApiProperty({
@@ -26,7 +28,7 @@ export class RewardTransactionDto {
     example: new Date(),
   })
   @Expose()
-  createdAt: Date;
+  transactedAt: Date;
 }
 
 export class RewardRequestDto {
@@ -93,4 +95,12 @@ export class RewardRequestDto {
   })
   @Expose()
   requestedAt: Date;
+}
+
+export class RewardRequestSummaryDto extends RewardRequestDto {
+  @Expose()
+  user: UserDto;
+
+  @Expose()
+  event: EventDto;
 }

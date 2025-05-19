@@ -11,7 +11,7 @@
 
 ## 프로젝트 구조
 
-- **auth-server**: 인증 및 사용자 관리 서버 (포트: 3001)
+- **[auth-server](apps/auth-server/README.md)**: 인증 및 사용자 관리 서버 (포트: 3001)
 - **event-server**: 이벤트 및 보상 관리 서버 (포트: 3002)
 - **gateway-server**: API 게이트웨이 서버 (포트: 3000)
 
@@ -60,20 +60,6 @@ npm run stop
 # 서비스 중지 및 볼륨 삭제
 npm run prune
 ```
-
-## API 문서
-
-각 서비스의 API 문서는 다음 URL에서 확인할 수 있습니다:
-
-- 인증 서버: TBD
-- 이벤트 서버: TBD
-- 게이트웨이: TBD
-
-## 브랜치 전략
-
-feature - master - (develop - production)
-
-feature 브랜치를 통해 PR을 생성하여 기여합니다.
 
 ## 주석 전략
 

@@ -43,7 +43,7 @@ export class RewardController {
     return this.rewardService.createReward(eventId, createRewardRequestDto);
   }
 
-  @Put(':id') // TODO: Patch??
+  @Put(':id')
   @ApiOperation({ summary: '리워드 수정' })
   @ApiResponse({
     status: 200,

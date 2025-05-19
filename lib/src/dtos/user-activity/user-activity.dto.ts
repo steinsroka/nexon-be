@@ -1,4 +1,5 @@
 import { UserActivityType } from '@lib/enums/user-activity-type-enum';
+import { ActivityMetadata } from '@lib/types/activity-metadata.type';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
 
@@ -41,7 +42,7 @@ export class UserActivityDto {
     type: String,
   })
   @Expose()
-  value: string;
+  metadata: ActivityMetadata;
 
   @ApiProperty({
     example: '2025-05-01T00:00:00.000Z',

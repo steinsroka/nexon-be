@@ -99,7 +99,6 @@ export class UserController {
     description: '사용자 목록 조회 성공',
     type: [UserDto],
   })
-  // @Serializer(UserDto) TODO:
   async paginateUsers(
     @Query() paginateUsersRequestDto: PaginateUsersRequestDto,
   ): Promise<PaginateUsersResponseDto> {
@@ -126,8 +125,8 @@ export class UserController {
     description: '사용자를 찾을 수 없음',
   })
   @Serializer(UserDto)
-  async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.userService.findOne(id);
+  async findOneById(@Param('id') id: string): Promise<UserDto> {
+    return this.userService.findOneById(id);
   }
 
   @Patch(':id/role')

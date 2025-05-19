@@ -7,7 +7,7 @@ import {
 } from '@lib/dtos/reward-request/paginate-reward-requests.dto';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 import { AuthActant } from '@lib/types';
-import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
+import { GetRewardRequestSummaryByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
 
 @Controller()
 export class RewardRequestController {
@@ -25,10 +25,10 @@ export class RewardRequestController {
   }
 
   @MessagePattern('reward_request_get_reward_request_by_id')
-  async getRewardRequestById(
+  async getRewardRequestSummaryById(
     @Payload() data: { actant: AuthActant; id: string },
-  ): Promise<GetRewardRequestByIdResponseDto> {
-    return this.rewardRequestService.getRewardRequestById(data);
+  ): Promise<GetRewardRequestSummaryByIdResponseDto> {
+    return this.rewardRequestService.getRewardRequestSummaryById(data);
   }
 
   // NOTE: Endpoint 는 event 서버에 있지만, 로직 분리를 위해 reward-request 서버에서 처리

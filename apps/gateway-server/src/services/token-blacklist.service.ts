@@ -33,6 +33,6 @@ export class TokenBlacklistService {
   async isBlacklisted(token: string): Promise<boolean> {
     const blacklisted = await this.cacheManager.get(token);
 
-    return blacklisted !== undefined;
+    return blacklisted === 'blacklisted';
   }
 }

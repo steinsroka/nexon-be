@@ -3,8 +3,8 @@ import {
   CreateEventRequestDto,
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
-import { EventDto } from '@lib/dtos/event/event.dto';
-import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { EventDto, EventSummaryDto } from '@lib/dtos/event/event.dto';
+import { getEventSummaryByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
@@ -23,6 +23,8 @@ import { plainToClass, plainToInstance } from 'class-transformer';
 import { FilterQuery, Model } from 'mongoose';
 import { Reward, RewardDocument } from '../reward/schemas/reward.schema';
 import { Event, EventDocument } from './schemas/event.schema';
+import * as dayjs from 'dayjs';
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 
 @Injectable()
 export class EventService {
@@ -71,8 +73,8 @@ export class EventService {
     const total = await this.eventModel.countDocuments(filter).exec();
     const items = events.map((event) => {
       return plainToInstance(EventDto, event, {
-        enableCircularCheck: true, // 순환 참조 감지 활성화
-        excludeExtraneousValues: true, // @Expose 데코레이터가 있는 속성만 변환
+        enableCircularCheck: true,
+        excludeExtraneousValues: true,
       });
     });
 
@@ -84,21 +86,22 @@ export class EventService {
   }): Promise<CreateEventResponseDto> {
     const { createEventRequestDto } = req;
 
-    // rewards 데이터를 제외한 이벤트 정보만 저장
     const { rewards, ...eventData } = createEventRequestDto;
 
-    // 이벤트 생성
-    const createdEvent = await new this.eventModel(eventData).save();
+    const createdEvent = await this.eventModel.create(eventData);
 
     // 이벤트 생성 후 관련 보상 생성
     if (rewards && rewards.length > 0) {
-      const res = await this.rewardModel.insertMany(
+      await this.rewardModel.insertMany(
         rewards.map((reward: CreateRewardRequestDto) => {
           return {
             ...reward,
             eventId: createdEvent._id,
           };
         }),
+        {
+          ordered: false,
+        },
       );
     }
 
@@ -108,7 +111,9 @@ export class EventService {
     });
   }
 
-  async getEventById(req: { id: string }): Promise<GetEventByIdResponseDto> {
+  async getEventSummaryById(req: {
+    id: string;
+  }): Promise<getEventSummaryByIdResponseDto> {
     const { id } = req;
 
     const event = await this.findEventById(id);
@@ -122,7 +127,7 @@ export class EventService {
 
     const rewards = await this.rewardModel.find({ eventId: id }).exec();
 
-    const eventDto = plainToInstance(EventDto, event, {
+    const eventDto = plainToInstance(EventSummaryDto, event, {
       excludeExtraneousValues: true,
       enableCircularCheck: true,
     });
@@ -149,7 +154,10 @@ export class EventService {
       );
     }
 
-    return plainToInstance(UpdateEventResponseDto, updatedEvent);
+    return plainToInstance(UpdateEventResponseDto, updatedEvent, {
+      excludeExtraneousValues: true,
+      enableCircularCheck: true,
+    });
   }
 
   async softDeleteEvent(req: {
@@ -157,16 +165,32 @@ export class EventService {
   }): Promise<SoftDeleteEventResponseDto> {
     const { id } = req;
 
-    const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
+    const softDeletedEvent = await this.eventModel
+      .findOneAndUpdate(
+        {
+          id,
+          deletedAt: null,
+        },
+        {
+          deletedAt: dayjs().toDate(),
+          status: EventStatusType.INACTIVE,
+        },
+      )
+      .exec();
 
-    if (!deletedEvent) {
+    if (!softDeletedEvent) {
       throw RpcExceptionUtil.notFound(
         `이벤트를 찾을 수 없습니다 (ID: ${id})`,
         'EVENT_NOT_FOUND',
       );
     }
 
-    return plainToClass(SoftDeleteEventResponseDto, deletedEvent);
+    const updatedEvent = await this.eventModel.findById(id).exec();
+
+    return plainToClass(SoftDeleteEventResponseDto, updatedEvent, {
+      excludeExtraneousValues: true,
+      enableCircularCheck: true,
+    });
   }
 
   async findEventById(id: string): Promise<EventDocument | null> {

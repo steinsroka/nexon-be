@@ -1,3 +1,3 @@
-import { EventDto } from './event.dto';
+import { EventSummaryDto } from './event.dto';
 
-export class GetEventByIdResponseDto extends EventDto {}
+export class getEventSummaryByIdResponseDto extends EventSummaryDto {}

@@ -11,6 +11,11 @@ import {
   RewardRequest,
   RewardRequestSchema,
 } from './schemas/reward-request.schema';
+import {
+  User,
+  UserSchema,
+} from 'apps/auth-server/src/user/schemas/user.schema';
+import { EventSchema } from '../event/schemas/event.schema';
 
 @Module({
   imports: [
@@ -21,6 +26,16 @@ import {
         name: RewardRequest.name,
         schema: RewardRequestSchema,
         collection: 'reward_requests',
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
+        collection: 'users',
+      },
+      {
+        name: Event.name,
+        schema: EventSchema,
+        collection: 'events',
       },
     ]),
 

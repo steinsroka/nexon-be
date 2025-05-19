@@ -32,7 +32,6 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     try {
-      // NOTE: 모델 생성과 저장을 하나의 원자적 연산으로 수행
       const savedUser = await this.userModel.create({
         name,
         email,
@@ -126,17 +125,19 @@ export class UserService {
       );
     }
 
-    return plainToInstance(UserDto, user);
+    return plainToInstance(UserDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async updateUserRole(req: {
     actant: AuthActant;
-    userId: string;
+    id: string;
     updateRoleRequestDto: UpdateRoleRequestDto;
   }): Promise<UserDto> {
     const { user: requestingUser } = req.actant;
     const { role: newRole } = req.updateRoleRequestDto;
-    const { userId } = req;
+    const { id } = req;
 
     if (requestingUser.role !== UserRoleType.ADMIN) {
       throw RpcExceptionUtil.forbidden(
@@ -145,7 +146,7 @@ export class UserService {
       );
     }
 
-    if (!Types.ObjectId.isValid(userId)) {
+    if (!Types.ObjectId.isValid(id)) {
       throw RpcExceptionUtil.badRequest(
         '유효하지 않은 ID 형식입니다',
         'INVALID_ID_FORMAT',
@@ -159,7 +160,7 @@ export class UserService {
       );
     }
 
-    const user = await this.userModel.findById(userId);
+    const user = await this.userModel.findById(id);
 
     if (!user) {
       throw RpcExceptionUtil.notFound(
@@ -169,7 +170,7 @@ export class UserService {
     }
 
     // NOTE: 관리자의 역할을 변경하는 것 방지
-    if (userId === requestingUser.id || user.role === UserRoleType.ADMIN) {
+    if (id === requestingUser.id || user.role === UserRoleType.ADMIN) {
       throw RpcExceptionUtil.forbidden(
         '관리자 권한은 변경할 수 없습니다',
         'ADMIN_ROLE_PROTECTED',
