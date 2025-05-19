@@ -201,7 +201,7 @@ export class RewardRequestService {
     const isRewardable = this.getQualificationData(event, userActivities);
 
     if (isRewardable) {
-      const rewards = await this.rewardService.getRewardsByEventId({
+      const rewards = await this.rewardService.findRewardsByEventId({
         eventId: id,
       });
 

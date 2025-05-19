@@ -12,19 +12,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
-import { Event, EventDocument } from '../event/schemas/event.schema';
+import { EventService } from '../event/event.service';
 import { Reward, RewardDocument } from './schemas/reward.schema';
 
 @Injectable()
 export class RewardService {
   constructor(
-    @InjectModel(Event.name)
-    private readonly eventModel: Model<EventDocument>,
     @InjectModel(Reward.name)
     private readonly rewardModel: Model<RewardDocument>,
+    private readonly eventService: EventService,
   ) {}
 
-  async getRewardsByEventId(req: { eventId: string }): Promise<Reward[]> {
+  async findRewardsByEventId(req: { eventId: string }): Promise<Reward[]> {
     const rewards = await this.rewardModel.find(req).exec();
 
     return rewards;
@@ -36,7 +35,7 @@ export class RewardService {
   }): Promise<CreateRewardResponseDto> {
     const { eventId, createRewardRequestDto } = req;
 
-    const event = await this.eventModel.findById(eventId).exec();
+    const event = await this.eventService.findEventById(eventId);
 
     if (!event) {
       throw RpcExceptionUtil.notFound(
@@ -67,7 +66,7 @@ export class RewardService {
   }): Promise<UpdateRewardResponseDto> {
     const { eventId, id, updateRewardRequestDto } = req;
 
-    const event = await this.eventModel.findById(eventId).exec();
+    const event = await this.eventService.findEventById(eventId);
 
     if (!event) {
       throw RpcExceptionUtil.notFound(

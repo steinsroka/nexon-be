@@ -111,7 +111,7 @@ export class EventService {
   async getEventById(req: { id: string }): Promise<GetEventByIdResponseDto> {
     const { id } = req;
 
-    const event = await this.eventModel.findById(id).exec();
+    const event = await this.findEventById(id);
 
     if (!event) {
       throw RpcExceptionUtil.notFound(
@@ -167,5 +167,9 @@ export class EventService {
     }
 
     return plainToClass(SoftDeleteEventResponseDto, deletedEvent);
+  }
+
+  async findEventById(id: string): Promise<EventDocument | null> {
+    return await this.eventModel.findById(id).exec();
   }
 }

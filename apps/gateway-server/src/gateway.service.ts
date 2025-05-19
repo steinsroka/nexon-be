@@ -19,8 +19,10 @@ import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class GatewayService {
   constructor(
-    @Inject('AUTH_SERVER') private readonly authServiceClient: ClientProxy,
-    @Inject('EVENT_SERVER') private readonly eventServiceClient: ClientProxy,
+    @Inject(MicroServiceType.AUTH_SERVER)
+    private readonly authServiceClient: ClientProxy,
+    @Inject(MicroServiceType.EVENT_SERVER)
+    private readonly eventServiceClient: ClientProxy,
     @Inject(REQUEST) private request: Request,
     private readonly configService: ConfigService,
   ) {}

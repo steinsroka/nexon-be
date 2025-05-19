@@ -1,4 +1,5 @@
 import { UserDto } from '@lib/dtos/user/user.dto';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtPayload } from '@lib/types';
 import {
   Inject,
@@ -17,7 +18,8 @@ import { firstValueFrom } from 'rxjs';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @Inject('AUTH_SERVER') private readonly authServiceClient: ClientProxy,
+    @Inject(MicroServiceType.AUTH_SERVER)
+    private readonly authServiceClient: ClientProxy,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
