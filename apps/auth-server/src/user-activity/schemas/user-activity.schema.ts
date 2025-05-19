@@ -1,4 +1,5 @@
 import { UserActivityType } from '@lib/enums/user-activity-type-enum';
+import { ActivityMetadata } from '@lib/types/activity-metadata.type';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
@@ -14,8 +15,8 @@ export class UserActivity {
   @Prop({ required: true, enum: UserActivityType })
   type: UserActivityType;
 
-  // @Prop({ required: false })
-  // metadata: Record<string, any>;
+  @Prop({ type: MongooseSchema.Types.Mixed, required: false })
+  metadata: ActivityMetadata;
 
   @Prop({ default: Date.now })
   createdAt: Date;

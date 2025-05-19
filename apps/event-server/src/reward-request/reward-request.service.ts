@@ -127,7 +127,7 @@ export class RewardRequestService {
   }): Promise<CreateEventRewardRequestResponseDto> {
     const { actant, id } = req;
 
-    const eventDto = await this.eventService.getEventById({ id });
+    const eventDto = await this.eventService.getEventSummaryById({ id });
     const event = plainToInstance(Event, eventDto);
 
     if (!event) {
@@ -321,7 +321,6 @@ export class RewardRequestService {
         }
         default:
           throw RpcExceptionUtil.badRequest(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `알 수 없는 조건 유형입니다: ${condition.type}`,
             'UNKNOWN_CONDITION_TYPE',
           );

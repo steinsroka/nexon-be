@@ -33,7 +33,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { getEventSummaryByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { Serializer } from '@lib/interceptors';
 import { EventService } from '../services/event.service';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
@@ -80,13 +80,13 @@ export class EventController {
   @ApiResponse({
     status: 200,
     description: '이벤트 조회 성공',
-    type: GetEventByIdResponseDto,
+    type: getEventSummaryByIdResponseDto,
   })
-  @Serializer(GetEventByIdResponseDto)
-  async getEventById(
+  @Serializer(getEventSummaryByIdResponseDto)
+  async getEventSummaryById(
     @Param('id') id: string,
-  ): Promise<GetEventByIdResponseDto> {
-    return this.eventService.getEventById(id);
+  ): Promise<getEventSummaryByIdResponseDto> {
+    return this.eventService.getEventSummaryById(id);
   }
 
   @Put(':id')

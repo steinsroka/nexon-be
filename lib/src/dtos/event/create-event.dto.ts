@@ -1,10 +1,11 @@
+import { EventConditionType } from '@lib/enums/event-condition-type-enum';
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
+import { RewardType } from '@lib/enums/reward-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { RewardDto } from '../reward/reward.dto';
-import { ConditionDto, EventDto } from './event.dto';
 import { CreateRewardRequestDto } from '../reward/create-reward.dto';
+import { ConditionDto, EventDto } from './event.dto';
 
 export class CreateEventRequestDto {
   @ApiProperty({
@@ -53,7 +54,13 @@ export class CreateEventRequestDto {
   status: EventStatusType;
 
   @ApiProperty({
-    example: [],
+    example: [
+      {
+        type: EventConditionType.USER_INVITE,
+        metadata: { consecutiveDays: 1 },
+        description: '조건 설명',
+      },
+    ],
     description: '이벤트 조건',
     type: [ConditionDto],
   })
@@ -61,7 +68,15 @@ export class CreateEventRequestDto {
   conditions: ConditionDto[];
 
   @ApiProperty({
-    example: [],
+    example: [
+      {
+        eventId: '64a78e6e5d32a83d8a0d3f4c',
+        type: RewardType.POINT,
+        itemId: 'itemId',
+        quantity: 100,
+        description: '보상 설명',
+      },
+    ],
     description: '이벤트 보상',
     type: [CreateRewardRequestDto],
   })

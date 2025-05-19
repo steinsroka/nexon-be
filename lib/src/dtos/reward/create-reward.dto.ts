@@ -1,23 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RewardDto } from './reward.dto';
+import { RewardType } from '@lib/enums/reward-type.enum';
 
 export class CreateRewardRequestDto {
   @ApiProperty({
-    example: 'POINT',
+    example: RewardType.POINT,
     description: '보상 타입',
+    enum: RewardType,
   })
   @IsString() // TODO: enum으로 변경
   @IsNotEmpty()
-  type: string;
-
-  @ApiProperty({
-    example: 100,
-    description: '보상 값',
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  quantity: number;
+  type: RewardType;
 
   @ApiProperty({
     example: '64a78e6e5d32a83d8a0d3f4c',
@@ -27,6 +21,14 @@ export class CreateRewardRequestDto {
   @IsString()
   @IsOptional()
   itemId?: string;
+
+  @ApiProperty({
+    example: 100,
+    description: '보상 값',
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  quantity: number;
 
   @ApiProperty({
     example: '보상 설명',

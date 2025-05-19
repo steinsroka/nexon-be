@@ -1,17 +1,18 @@
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
+import { ConditionMetadata } from '@lib/types/condition-metadata.type';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 export type EventDocument = Event & Document;
 
 @Schema({ _id: false })
 export class Condition {
   @Prop({ default: EventConditionType.USER_INVITE, enum: EventConditionType })
-  type: EventConditionType; // USER_INVITE, LOGIN_CONSECUTIVE_DAYS, QUEST_CLEAR, LOGIN_AT
+  type: EventConditionType;
 
-  @Prop({ required: true })
-  value: string;
+  @Prop({ type: MongooseSchema.Types.Mixed, required: false })
+  metadata: ConditionMetadata;
 
   @Prop()
   description: string;
@@ -48,7 +49,7 @@ export class Event {
   createdAt: Date;
 
   @Prop({ default: null })
-  updatedAt: Date; // TODO: 이거 값이 들어가서 나오는 경우가 있는데 왜그런지 확인필요
+  updatedAt: Date;
 
   @Prop({ default: null })
   deletedAt: Date;

@@ -2,7 +2,7 @@ import {
   CreateEventRequestDto,
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
-import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { getEventSummaryByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
@@ -34,11 +34,11 @@ export class EventController {
     return this.eventService.createEvent(data);
   }
 
-  @MessagePattern('event_get_event_by_id')
-  async getEventById(
+  @MessagePattern('event_get_event_summary_by_id')
+  async getEventSummaryById(
     @Payload() data: { id: string },
-  ): Promise<GetEventByIdResponseDto> {
-    return this.eventService.getEventById(data);
+  ): Promise<getEventSummaryByIdResponseDto> {
+    return this.eventService.getEventSummaryById(data);
   }
 
   @MessagePattern('event_update_event')

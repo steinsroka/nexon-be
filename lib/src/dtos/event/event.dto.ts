@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
 import { RewardDto } from '../reward/reward.dto';
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
+import { ConditionMetadata } from '@lib/types/condition-metadata.type';
 
 export class ConditionDto {
   @ApiProperty({
@@ -15,11 +16,11 @@ export class ConditionDto {
   type: EventConditionType;
 
   @ApiProperty({
-    example: 100,
+    example: { consecutiveDays: 1 },
     description: '조건 값',
   })
   @Expose()
-  value: string;
+  metadata: ConditionMetadata;
 
   @ApiProperty({
     example: '조건 설명',
@@ -88,7 +89,7 @@ export class EventDto {
     example: [
       {
         type: EventConditionType.USER_INVITE,
-        value: 1,
+        metadata: { consecutiveDays: 1 },
         description: '조건 설명',
       },
     ],
@@ -97,20 +98,6 @@ export class EventDto {
   @Type(() => ConditionDto)
   @Expose()
   conditions: ConditionDto[];
-
-  @ApiProperty({
-    example: [
-      {
-        type: 'POINT',
-        value: 100,
-        description: '보상 설명',
-      },
-    ],
-    description: '이벤트 보상',
-  })
-  @Expose()
-  @Type(() => RewardDto)
-  rewards: RewardDto[];
 
   @ApiProperty({
     example: '64a78e6e5d32a83d8a0d3f4c',
@@ -140,5 +127,22 @@ export class EventDto {
     description: '이벤트 삭제 일자',
   })
   @Type(() => Date)
+  @Expose()
   deletedAt: Date | null;
+}
+
+export class EventSummaryDto extends EventDto {
+  @ApiProperty({
+    example: [
+      {
+        type: 'POINT',
+        value: 100,
+        description: '보상 설명',
+      },
+    ],
+    description: '이벤트 보상',
+  })
+  @Expose()
+  @Type(() => RewardDto)
+  rewards: RewardDto[];
 }

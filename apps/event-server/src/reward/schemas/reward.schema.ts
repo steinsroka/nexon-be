@@ -1,3 +1,4 @@
+import { RewardType } from '@lib/enums/reward-type.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
@@ -10,8 +11,8 @@ export class Reward {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Event', required: true })
   eventId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true })
-  type: string;
+  @Prop({ default: RewardType.POINT, enum: RewardType })
+  status: RewardType;
 
   @Prop()
   itemId?: string;

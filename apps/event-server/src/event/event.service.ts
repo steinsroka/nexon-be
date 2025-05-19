@@ -3,8 +3,8 @@ import {
   CreateEventRequestDto,
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
-import { EventDto } from '@lib/dtos/event/event.dto';
-import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { EventDto, EventSummaryDto } from '@lib/dtos/event/event.dto';
+import { getEventSummaryByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
@@ -71,8 +71,8 @@ export class EventService {
     const total = await this.eventModel.countDocuments(filter).exec();
     const items = events.map((event) => {
       return plainToInstance(EventDto, event, {
-        enableCircularCheck: true, // 순환 참조 감지 활성화
-        excludeExtraneousValues: true, // @Expose 데코레이터가 있는 속성만 변환
+        enableCircularCheck: true,
+        excludeExtraneousValues: true,
       });
     });
 
@@ -84,21 +84,22 @@ export class EventService {
   }): Promise<CreateEventResponseDto> {
     const { createEventRequestDto } = req;
 
-    // rewards 데이터를 제외한 이벤트 정보만 저장
     const { rewards, ...eventData } = createEventRequestDto;
 
-    // 이벤트 생성
-    const createdEvent = await new this.eventModel(eventData).save();
+    const createdEvent = await this.eventModel.create(eventData);
 
     // 이벤트 생성 후 관련 보상 생성
     if (rewards && rewards.length > 0) {
-      const res = await this.rewardModel.insertMany(
+      await this.rewardModel.insertMany(
         rewards.map((reward: CreateRewardRequestDto) => {
           return {
             ...reward,
             eventId: createdEvent._id,
           };
         }),
+        {
+          ordered: false,
+        },
       );
     }
 
@@ -108,7 +109,9 @@ export class EventService {
     });
   }
 
-  async getEventById(req: { id: string }): Promise<GetEventByIdResponseDto> {
+  async getEventSummaryById(req: {
+    id: string;
+  }): Promise<getEventSummaryByIdResponseDto> {
     const { id } = req;
 
     const event = await this.findEventById(id);
@@ -122,7 +125,7 @@ export class EventService {
 
     const rewards = await this.rewardModel.find({ eventId: id }).exec();
 
-    const eventDto = plainToInstance(EventDto, event, {
+    const eventDto = plainToInstance(EventSummaryDto, event, {
       excludeExtraneousValues: true,
       enableCircularCheck: true,
     });

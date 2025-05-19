@@ -3,7 +3,7 @@ import {
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
-import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
+import { getEventSummaryByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import {
   PaginateEventsRequestDto,
   PaginateEventsResponseDto,
@@ -49,10 +49,15 @@ export class EventService extends BaseGatewayService {
     });
   }
 
-  async getEventById(id: string): Promise<GetEventByIdResponseDto> {
-    return this.sendRequest<GetEventByIdResponseDto>('event_get_event_by_id', {
-      id,
-    });
+  async getEventSummaryById(
+    id: string,
+  ): Promise<getEventSummaryByIdResponseDto> {
+    return this.sendRequest<getEventSummaryByIdResponseDto>(
+      'event_get_event_summary_by_id',
+      {
+        id,
+      },
+    );
   }
 
   async updateEvent(
