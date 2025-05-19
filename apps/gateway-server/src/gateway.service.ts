@@ -1,5 +1,9 @@
 import { MicroServiceType } from '@lib/enums/microservice.enum';
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -28,16 +32,25 @@ export class GatewayService {
         case MicroServiceType.EVENT_SERVER:
           return this.eventServiceClient;
         default:
-          throw new Error(`Unknown service: ${service as string}`);
+          throw new InternalServerErrorException(
+            `Unknown service: ${service as string}`,
+          );
       }
     })();
 
-    return await firstValueFrom(
-      client.send<RES>(pattern, {
-        ...data,
-        traceId: this.request['traceId'],
-      }),
-    );
+    try {
+      return await firstValueFrom(
+        client.send<RES>(pattern, {
+          ...data,
+          traceId: this.request['traceId'],
+        }),
+      );
+    } catch (error) {
+      if (error && typeof error === 'object') {
+        error.service = service;
+      }
+      throw error;
+    }
   }
 
   public setRefreshTokenCookie(res: Response, token: string): void {

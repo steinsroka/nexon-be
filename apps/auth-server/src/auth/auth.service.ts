@@ -7,7 +7,8 @@ import { UserDto } from '@lib/dtos/user/user.dto';
 import { UserActivityType } from '@lib/enums/user-activity-type-enum';
 import { JwtPayload } from '@lib/types';
 import { AuthActant } from '@lib/types/actant.type';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
+import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
@@ -49,7 +50,7 @@ export class AuthService {
       );
 
       if (!invitee) {
-        throw new UnauthorizedException('초대해준 유저가 존재하지 않습니다.');
+        throw RpcExceptionUtil.notFound('초대해준 유저가 존재하지 않습니다.');
       }
 
       await this.userActivityService.createUserActivity({
@@ -141,8 +142,8 @@ export class AuthService {
 
       return { accessToken, refreshToken: newRefreshToken };
     } catch (error) {
-      throw new UnauthorizedException(
-        `유효하지 않은 리프레시 토큰입니다 ${error.message}`,
+      throw RpcExceptionUtil.unauthorized(
+        `유효하지 않은 리프레시 토큰입니다: ${error.message}`,
       );
     }
   }

@@ -29,7 +29,10 @@ export class MicroserviceExceptionFilter
       const rpcError = exception.getError();
 
       error = {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        status:
+          typeof rpcError === 'object'
+            ? (rpcError as any).status
+            : HttpStatus.INTERNAL_SERVER_ERROR,
         code:
           typeof rpcError === 'object'
             ? (rpcError as any).code
