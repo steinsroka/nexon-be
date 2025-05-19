@@ -105,6 +105,8 @@ export class EventService {
       );
     }
 
+    console.log('createdEvent', createdEvent);
+
     return plainToInstance(CreateEventResponseDto, createdEvent, {
       excludeExtraneousValues: true,
       enableCircularCheck: true,

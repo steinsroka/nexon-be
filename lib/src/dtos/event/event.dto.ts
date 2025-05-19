@@ -1,10 +1,39 @@
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Expose, Transform, Type } from 'class-transformer';
+import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { RewardDto } from '../reward/reward.dto';
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
 import { ConditionMetadata } from '@lib/types/condition-metadata.type';
+import { ValidateNested } from 'class-validator';
+
+export class LoginBetweenMetadataDto {
+  @Expose()
+  startDate: Date;
+
+  @Expose()
+  endDate: Date;
+}
+
+export class LoginConsecutiveMetadataDto {
+  @Expose()
+  consecutiveDays: number;
+}
+
+export class UserInviteMetadataDto {
+  @Expose()
+  inviteCount: number;
+}
+
+export class QuestClearSpecificMetadataDto {
+  @Expose()
+  questIds: string[];
+}
+
+export class QuestClearCountMetadataDto {
+  @Expose()
+  clearCount: number;
+}
 
 export class ConditionDto {
   @ApiProperty({
@@ -20,6 +49,37 @@ export class ConditionDto {
     description: '조건 값',
   })
   @Expose()
+  @Transform(({ obj }) => {
+    // 타입에 따라 적절한 메타데이터 DTO 클래스로 변환
+    const metadata = obj.metadata;
+
+    if (!metadata) return {};
+
+    switch (obj.type) {
+      case EventConditionType.LOGIN_BETWEEN:
+        return plainToInstance(LoginBetweenMetadataDto, metadata, {
+          excludeExtraneousValues: true,
+        });
+      case EventConditionType.LOGIN_CONSECUTIVE_DAYS:
+        return plainToInstance(LoginConsecutiveMetadataDto, metadata, {
+          excludeExtraneousValues: true,
+        });
+      case EventConditionType.USER_INVITE:
+        return plainToInstance(UserInviteMetadataDto, metadata, {
+          excludeExtraneousValues: true,
+        });
+      case EventConditionType.QUEST_CLEAR_SPECIFIC:
+        return plainToInstance(QuestClearSpecificMetadataDto, metadata, {
+          excludeExtraneousValues: true,
+        });
+      case EventConditionType.QUEST_CLEAR_COUNT:
+        return plainToInstance(QuestClearCountMetadataDto, metadata, {
+          excludeExtraneousValues: true,
+        });
+      default:
+        return metadata;
+    }
+  })
   metadata: ConditionMetadata;
 
   @ApiProperty({
@@ -96,6 +156,7 @@ export class EventDto {
     description: '이벤트 조건',
   })
   @Type(() => ConditionDto)
+  @ValidateNested()
   @Expose()
   conditions: ConditionDto[];
 
