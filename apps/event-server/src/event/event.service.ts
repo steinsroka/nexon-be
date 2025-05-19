@@ -23,6 +23,7 @@ import { FilterQuery, Model } from 'mongoose';
 import { Reward, RewardDocument } from '../reward/schemas/reward.schema';
 import { Event, EventDocument } from './schemas/event.schema';
 import { RewardDto } from '@lib/dtos/reward/reward.dto';
+import { RpcExceptionUtil } from '@lib/index';
 
 @Injectable()
 export class EventService {
@@ -115,7 +116,10 @@ export class EventService {
     const event = await this.eventModel.findById(id).exec();
 
     if (!event) {
-      throw new Error(`Event Not Found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${id})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     const rewards = await this.rewardModel.find({ eventId: id }).exec();
@@ -142,7 +146,10 @@ export class EventService {
       .exec();
 
     if (!updatedEvent) {
-      throw new Error(`Event Not Found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${id})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     return plainToInstance(UpdateEventResponseDto, updatedEvent);
@@ -157,7 +164,10 @@ export class EventService {
     const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
 
     if (!deletedEvent) {
-      throw new Error(`Event Not Found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${id})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     return plainToClass(SoftDeleteEventResponseDto, deletedEvent);

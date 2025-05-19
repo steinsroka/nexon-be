@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { GatewayModule } from './gateway.module';
+import { RpcExceptionFilter } from './filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule, {
@@ -19,6 +20,9 @@ async function bootstrap() {
     origin: configService.get('CORS_ORIGIN', 'http://localhost:3000'), // TODO: set cors origin env
     credentials: true,
   });
+
+  // 글로벌 예외 필터 등록 - 마이크로서비스의 RPC 예외를 HTTP 예외로 변환
+  app.useGlobalFilters(new RpcExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({

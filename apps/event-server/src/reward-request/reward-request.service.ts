@@ -20,6 +20,7 @@ import { firstValueFrom } from 'rxjs';
 import { EventService } from '../event/event.service';
 import { Event } from '../event/schemas/event.schema';
 import { RewardService } from '../reward/reward.service';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 import {
   RewardRequest,
   RewardRequestDocument,
@@ -98,7 +99,10 @@ export class RewardRequestService {
       .populate('rewards.rewardId');
 
     if (!rewardRequest) {
-      throw new Error(`Reward request not found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `보상 요청을 찾을 수 없습니다 (ID: ${id})`,
+        'REWARD_REQUEST_NOT_FOUND',
+      );
     }
 
     // USER 권한의 경우 본인 요청만 조회 가능
@@ -107,7 +111,10 @@ export class RewardRequestService {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
       rewardRequest.userId.toString() !== actant.user.id
     ) {
-      throw new Error('You can only view your own reward requests');
+      throw RpcExceptionUtil.forbidden(
+        '본인이 신청한 보상 요청만 조회할 수 있습니다',
+        'PERMISSION_DENIED',
+      );
     }
 
     return plainToInstance(GetRewardRequestByIdResponseDto, rewardRequest);
@@ -124,21 +131,33 @@ export class RewardRequestService {
     const event = plainToInstance(Event, eventDto);
 
     if (!event) {
-      throw new Error(`Event Not Found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${id})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     if (event.status === EventStatusType.INACTIVE) {
-      throw new Error(`Event is inactive id: ${id}`);
+      throw RpcExceptionUtil.badRequest(
+        `이벤트가 비활성 상태입니다 (ID: ${id})`,
+        'EVENT_INACTIVE',
+      );
     }
 
     const now = new Date();
 
     if (event.startDate > now) {
-      throw new Error(`Event not started: ${id}`);
+      throw RpcExceptionUtil.badRequest(
+        `이벤트가 아직 시작되지 않았습니다 (ID: ${id})`,
+        'EVENT_NOT_STARTED',
+      );
     }
 
     if (event.endDate < now) {
-      throw new Error(`Event already ended: ${id}`);
+      throw RpcExceptionUtil.badRequest(
+        `이벤트가 이미 종료되었습니다 (ID: ${id})`,
+        'EVENT_ALREADY_ENDED',
+      );
     }
 
     const existingRequest = await this.rewardRequestModel.findOne({
@@ -147,7 +166,10 @@ export class RewardRequestService {
     });
 
     if (existingRequest) {
-      throw new Error(`Reward request already exists for event: ${id}`);
+      throw RpcExceptionUtil.conflict(
+        `이미 해당 이벤트에 대한 보상 요청이 존재합니다 (ID: ${id})`,
+        'REWARD_REQUEST_ALREADY_EXISTS',
+      );
     }
 
     const rewardRequest = await this.rewardRequestModel.create({
@@ -302,8 +324,11 @@ export class RewardRequestService {
           return questClearCount > 0;
         }
         default:
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw new Error(`Unknown condition type: ${condition.type}`);
+          throw RpcExceptionUtil.badRequest(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `알 수 없는 조건 유형입니다: ${condition.type}`,
+            'UNKNOWN_CONDITION_TYPE',
+          );
       }
     });
   }

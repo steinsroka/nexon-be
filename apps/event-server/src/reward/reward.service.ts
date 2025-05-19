@@ -14,6 +14,7 @@ import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { Event, EventDocument } from '../event/schemas/event.schema';
 import { Reward, RewardDocument } from './schemas/reward.schema';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 
 @Injectable()
 export class RewardService {
@@ -40,11 +41,17 @@ export class RewardService {
     const event = await this.eventModel.findById(eventId).exec();
 
     if (!event) {
-      throw new Error(`Event Not Found id: ${eventId}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${eventId})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     if (event.status !== EventStatusType.ACTIVE) {
-      throw new Error(`Event Not Active id: ${eventId}`);
+      throw RpcExceptionUtil.badRequest(
+        `이벤트가 활성화 상태가 아닙니다 (ID: ${eventId})`,
+        'EVENT_NOT_ACTIVE',
+      );
     }
 
     const createdReward = await new this.rewardModel({
@@ -66,11 +73,17 @@ export class RewardService {
     const event = await this.eventModel.findById(eventId).exec();
 
     if (!event) {
-      throw new Error(`Event Not Found id: ${eventId}`);
+      throw RpcExceptionUtil.notFound(
+        `이벤트를 찾을 수 없습니다 (ID: ${eventId})`,
+        'EVENT_NOT_FOUND',
+      );
     }
 
     if (event.status !== EventStatusType.ACTIVE) {
-      throw new Error(`Event Not Active id: ${eventId}`);
+      throw RpcExceptionUtil.badRequest(
+        `이벤트가 활성화 상태가 아닙니다 (ID: ${eventId})`,
+        'EVENT_NOT_ACTIVE',
+      );
     }
 
     const updatedReward = await this.rewardModel
@@ -80,7 +93,10 @@ export class RewardService {
       .exec();
 
     if (!updatedReward) {
-      throw new Error(`Reward Not Found id: ${id}`);
+      throw RpcExceptionUtil.notFound(
+        `보상을 찾을 수 없습니다 (ID: ${id})`,
+        'REWARD_NOT_FOUND',
+      );
     }
 
     return plainToInstance(UpdateRewardResponseDto, updatedReward);

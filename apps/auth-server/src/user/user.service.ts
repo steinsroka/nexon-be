@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
@@ -15,6 +10,7 @@ import { CreateAdminRequestDto } from '@lib/dtos/user/create-admin.dto';
 import { CreateUserRequestDto } from '@lib/dtos/user/create-user.dto';
 import { UpdateRoleRequestDto } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 
 @Injectable()
 export class UserService {
@@ -29,7 +25,10 @@ export class UserService {
     const existingUser = await this.userModel.findOne({ email });
 
     if (existingUser) {
-      throw new BadRequestException('이미 등록된 이메일입니다');
+      throw RpcExceptionUtil.badRequest(
+        '이미 등록된 이메일입니다',
+        'EMAIL_ALREADY_EXISTS',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
@@ -56,7 +55,10 @@ export class UserService {
     const existingUser = await this.userModel.findOne({ email });
 
     if (existingUser) {
-      throw new BadRequestException('이미 등록된 이메일입니다');
+      throw RpcExceptionUtil.badRequest(
+        '이미 등록된 이메일입니다',
+        'EMAIL_ALREADY_EXISTS',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
@@ -84,13 +86,19 @@ export class UserService {
 
   async findOneById(id: string | Types.ObjectId): Promise<UserDto> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('유효하지 않은 ID 형식입니다');
+      throw RpcExceptionUtil.badRequest(
+        '유효하지 않은 ID 형식입니다',
+        'INVALID_ID_FORMAT',
+      );
     }
 
     const user = await this.userModel.findById(id);
 
     if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
+      throw RpcExceptionUtil.notFound(
+        '사용자를 찾을 수 없습니다',
+        'USER_NOT_FOUND',
+      );
     }
 
     return plainToInstance(UserDto, user);
@@ -100,7 +108,10 @@ export class UserService {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
+      throw RpcExceptionUtil.notFound(
+        '사용자를 찾을 수 없습니다',
+        'USER_NOT_FOUND',
+      );
     }
 
     return plainToInstance(UserDto, user);
@@ -116,26 +127,41 @@ export class UserService {
     const { userId } = req;
 
     if (requestingUser.role !== UserRoleType.ADMIN) {
-      throw new ForbiddenException('사용자 역할을 변경할 권한이 없습니다');
+      throw RpcExceptionUtil.forbidden(
+        '사용자 역할을 변경할 권한이 없습니다',
+        'INSUFFICIENT_PERMISSIONS',
+      );
     }
 
     if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('유효하지 않은 ID 형식입니다');
+      throw RpcExceptionUtil.badRequest(
+        '유효하지 않은 ID 형식입니다',
+        'INVALID_ID_FORMAT',
+      );
     }
 
     if (!Object.values(UserRoleType).includes(newRole)) {
-      throw new BadRequestException('유효하지 않은 역할입니다');
+      throw RpcExceptionUtil.badRequest(
+        '유효하지 않은 역할입니다',
+        'INVALID_ROLE',
+      );
     }
 
     const user = await this.userModel.findById(userId);
 
     if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
+      throw RpcExceptionUtil.notFound(
+        '사용자를 찾을 수 없습니다',
+        'USER_NOT_FOUND',
+      );
     }
 
     // NOTE: 관리자의 역할을 변경하는 것 방지
     if (userId === requestingUser.id || user.role === UserRoleType.ADMIN) {
-      throw new ForbiddenException('관리자 권한은 변경할 수 없습니다');
+      throw RpcExceptionUtil.forbidden(
+        '관리자 권한은 변경할 수 없습니다',
+        'ADMIN_ROLE_PROTECTED',
+      );
     }
 
     user.role = newRole;
@@ -158,13 +184,19 @@ export class UserService {
     const { email, password, checkPassword, name } = req.registerRequestDto;
 
     if (password !== checkPassword) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다');
+      throw RpcExceptionUtil.badRequest(
+        '비밀번호가 일치하지 않습니다',
+        'PASSWORD_MISMATCH',
+      );
     }
 
     const existingUser = await this.userModel.findOne({ email: email });
 
     if (existingUser) {
-      throw new BadRequestException('이미 등록된 이메일입니다');
+      throw RpcExceptionUtil.badRequest(
+        '이미 등록된 이메일입니다',
+        'EMAIL_ALREADY_EXISTS',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
@@ -183,13 +215,19 @@ export class UserService {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다');
+      throw RpcExceptionUtil.notFound(
+        '사용자를 찾을 수 없습니다',
+        'USER_NOT_FOUND',
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다');
+      throw RpcExceptionUtil.badRequest(
+        '비밀번호가 일치하지 않습니다',
+        'INVALID_CREDENTIALS',
+      );
     }
 
     return user;
@@ -200,7 +238,10 @@ export class UserService {
     refreshToken: string,
   ): Promise<void> {
     if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('유효하지 않은 ID 형식입니다');
+      throw RpcExceptionUtil.badRequest(
+        '유효하지 않은 ID 형식입니다',
+        'INVALID_ID_FORMAT',
+      );
     }
 
     const hashedRefreshToken = await bcrypt.hash(
@@ -215,7 +256,10 @@ export class UserService {
 
   async removeRefreshToken(userId: string): Promise<void> {
     if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('유효하지 않은 ID 형식입니다');
+      throw RpcExceptionUtil.badRequest(
+        '유효하지 않은 ID 형식입니다',
+        'INVALID_ID_FORMAT',
+      );
     }
 
     await this.userModel.findByIdAndUpdate(userId, {
