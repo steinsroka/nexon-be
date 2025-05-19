@@ -29,7 +29,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { FilterQuery, Model } from 'mongoose';
 import { firstValueFrom } from 'rxjs';
 import { EventService } from '../event/event.service';
@@ -234,10 +234,18 @@ export class RewardRequestService {
       );
     }
 
-    return plainToInstance(CreateEventRewardRequestResponseDto, rewardRequest, {
-      excludeExtraneousValues: true,
-      enableCircularCheck: true,
-    });
+    const updatedRewardRequest = await this.rewardRequestModel
+      .findById(rewardRequest._id)
+      .exec();
+
+    return plainToInstance(
+      CreateEventRewardRequestResponseDto,
+      updatedRewardRequest,
+      {
+        excludeExtraneousValues: true,
+        enableCircularCheck: true,
+      },
+    );
   }
 
   private getQualificationData(

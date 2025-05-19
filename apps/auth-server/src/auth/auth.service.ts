@@ -21,7 +21,7 @@ import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { UserActivityService } from '../user-activity/user-activity.service';
 import { UserService } from '../user/user.service';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class AuthService {

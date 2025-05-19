@@ -58,8 +58,8 @@ export class UserService extends BaseGatewayService {
     });
   }
 
-  async findOne(id: string): Promise<UserDto> {
-    return this.sendRequest<UserDto>('user_find_one', { id });
+  async findOneById(id: string): Promise<UserDto> {
+    return this.sendRequest<UserDto>('user_find_one_by_id', { id });
   }
 
   async updateUserRole(
@@ -67,7 +67,7 @@ export class UserService extends BaseGatewayService {
     updateRoleRequestDto: UpdateRoleRequestDto,
     actant: AuthActant,
   ): Promise<UpdateRoleResponseDto> {
-    return this.sendRequest<UpdateRoleResponseDto>('user_update_role', {
+    return this.sendRequest<UpdateRoleResponseDto>('user_update_user_role', {
       actant,
       id,
       updateRoleRequestDto,

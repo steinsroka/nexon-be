@@ -23,6 +23,8 @@ import { plainToClass, plainToInstance } from 'class-transformer';
 import { FilterQuery, Model } from 'mongoose';
 import { Reward, RewardDocument } from '../reward/schemas/reward.schema';
 import { Event, EventDocument } from './schemas/event.schema';
+import * as dayjs from 'dayjs';
+import { EventStatusType } from '@lib/enums/event-status-type.enum';
 
 @Injectable()
 export class EventService {
@@ -152,7 +154,10 @@ export class EventService {
       );
     }
 
-    return plainToInstance(UpdateEventResponseDto, updatedEvent);
+    return plainToInstance(UpdateEventResponseDto, updatedEvent, {
+      excludeExtraneousValues: true,
+      enableCircularCheck: true,
+    });
   }
 
   async softDeleteEvent(req: {
@@ -160,16 +165,32 @@ export class EventService {
   }): Promise<SoftDeleteEventResponseDto> {
     const { id } = req;
 
-    const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
+    const softDeletedEvent = await this.eventModel
+      .findOneAndUpdate(
+        {
+          id,
+          deletedAt: null,
+        },
+        {
+          deletedAt: dayjs().toDate(),
+          status: EventStatusType.INACTIVE,
+        },
+      )
+      .exec();
 
-    if (!deletedEvent) {
+    if (!softDeletedEvent) {
       throw RpcExceptionUtil.notFound(
         `이벤트를 찾을 수 없습니다 (ID: ${id})`,
         'EVENT_NOT_FOUND',
       );
     }
 
-    return plainToClass(SoftDeleteEventResponseDto, deletedEvent);
+    const updatedEvent = await this.eventModel.findById(id).exec();
+
+    return plainToClass(SoftDeleteEventResponseDto, updatedEvent, {
+      excludeExtraneousValues: true,
+      enableCircularCheck: true,
+    });
   }
 
   async findEventById(id: string): Promise<EventDocument | null> {

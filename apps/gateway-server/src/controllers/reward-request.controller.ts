@@ -22,12 +22,7 @@ import { RewardRequestService } from '../services/reward-request.service';
 @Controller('reward-requests')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(
-  UserRoleType.ADMIN,
-  UserRoleType.AUDITOR,
-  UserRoleType.OPERATOR,
-  UserRoleType.USER,
-)
+@Roles(UserRoleType.ADMIN, UserRoleType.AUDITOR, UserRoleType.USER)
 export class RewardRequestController {
   constructor(private readonly rewardRequestService: RewardRequestService) {}
 

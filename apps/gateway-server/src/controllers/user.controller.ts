@@ -126,8 +126,8 @@ export class UserController {
     description: '사용자를 찾을 수 없음',
   })
   @Serializer(UserDto)
-  async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.userService.findOne(id);
+  async findOneById(@Param('id') id: string): Promise<UserDto> {
+    return this.userService.findOneById(id);
   }
 
   @Patch(':id/role')

@@ -55,7 +55,7 @@ export class UserController {
     @Payload()
     data: {
       actant: AuthActant;
-      userId: string;
+      id: string;
       updateRoleRequestDto: UpdateRoleRequestDto;
     },
   ): Promise<UpdateRoleResponseDto> {

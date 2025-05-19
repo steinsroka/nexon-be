@@ -57,7 +57,7 @@ export class CreateEventRequestDto {
     example: [
       {
         type: EventConditionType.USER_INVITE,
-        metadata: { consecutiveDays: 1 },
+        metadata: { inviteCount: 1 },
         description: '조건 설명',
       },
     ],

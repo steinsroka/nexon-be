@@ -36,9 +36,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return canActivate;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleRequest<TUser = UserDto>(err: any, user: TUser, info: any): TUser {
-    if (err || !user) {
+    if (err) {
+      throw err;
+    }
+    if (!user) {
       throw new UnauthorizedException('인증된 사용자가 없습니다');
     }
 
