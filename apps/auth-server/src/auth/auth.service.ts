@@ -130,7 +130,6 @@ export class AuthService {
   }): Promise<{ accessToken: string; refreshToken: string }> {
     const { refreshToken } = req;
 
-    // JWT 토큰 검증
     const payload = this.jwtService.verify(refreshToken, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       ignoreExpiration: false,

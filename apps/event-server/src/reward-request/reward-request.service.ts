@@ -1,7 +1,7 @@
 import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 import { EventDto } from '@lib/dtos/event/event.dto';
-import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
+import { GetRewardRequestSummaryByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
 import {
   PaginateRewardRequestsRequestDto,
   PaginateRewardRequestsResponseDto,
@@ -84,9 +84,8 @@ export class RewardRequestService {
       .sort({ id: -1 })
       .skip(skip)
       .limit(rpp);
-    // .populate('userId', 'name email') TODO:
-    // .populate('eventId', 'title');
     const total = await this.rewardRequestModel.countDocuments(filter);
+
     const items = rewardRequests.map((request) =>
       plainToInstance(RewardRequestDto, request),
     );
@@ -94,17 +93,20 @@ export class RewardRequestService {
     return PaginationResponseDto.create(items, total, page, rpp);
   }
 
-  async getRewardRequestById(req: {
+  async getRewardRequestSummaryById(req: {
     actant: AuthActant;
     id: string;
-  }): Promise<GetRewardRequestByIdResponseDto> {
+  }): Promise<GetRewardRequestSummaryByIdResponseDto> {
     const { actant, id } = req;
 
     const rewardRequest = await this.rewardRequestModel
       .findById(id)
-      .populate('userId', 'name email')
-      .populate('eventId')
-      .populate('rewards.rewardId');
+      .populate({ path: 'userId', model: 'User' })
+      .populate({ path: 'eventId', model: 'Event' })
+      .populate({
+        path: 'rewardTransactions.rewardId',
+        model: 'Reward',
+      });
 
     if (!rewardRequest) {
       throw RpcExceptionUtil.notFound(
@@ -116,8 +118,9 @@ export class RewardRequestService {
     // NOTE: USER 권한의 경우 본인 요청만 조회 가능
     if (
       actant.user.role === UserRoleType.USER &&
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      rewardRequest.userId.toString() !== actant.user.id
+      rewardRequest.userId &&
+      (rewardRequest.userId as any)._id &&
+      (rewardRequest.userId as any)._id.toString() !== actant.user.id
     ) {
       throw RpcExceptionUtil.forbidden(
         '본인이 신청한 보상 요청만 조회할 수 있습니다',
@@ -125,7 +128,35 @@ export class RewardRequestService {
       );
     }
 
-    return plainToInstance(GetRewardRequestByIdResponseDto, rewardRequest);
+    const requestObj = rewardRequest.toObject();
+
+    if (
+      requestObj.rewardTransactions &&
+      requestObj.rewardTransactions.length > 0
+    ) {
+      requestObj.rewardTransactions = requestObj.rewardTransactions.map(
+        (transaction) => ({
+          ...transaction,
+          reward: transaction.rewardId,
+          rewardId: (transaction.rewardId as any)?._id || transaction.rewardId,
+        }),
+      );
+    }
+
+    const responseData = {
+      ...requestObj,
+      user: requestObj.userId,
+      event: requestObj.eventId,
+    };
+
+    return plainToInstance(
+      GetRewardRequestSummaryByIdResponseDto,
+      responseData,
+      {
+        excludeExtraneousValues: true,
+        enableCircularCheck: true,
+      },
+    );
   }
 
   async createEventRewardRequest(req: {
@@ -272,7 +303,6 @@ export class RewardRequestService {
 
           const uniqueDays = [...new Set(loginDays)].sort();
 
-          // 연속된 날짜 계산
           let maxConsecutiveDays = 0;
           let currentConsecutiveDays = 1;
 
@@ -291,7 +321,6 @@ export class RewardRequestService {
             }
           }
 
-          // 마지막 연속 일수도 확인
           maxConsecutiveDays = Math.max(
             maxConsecutiveDays,
             currentConsecutiveDays,
@@ -364,7 +393,7 @@ export class RewardRequestService {
       );
     } catch (error) {
       console.error('Failed to get user activities:', error);
-      return []; // 기본값으로 빈 배열 반환
+      return [];
     }
   }
 }

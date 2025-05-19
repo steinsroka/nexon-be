@@ -99,7 +99,6 @@ export class UserController {
     description: '사용자 목록 조회 성공',
     type: [UserDto],
   })
-  // @Serializer(UserDto) TODO:
   async paginateUsers(
     @Query() paginateUsersRequestDto: PaginateUsersRequestDto,
   ): Promise<PaginateUsersResponseDto> {

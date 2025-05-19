@@ -5,7 +5,7 @@ import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 @Schema({ _id: false })
 export class RewardTransaction {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Reward', required: true })
   rewardId: MongooseSchema.Types.ObjectId;
 
   @Prop({
@@ -40,7 +40,7 @@ export class RewardRequest {
   status: RewardRequestStatusType;
 
   @Prop({ type: [RewardTransaction] })
-  rewardTransaction: RewardTransaction[];
+  rewardTransactions: RewardTransaction[];
 
   @Prop({ default: null })
   failReason: string;

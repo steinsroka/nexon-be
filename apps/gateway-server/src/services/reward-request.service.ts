@@ -1,4 +1,4 @@
-import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
+import { GetRewardRequestSummaryByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
 import {
   PaginateRewardRequestsRequestDto,
   PaginateRewardRequestsResponseDto,
@@ -30,11 +30,11 @@ export class RewardRequestService extends BaseGatewayService {
     );
   }
 
-  async getRewardRequestById(
+  async getRewardRequestSummaryById(
     actant: AuthActant,
     id: string,
-  ): Promise<GetRewardRequestByIdResponseDto> {
-    return this.sendRequest<GetRewardRequestByIdResponseDto>(
+  ): Promise<GetRewardRequestSummaryByIdResponseDto> {
+    return this.sendRequest<GetRewardRequestSummaryByIdResponseDto>(
       'reward_request_get_reward_request_by_id',
       { actant, id },
     );

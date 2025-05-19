@@ -32,7 +32,6 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
     try {
-      // NOTE: 모델 생성과 저장을 하나의 원자적 연산으로 수행
       const savedUser = await this.userModel.create({
         name,
         email,

@@ -31,7 +31,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 글로벌 예외 필터 등록 - 마이크로서비스의 RPC 예외를 HTTP 예외로 변환
   app.useGlobalFilters(new RpcExceptionFilter());
 
   app.useGlobalPipes(

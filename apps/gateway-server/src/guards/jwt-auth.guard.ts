@@ -14,16 +14,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext): Promise<any> {
-    // JWT 전략 실행
     const canActivate = await super.canActivate(context);
 
-    // JWT 검증이 통과한 경우에만 블랙리스트 검사 실행
     if (canActivate) {
       const request = context.switchToHttp().getRequest();
       const token = this.extractTokenFromHeader(request);
 
       if (token) {
-        // 블랙리스트에 있는 토큰인지 확인
         const isBlacklisted =
           await this.tokenBlacklistService.isBlacklisted(token);
 
