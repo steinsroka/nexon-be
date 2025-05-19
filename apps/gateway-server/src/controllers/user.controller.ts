@@ -45,24 +45,6 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('admin')
-  @ApiOperation({ summary: '관리자 계정 생성 (초기 설정용)' })
-  @ApiResponse({
-    status: 201,
-    description: '관리자 계정 생성 성공',
-    type: CreateAdminResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: '잘못된 요청 (이메일 중복, 비밀번호 형식 오류 등)',
-  })
-  @Serializer(CreateAdminResponseDto)
-  async createAdmin(
-    @Body() createAdminRequestDto: CreateAdminRequestDto,
-  ): Promise<CreateAdminResponseDto> {
-    return this.userService.createAdmin(createAdminRequestDto);
-  }
-
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleType.ADMIN)

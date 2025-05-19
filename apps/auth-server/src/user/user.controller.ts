@@ -24,13 +24,6 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern('user_create_admin')
-  async createAdmin(
-    @Payload() data: { createAdminRequestDto: CreateAdminRequestDto },
-  ): Promise<CreateAdminResponseDto> {
-    return this.userService.createAdmin(data);
-  }
-
   @MessagePattern('user_create_user_by_admin')
   async createUserByAdmin(
     @Payload() data: { createUserRequestDto: CreateUserRequestDto },

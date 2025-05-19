@@ -32,14 +32,6 @@ export class UserService extends BaseGatewayService {
     super(authServiceClient, request);
   }
 
-  async createAdmin(
-    createAdminRequestDto: CreateAdminRequestDto,
-  ): Promise<CreateAdminResponseDto> {
-    return this.sendRequest<CreateAdminResponseDto>('user_create_admin', {
-      createAdminRequestDto,
-    });
-  }
-
   async createUserByAdmin(
     actant: AuthActant,
     createUserRequestDto: CreateUserRequestDto,

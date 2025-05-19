@@ -65,3 +65,8 @@ npm run prune
 
 `TODO: ` 해야할 일
 `NOTE: ` 기록용
+
+## 관리자 계정
+
+admin@nexon.com
+password123!
