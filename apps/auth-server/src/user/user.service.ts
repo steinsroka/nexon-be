@@ -24,36 +24,6 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
   private readonly SALT_ROUNDS = 10;
 
-  async createAdmin(req: {
-    createAdminRequestDto: CreateAdminRequestDto;
-  }): Promise<UserDto> {
-    const { email, password, name } = req.createAdminRequestDto;
-
-    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
-
-    try {
-      const savedUser = await this.userModel.create({
-        name,
-        email,
-        password: hashedPassword,
-        role: UserRoleType.ADMIN,
-      });
-
-      return plainToInstance(UserDto, savedUser, {
-        excludeExtraneousValues: true,
-      });
-    } catch (error) {
-      // NOTE: email 필드에 대해 MongoDB 중복 키 에러 처리 (E11000)
-      if (error.code === 11000 && error.keyPattern?.email) {
-        throw RpcExceptionUtil.badRequest(
-          '이미 등록된 이메일입니다',
-          'EMAIL_ALREADY_EXISTS',
-        );
-      }
-      throw error;
-    }
-  }
-
   async createUserByAdmin(req: {
     createUserRequestDto: CreateUserRequestDto;
   }): Promise<UserDto> {
