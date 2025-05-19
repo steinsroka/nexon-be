@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -34,6 +35,10 @@ import {
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
 import { UserService } from '../services/user.service';
+import {
+  PaginateUsersRequestDto,
+  PaginateUsersResponseDto,
+} from '@lib/dtos/user/paginate-users.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -94,9 +99,11 @@ export class UserController {
     description: '사용자 목록 조회 성공',
     type: [UserDto],
   })
-  @Serializer(UserDto)
-  async findAll(): Promise<UserDto[]> {
-    return this.userService.findAll();
+  // @Serializer(UserDto) TODO:
+  async paginateUsers(
+    @Query() paginateUsersRequestDto: PaginateUsersRequestDto,
+  ): Promise<PaginateUsersResponseDto> {
+    return this.userService.paginateUsers(paginateUsersRequestDto);
   }
 
   @Get(':id')

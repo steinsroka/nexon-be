@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { GatewayModule } from './gateway.module';
-import { RpcExceptionFilter } from '../../../lib/src/filters/rpc-exception.filter';
+import { RpcExceptionFilter } from './filters/rpc-exception.filter';
 import {
   API_PREFIX,
   API_VERSION,
@@ -21,13 +21,13 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
   });
 
-  const logger = new Logger('Bootstrap');
+  const logger = new Logger('GatewsyServerBootstrap');
   const configService = app.get(ConfigService);
 
   app.use(cookieParser());
   app.setGlobalPrefix(API_PREFIX);
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN', DEFAULT_CORS_ORIGIN), // TODO: set cors origin env
+    origin: configService.get('CORS_ORIGIN', DEFAULT_CORS_ORIGIN),
     credentials: true,
   });
 

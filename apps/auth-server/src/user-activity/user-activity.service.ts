@@ -31,28 +31,22 @@ export class UserActivityService {
       throw new UnauthorizedException('본인의 활동 기록만 추가할 수 있습니다.');
     }
 
-    const newUserActivity = new this.userActivityModel({
+    const newUserActivity = await this.userActivityModel.create({
       userId,
       type,
       value,
     });
 
-    const savedUserActivity = await newUserActivity.save();
-
-    return plainToInstance(CreateUserActivityResponseDto, savedUserActivity);
+    return plainToInstance(CreateUserActivityResponseDto, newUserActivity);
   }
 
-  async getUserActivities(req: { userId: string }): Promise<{
-    userActivities: UserActivityDto[];
-  }> {
+  async getUserActivities(req: { userId: string }): Promise<UserActivityDto[]> {
     const { userId } = req;
 
     const userActivities = await this.userActivityModel
       .find({ userId })
       .sort({ id: -1 });
 
-    return {
-      userActivities: plainToInstance(UserActivityDto, userActivities),
-    };
+    return plainToInstance(UserActivityDto, userActivities);
   }
 }

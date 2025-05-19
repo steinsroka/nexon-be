@@ -7,7 +7,6 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { map, Observable } from 'rxjs';
 
-// TODO: 공통 모듈로 분리
 export interface ClassType<T = any> {
   new (...args: any[]): T;
 }

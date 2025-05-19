@@ -11,6 +11,13 @@ import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
+import {
+  PaginateUsersRequestDto,
+  PaginateUsersResponseDto,
+} from '@lib/dtos/user/paginate-users.dto';
+import { PAGINATION_DEFAULT_PAGE, PAGINATION_MIN_RPP } from '@lib/constants';
+import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
+import { RegisterRequestDto } from '@lib/dtos/auth/register.dto';
 
 @Injectable()
 export class UserService {
@@ -22,29 +29,30 @@ export class UserService {
   }): Promise<UserDto> {
     const { email, password, name } = req.createAdminRequestDto;
 
-    const existingUser = await this.userModel.findOne({ email });
-
-    if (existingUser) {
-      throw RpcExceptionUtil.badRequest(
-        '이미 등록된 이메일입니다',
-        'EMAIL_ALREADY_EXISTS',
-      );
-    }
-
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
-    const newUser = new this.userModel({
-      name,
-      email,
-      password: hashedPassword,
-      role: UserRoleType.ADMIN,
-    });
+    try {
+      // NOTE: 모델 생성과 저장을 하나의 원자적 연산으로 수행
+      const savedUser = await this.userModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: UserRoleType.ADMIN,
+      });
 
-    const savedUser = await newUser.save();
-
-    return plainToInstance(UserDto, savedUser, {
-      excludeExtraneousValues: true,
-    });
+      return plainToInstance(UserDto, savedUser, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error) {
+      // NOTE: email 필드에 대해 MongoDB 중복 키 에러 처리 (E11000)
+      if (error.code === 11000 && error.keyPattern?.email) {
+        throw RpcExceptionUtil.badRequest(
+          '이미 등록된 이메일입니다',
+          'EMAIL_ALREADY_EXISTS',
+        );
+      }
+      throw error;
+    }
   }
 
   async createUserByAdmin(req: {
@@ -52,39 +60,56 @@ export class UserService {
   }): Promise<UserDto> {
     const { email, password, name, role } = req.createUserRequestDto;
 
-    const existingUser = await this.userModel.findOne({ email });
-
-    if (existingUser) {
-      throw RpcExceptionUtil.badRequest(
-        '이미 등록된 이메일입니다',
-        'EMAIL_ALREADY_EXISTS',
-      );
-    }
-
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
-    const newUser = new this.userModel({
-      name,
-      email,
-      password: hashedPassword,
-      role,
+    try {
+      const savedUser = await this.userModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        role,
+      });
+
+      return plainToInstance(UserDto, savedUser);
+    } catch (error) {
+      if (error.code === 11000 && error.keyPattern?.email) {
+        throw RpcExceptionUtil.badRequest(
+          '이미 등록된 이메일입니다',
+          'EMAIL_ALREADY_EXISTS',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async paginateUsers(req: {
+    paginateUsersRequestDto: PaginateUsersRequestDto;
+  }): Promise<PaginateUsersResponseDto> {
+    const { page = PAGINATION_DEFAULT_PAGE, rpp = PAGINATION_MIN_RPP } =
+      req.paginateUsersRequestDto;
+
+    const skip = (page - 1) * rpp;
+    const events = await this.userModel
+      .find()
+      .sort({ id: -1 })
+      .skip(skip)
+      .limit(rpp)
+      .exec();
+
+    const total = await this.userModel.countDocuments().exec();
+    const items = events.map((user) => {
+      return plainToInstance(UserDto, user, {
+        enableCircularCheck: true,
+        excludeExtraneousValues: true,
+      });
     });
 
-    const savedUser = await newUser.save();
-
-    return plainToInstance(UserDto, savedUser);
+    return PaginationResponseDto.create(items, total, page, rpp);
   }
 
-  // TODO: Pagination 추가
-  async findAll(): Promise<UserDto[]> {
-    const users = await this.userModel.find().exec();
+  async findOneById(req: { id: string | Types.ObjectId }): Promise<UserDto> {
+    const { id } = req;
 
-    return users.map((user) =>
-      plainToInstance(UserDto, user, { excludeExtraneousValues: true }),
-    );
-  }
-
-  async findOneById(id: string | Types.ObjectId): Promise<UserDto> {
     if (!Types.ObjectId.isValid(id)) {
       throw RpcExceptionUtil.badRequest(
         '유효하지 않은 ID 형식입니다',
@@ -93,19 +118,6 @@ export class UserService {
     }
 
     const user = await this.userModel.findById(id);
-
-    if (!user) {
-      throw RpcExceptionUtil.notFound(
-        '사용자를 찾을 수 없습니다',
-        'USER_NOT_FOUND',
-      );
-    }
-
-    return plainToInstance(UserDto, user);
-  }
-
-  async findOneByEmail(email: string): Promise<UserDto> {
-    const user = await this.userModel.findOne({ email });
 
     if (!user) {
       throw RpcExceptionUtil.notFound(
@@ -174,13 +186,8 @@ export class UserService {
    * auth 관련 메서드
    */
   async createUser(req: {
-    registerRequestDto: {
-      email: string;
-      password: string;
-      checkPassword: string;
-      name: string;
-    };
-  }): Promise<User> {
+    registerRequestDto: RegisterRequestDto;
+  }): Promise<UserDto> {
     const { email, password, checkPassword, name } = req.registerRequestDto;
 
     if (password !== checkPassword) {
@@ -190,28 +197,42 @@ export class UserService {
       );
     }
 
-    const existingUser = await this.userModel.findOne({ email: email });
+    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
 
-    if (existingUser) {
-      throw RpcExceptionUtil.badRequest(
-        '이미 등록된 이메일입니다',
-        'EMAIL_ALREADY_EXISTS',
+    try {
+      const newUser = await this.userModel.create({
+        name: name,
+        email: email,
+        password: hashedPassword,
+        role: UserRoleType.USER,
+      });
+
+      return plainToInstance(UserDto, newUser);
+    } catch (error) {
+      if (error.code === 11000 && error.keyPattern?.email) {
+        throw RpcExceptionUtil.badRequest(
+          '이미 등록된 이메일입니다',
+          'EMAIL_ALREADY_EXISTS',
+        );
+      }
+      throw error;
+    }
+  }
+
+  async findOneByEmail(email: string): Promise<UserDto> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw RpcExceptionUtil.notFound(
+        '사용자를 찾을 수 없습니다',
+        'USER_NOT_FOUND',
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
-
-    const newUser = new this.userModel({
-      name: name,
-      email: email,
-      password: hashedPassword,
-      role: UserRoleType.USER,
-    });
-
-    return newUser.save();
+    return plainToInstance(UserDto, user);
   }
 
-  async validateUser(email: string, password: string): Promise<User> {
+  async validateUser(email: string, password: string): Promise<UserDto> {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
@@ -230,7 +251,7 @@ export class UserService {
       );
     }
 
-    return user;
+    return plainToInstance(UserDto, user);
   }
 
   async updateRefreshToken(

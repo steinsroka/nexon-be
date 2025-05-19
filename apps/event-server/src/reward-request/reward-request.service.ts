@@ -185,16 +185,12 @@ export class RewardRequestService {
 
     let failReason: string | null = null;
 
-    const userActivities = await (async () => {
+    const userActivities = await (() => {
       try {
-        const { userActivities } = await this.getUserActivitiesRpc(
-          actant.user.id,
-        );
-
-        return userActivities;
+        return this.getUserActivitiesRpc(actant.user.id);
       } catch (error) {
         failReason = error.message;
-        return [];
+        return [] as UserActivityDto[];
       }
     })();
 
@@ -335,14 +331,14 @@ export class RewardRequestService {
 
   private async getUserActivitiesRpc(
     userId: string,
-  ): Promise<{ userActivities: UserActivityDto[] }> {
+  ): Promise<UserActivityDto[]> {
     try {
       return await firstValueFrom(
         this.authClient.send('user_activity_get_user_activities', { userId }),
       );
     } catch (error) {
       console.error('Failed to get user activities:', error);
-      return { userActivities: [] }; // 기본값으로 빈 배열 반환
+      return []; // 기본값으로 빈 배열 반환
     }
   }
 }

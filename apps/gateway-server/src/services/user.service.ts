@@ -17,6 +17,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { REQUEST } from '@nestjs/core';
 import { BaseGatewayService } from './base.service';
+import {
+  PaginateUsersRequestDto,
+  PaginateUsersResponseDto,
+} from '@lib/dtos/user/paginate-users.dto';
 
 @Injectable()
 export class UserService extends BaseGatewayService {
@@ -46,8 +50,12 @@ export class UserService extends BaseGatewayService {
     );
   }
 
-  async findAll(): Promise<UserDto[]> {
-    return this.sendRequest<UserDto[]>('user_find_all', {});
+  async paginateUsers(
+    paginateUsersRequestDto: PaginateUsersRequestDto,
+  ): Promise<PaginateUsersResponseDto> {
+    return this.sendRequest<PaginateUsersResponseDto>('user_paginate_users', {
+      paginateUsersRequestDto,
+    });
   }
 
   async findOne(id: string): Promise<UserDto> {

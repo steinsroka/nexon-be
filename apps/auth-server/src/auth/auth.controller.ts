@@ -36,7 +36,9 @@ export class AuthController {
   }
 
   @MessagePattern('auth_logout')
-  async logout(@Payload() actant: AuthActant): Promise<LogoutResponseDto> {
-    return this.authService.logout(actant);
+  async logout(
+    @Payload() data: { actant: AuthActant },
+  ): Promise<LogoutResponseDto> {
+    return this.authService.logout(data);
   }
 }
