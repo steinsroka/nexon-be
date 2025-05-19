@@ -5,6 +5,7 @@ export interface LoginMetadata {
 export interface UserInviteMetadata {
   invitedUserId: string;
   invitedEmail: string;
+  invitedAt: Date;
 }
 
 export interface QuestClearMetadata {

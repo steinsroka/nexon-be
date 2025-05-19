@@ -15,7 +15,7 @@ export class RewardTransaction {
   status: RewardTransactionStatusType;
 
   @Prop({ default: Date.now() })
-  createdAt: Date;
+  transactedAt: Date;
 }
 
 export type RewardRequestDocument = RewardRequest & Document;

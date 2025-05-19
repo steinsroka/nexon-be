@@ -1,33 +1,42 @@
 import { PaginationResponseDto } from '@lib/dtos/common/pagination.dto';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
+import { EventDto } from '@lib/dtos/event/event.dto';
 import { GetRewardRequestByIdResponseDto } from '@lib/dtos/reward-request/get-reward-request-by-id.dto';
 import {
   PaginateRewardRequestsRequestDto,
   PaginateRewardRequestsResponseDto,
 } from '@lib/dtos/reward-request/paginate-reward-requests.dto';
 import { RewardRequestDto } from '@lib/dtos/reward-request/reward-request.dto';
+import { UserActivityDto } from '@lib/dtos/user-activity/user-activity.dto';
 import { UserRoleType } from '@lib/enums';
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
 import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum copy';
+import { RewardTransactionStatusType } from '@lib/enums/reward-transaction-status-type.enum';
+import { UserActivityType } from '@lib/enums/user-activity-type-enum';
 import { AuthActant } from '@lib/types/actant.type';
+import { QuestClearMetadata } from '@lib/types/activity-metadata.type';
+import {
+  LoginBetweenMetadata,
+  LoginConsecutiveMetadata,
+  QuestClearCountMetadata,
+  QuestClearSpecificMetadata,
+  UserInviteMetadata,
+} from '@lib/types/condition-metadata.type';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
+import dayjs from 'dayjs';
 import { FilterQuery, Model } from 'mongoose';
 import { firstValueFrom } from 'rxjs';
 import { EventService } from '../event/event.service';
-import { Event } from '../event/schemas/event.schema';
-import { RewardService } from '../reward/reward.service';
-import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 import {
   RewardRequest,
   RewardRequestDocument,
 } from './schemas/reward-request.schema';
-import { RewardRequestStatusType } from '@lib/enums/reward-request-status-type.enum copy';
-import { UserActivityDto } from '@lib/dtos/user-activity/user-activity.dto';
-import { UserActivityType } from '@lib/enums/user-activity-type-enum';
 
 @Injectable()
 export class RewardRequestService {
@@ -36,7 +45,6 @@ export class RewardRequestService {
     private rewardRequestModel: Model<RewardRequestDocument>,
     @Inject(MicroServiceType.AUTH_SERVER) private authClient: ClientProxy,
     private readonly eventService: EventService,
-    private readonly rewardService: RewardService,
   ) {}
 
   async paginateRewardRequests(req: {
@@ -58,7 +66,7 @@ export class RewardRequestService {
     if (actant.user.role === UserRoleType.USER) {
       filter.userId = actant.user.id;
     } else if (userId) {
-      // NOTE 특정 유저의 요청을 관리자/운영자/감사자가 조회하는 경우
+      // NOTE 특정 유저의 요청을 ADMIN/OPERATOR/AUDITOR 가 조회하는 경우
       filter.userId = userId;
     }
 
@@ -75,9 +83,9 @@ export class RewardRequestService {
       .find(filter)
       .sort({ id: -1 })
       .skip(skip)
-      .limit(rpp)
-      .populate('userId', 'name email')
-      .populate('eventId', 'title');
+      .limit(rpp);
+    // .populate('userId', 'name email') TODO:
+    // .populate('eventId', 'title');
     const total = await this.rewardRequestModel.countDocuments(filter);
     const items = rewardRequests.map((request) =>
       plainToInstance(RewardRequestDto, request),
@@ -105,7 +113,7 @@ export class RewardRequestService {
       );
     }
 
-    // USER 권한의 경우 본인 요청만 조회 가능
+    // NOTE: USER 권한의 경우 본인 요청만 조회 가능
     if (
       actant.user.role === UserRoleType.USER &&
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -127,8 +135,9 @@ export class RewardRequestService {
   }): Promise<CreateEventRewardRequestResponseDto> {
     const { actant, id } = req;
 
-    const eventDto = await this.eventService.getEventSummaryById({ id });
-    const event = plainToInstance(Event, eventDto);
+    const { rewards, ...event } = await this.eventService.getEventSummaryById({
+      id,
+    });
 
     if (!event) {
       throw RpcExceptionUtil.notFound(
@@ -144,7 +153,7 @@ export class RewardRequestService {
       );
     }
 
-    const now = new Date();
+    const now = dayjs().toDate();
 
     if (event.startDate > now) {
       throw RpcExceptionUtil.badRequest(
@@ -160,14 +169,19 @@ export class RewardRequestService {
       );
     }
 
-    const existingRequest = await this.rewardRequestModel.findOne({
+    const existingRequests = await this.rewardRequestModel.find({
       userId: actant.user.id,
-      eventId: id,
+      eventId: event.id,
     });
 
-    if (existingRequest) {
+    if (
+      existingRequests.length > 0 &&
+      existingRequests.some(
+        (request) => request.status === RewardRequestStatusType.SUCCESS,
+      )
+    ) {
       throw RpcExceptionUtil.conflict(
-        `이미 해당 이벤트에 대한 보상 요청이 존재합니다 (ID: ${id})`,
+        `이미 해당 이벤트에 대한 보상 요청이 존재합니다`,
         'REWARD_REQUEST_ALREADY_EXISTS',
       );
     }
@@ -177,11 +191,9 @@ export class RewardRequestService {
       eventId: id,
       isRewardable: false,
       status: RewardRequestStatusType.REQUESTED,
-      rewards: [],
+      rewardTransaction: [],
       requestedAt: now,
     });
-
-    // MSA call
 
     let failReason: string | null = null;
 
@@ -197,16 +209,10 @@ export class RewardRequestService {
     const isRewardable = this.getQualificationData(event, userActivities);
 
     if (isRewardable) {
-      const rewards = await this.rewardService.findRewardsByEventId(id);
-
-      const rewardRequestData = rewards.map((reward) => ({
-        rewardId: reward._id,
-        type: reward.type,
-        quantity: reward.quantity,
-        itemId: reward.itemId,
-        description: reward.description,
-        delivered: false,
-        deliveredAt: now,
+      const rewardTransactions = rewards.map((reward) => ({
+        rewardId: reward.id,
+        status: RewardTransactionStatusType.DONE,
+        transactedAt: now,
       }));
 
       await this.rewardRequestModel.updateOne(
@@ -214,7 +220,7 @@ export class RewardRequestService {
         {
           isRewardable,
           status: RewardRequestStatusType.SUCCESS,
-          rewards: rewardRequestData,
+          rewardTransactions,
         },
       );
     } else {
@@ -235,7 +241,7 @@ export class RewardRequestService {
   }
 
   private getQualificationData(
-    event: Event,
+    event: EventDto,
     userActivities: UserActivityDto[],
   ): boolean {
     return event.conditions.every((condition) => {
@@ -245,12 +251,16 @@ export class RewardRequestService {
             (act) => act.type === UserActivityType.USER_INVITE,
           );
 
-          return inviteActivities.length >= Number(condition.value);
+          const { inviteCount } = condition.metadata as UserInviteMetadata;
+
+          return inviteActivities.length >= inviteCount;
         }
         case EventConditionType.LOGIN_CONSECUTIVE_DAYS: {
+          const { consecutiveDays } =
+            condition.metadata as LoginConsecutiveMetadata;
           const loginDays = userActivities
             .filter((act) => act.type === UserActivityType.LOGIN)
-            .map((act) => new Date(act.createdAt).toISOString().split('T')[0]);
+            .map((act) => dayjs(act.createdAt).format('YYYY-MM-DD'));
 
           const uniqueDays = [...new Set(loginDays)].sort();
 
@@ -259,17 +269,12 @@ export class RewardRequestService {
           let currentConsecutiveDays = 1;
 
           for (let i = 1; i < uniqueDays.length; i++) {
-            const date1 = new Date(uniqueDays[i - 1]);
-            const date2 = new Date(uniqueDays[i]);
+            const prevDay = dayjs(uniqueDays[i - 1]);
+            const currDay = dayjs(uniqueDays[i]);
 
-            // 하루 차이인지 확인
-            const diffTime = Math.abs(date2.getTime() - date1.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays === 1) {
+            if (currDay.diff(prevDay, 'day') === 1) {
               currentConsecutiveDays++;
             } else {
-              // 연속이 끊겼으므로 최대값 업데이트 후 초기화
               maxConsecutiveDays = Math.max(
                 maxConsecutiveDays,
                 currentConsecutiveDays,
@@ -284,41 +289,57 @@ export class RewardRequestService {
             currentConsecutiveDays,
           );
 
-          const isRewardable = maxConsecutiveDays >= Number(condition.value);
-
-          return isRewardable;
+          return maxConsecutiveDays >= consecutiveDays;
         }
-        case EventConditionType.LOGIN_AT: {
-          const loginAtDate = new Date(condition.value)
-            .toISOString()
-            .split('T')[0];
-          const loginAtCount = userActivities.filter(
-            (act) =>
-              act.type === UserActivityType.LOGIN &&
-              new Date(act.createdAt).toISOString().split('T')[0] ===
-                loginAtDate,
-          ).length;
+        case EventConditionType.LOGIN_BETWEEN: {
+          const { startDate, endDate } =
+            condition.metadata as LoginBetweenMetadata;
 
-          return loginAtCount > 0;
+          const startDateCondition = dayjs(startDate);
+          const endDateCondition = dayjs(endDate);
+
+          const loginBetweenCount = userActivities.filter((act) => {
+            const loginAt = dayjs(act.createdAt);
+
+            return (
+              (loginAt.isAfter(startDateCondition, 'day') ||
+                loginAt.isSame(startDateCondition, 'day')) &&
+              (loginAt.isBefore(endDateCondition, 'day') ||
+                loginAt.isSame(endDateCondition, 'day'))
+            );
+          }).length;
+
+          return loginBetweenCount > 0;
         }
         case EventConditionType.QUEST_CLEAR_COUNT: {
+          const { clearCount: clearCountCondition } =
+            condition.metadata as QuestClearCountMetadata;
+
           const questClearCount = userActivities.filter(
-            (act) => act.type === UserActivityType.QUEST_CLEAR_COUNT,
+            (act) => act.type === UserActivityType.QUEST_CLEAR,
           ).length;
 
-          return questClearCount >= Number(condition.value);
+          return questClearCount >= clearCountCondition;
         }
         case EventConditionType.QUEST_CLEAR_SPECIFIC: {
-          const questClearCount = userActivities.filter(
-            (act) =>
-              act.type === UserActivityType.QUEST_CLEAR_SPECIFIC &&
-              act.value === condition.value,
-          ).length;
+          const { questIds: questIdsCondition } =
+            condition.metadata as QuestClearSpecificMetadata;
+
+          const questClearActivities = userActivities.filter(
+            (act) => act.type === UserActivityType.QUEST_CLEAR,
+          );
+
+          const questClearCount = questClearActivities.filter((act) => {
+            const { questId } = act.metadata as QuestClearMetadata;
+
+            return questIdsCondition.includes(questId);
+          }).length;
 
           return questClearCount > 0;
         }
         default:
           throw RpcExceptionUtil.badRequest(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `알 수 없는 조건 유형입니다: ${condition.type}`,
             'UNKNOWN_CONDITION_TYPE',
           );

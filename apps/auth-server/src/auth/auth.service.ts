@@ -21,6 +21,7 @@ import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { UserActivityService } from '../user-activity/user-activity.service';
 import { UserService } from '../user/user.service';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class AuthService {
@@ -61,6 +62,11 @@ export class AuthService {
         userId: invitee.id,
         createUserActivityRequestDto: {
           type: UserActivityType.USER_INVITE,
+          metadata: {
+            inviteeId: user.id,
+            inviteeEmail: user.email,
+            invitedAt: dayjs().toDate(),
+          },
         },
       });
     }
@@ -69,6 +75,9 @@ export class AuthService {
       userId: user.id.toString(),
       createUserActivityRequestDto: {
         type: UserActivityType.LOGIN,
+        metadata: {
+          loginAt: dayjs().toDate(),
+        },
       },
     });
 
@@ -107,6 +116,9 @@ export class AuthService {
       userId: userDto.id.toString(),
       createUserActivityRequestDto: {
         type: UserActivityType.LOGIN,
+        metadata: {
+          loginAt: dayjs().toDate(),
+        },
       },
     });
 

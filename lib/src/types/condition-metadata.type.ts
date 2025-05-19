@@ -12,11 +12,11 @@ export interface UserInviteMetadata {
 }
 
 export interface QuestClearSpecificMetadata {
-  questId: string[];
+  questIds: string[];
 }
 
 export interface QuestClearCountMetadata {
-  clearCount: string;
+  clearCount: number;
 }
 
 export type ConditionMetadata =
