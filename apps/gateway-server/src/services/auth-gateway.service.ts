@@ -51,7 +51,9 @@ export class AuthGatewayService extends BaseGatewayService {
   }
 
   async logout(actant: AuthActant): Promise<LogoutResponseDto> {
-    return this.sendRequest<LogoutResponseDto>('auth_logout', { actant });
+    return this.sendRequest<LogoutResponseDto>('auth_logout', {
+      actant,
+    });
   }
 
   setRefreshTokenCookie(res: Response, token: string): void {

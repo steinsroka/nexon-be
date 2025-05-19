@@ -14,7 +14,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@lib/guards';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { Actant, Roles } from '@lib/decorators';
 import { AuthActant } from '@lib/types/actant.type';
 import { UserRoleType } from '@lib/enums';
@@ -32,8 +33,6 @@ import {
   UpdateRoleResponseDto,
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { RolesGuard } from '@lib/guards/roles.guard';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { UserGatewayService } from '../services/user-gateway.service';
 
 @ApiTags('users')

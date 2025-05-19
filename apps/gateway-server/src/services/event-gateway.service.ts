@@ -20,17 +20,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { REQUEST } from '@nestjs/core';
 import { BaseGatewayService } from './base-gateway.service';
 
-/**
- * Service for handling event-related gateway operations
- */
 @Injectable()
 export class EventGatewayService extends BaseGatewayService {
-  /**
-   * Constructs the event gateway service
-   *
-   * @param eventServiceClient - The event microservice client
-   * @param request - The current HTTP request
-   */
   constructor(
     @Inject(MicroServiceType.EVENT_SERVER)
     protected readonly eventServiceClient: ClientProxy,
@@ -39,12 +30,6 @@ export class EventGatewayService extends BaseGatewayService {
     super(eventServiceClient, request);
   }
 
-  /**
-   * Retrieves paginated events
-   *
-   * @param paginateEventsRequestDto - The pagination parameters
-   * @returns A promise that resolves to the paginated events
-   */
   async paginateEvents(
     paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {

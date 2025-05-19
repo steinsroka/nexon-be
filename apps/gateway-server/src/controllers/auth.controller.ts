@@ -7,10 +7,17 @@ import {
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
 import { REFRESH_TOKEN_COOKIE_NAME } from '@lib/constants/auth.constant';
-import { JwtAuthGuard } from '@lib/guards';
 import { Serializer } from '@lib/interceptors';
 import { AuthActant } from '@lib/types/actant.type';
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -18,14 +25,19 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthGatewayService } from '../services/auth-gateway.service';
 import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
+import { TokenBlacklistService } from '../services/token-blacklist.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authGatewayService: AuthGatewayService) {}
+  constructor(
+    private readonly authGatewayService: AuthGatewayService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: '사용자 회원가입' })
@@ -78,7 +90,17 @@ export class AuthController {
     @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
+    // 토큰이 블랙리스트에 있는지 확인
+    const isBlacklisted =
+      await this.tokenBlacklistService.isBlacklisted(refreshToken);
+
+    if (isBlacklisted) {
+      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+    }
+
     const resp = await this.authGatewayService.refresh(refreshToken);
+
+    await this.tokenBlacklistService.addToBlacklist(refreshToken);
 
     this.authGatewayService.setRefreshTokenCookie(res, resp.refreshToken);
     return resp;
@@ -95,8 +117,25 @@ export class AuthController {
   async logout(
     @Actant() actant: AuthActant,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+    @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken?: string,
   ): Promise<LogoutResponseDto> {
+    const authorization = req.headers.authorization;
     const resp = await this.authGatewayService.logout(actant);
+
+    // 액세스 토큰을 블랙리스트에 추가
+    if (authorization) {
+      console.log(authorization);
+      const token = authorization.split(' ')[1]; // Bearer 토큰에서 실제 토큰 부분만 추출
+
+      if (token) {
+        await this.tokenBlacklistService.addToBlacklist(token);
+      }
+    }
+
+    if (refreshToken) {
+      await this.tokenBlacklistService.addToBlacklist(refreshToken);
+    }
 
     this.authGatewayService.clearRefreshTokenCookie(res);
     return resp;

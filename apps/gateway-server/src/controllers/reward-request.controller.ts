@@ -5,8 +5,8 @@ import {
   PaginateRewardRequestsResponseDto,
 } from '@lib/dtos/reward-request/paginate-reward-requests.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { Serializer } from '@lib/interceptors';
 import { AuthActant } from '@lib/types/actant.type';
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';

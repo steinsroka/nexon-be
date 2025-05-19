@@ -8,8 +8,8 @@ import {
   UpdateRewardResponseDto,
 } from '@lib/dtos/reward/update-reward.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { Serializer } from '@lib/interceptors';
 import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {

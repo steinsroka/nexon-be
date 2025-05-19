@@ -21,8 +21,10 @@ import { AuthGatewayService } from './services/auth-gateway.service';
 import { EventGatewayService } from './services/event-gateway.service';
 import { RewardGatewayService } from './services/reward-gateway.service';
 import { RewardRequestGatewayService } from './services/reward-request-gateway.service';
+import { TokenBlacklistService } from './services/token-blacklist.service';
 import { UserActivityGatewayService } from './services/user-activity-gateway.service';
 import { UserGatewayService } from './services/user-gateway.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -75,6 +77,10 @@ import { UserGatewayService } from './services/user-gateway.service';
         },
       }),
     }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 15 * 60,
+    }),
   ],
   controllers: [
     AuthController,
@@ -86,6 +92,7 @@ import { UserGatewayService } from './services/user-gateway.service';
   ],
   providers: [
     JwtStrategy,
+    TokenBlacklistService,
     AuthGatewayService,
     EventGatewayService,
     RewardGatewayService,

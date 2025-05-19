@@ -4,8 +4,8 @@ import {
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { AuthActant } from '@lib/types/actant.type';
 import {
   Body,

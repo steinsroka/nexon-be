@@ -4,8 +4,8 @@ import {
   CreateUserActivityResponseDto,
 } from '@lib/dtos/user-activity/create-user-activity.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { Serializer } from '@lib/interceptors';
 import { AuthActant } from '@lib/types';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
