@@ -23,12 +23,6 @@ export class RewardService {
     private readonly eventService: EventService,
   ) {}
 
-  async findRewardsByEventId(req: { eventId: string }): Promise<Reward[]> {
-    const rewards = await this.rewardModel.find(req).exec();
-
-    return rewards;
-  }
-
   async createReward(req: {
     eventId: string;
     createRewardRequestDto: CreateRewardRequestDto;
@@ -51,10 +45,10 @@ export class RewardService {
       );
     }
 
-    const createdReward = await new this.rewardModel({
+    const createdReward = await this.rewardModel.create({
       ...createRewardRequestDto,
       eventId,
-    }).save();
+    });
 
     return plainToInstance(CreateRewardResponseDto, createdReward);
   }
@@ -96,5 +90,11 @@ export class RewardService {
     }
 
     return plainToInstance(UpdateRewardResponseDto, updatedReward);
+  }
+
+  async findRewardsByEventId(eventId: string): Promise<Reward[]> {
+    const rewards = await this.rewardModel.find({ eventId }).exec();
+
+    return rewards;
   }
 }
