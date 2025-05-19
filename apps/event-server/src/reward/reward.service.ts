@@ -7,14 +7,13 @@ import {
   UpdateRewardResponseDto,
 } from '@lib/dtos/reward/update-reward.dto';
 import { EventStatusType } from '@lib/enums/event-status-type.enum';
-import { AuthActant } from '@lib/types/actant.type';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { Event, EventDocument } from '../event/schemas/event.schema';
 import { Reward, RewardDocument } from './schemas/reward.schema';
-import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 
 @Injectable()
 export class RewardService {
@@ -32,11 +31,10 @@ export class RewardService {
   }
 
   async createReward(req: {
-    actant: AuthActant;
     eventId: string;
     createRewardRequestDto: CreateRewardRequestDto;
   }): Promise<CreateRewardResponseDto> {
-    const { actant, eventId, createRewardRequestDto } = req;
+    const { eventId, createRewardRequestDto } = req;
 
     const event = await this.eventModel.findById(eventId).exec();
 
@@ -63,12 +61,11 @@ export class RewardService {
   }
 
   async updateReward(req: {
-    actant: AuthActant;
     eventId: string;
     id: string;
     updateRewardRequestDto: UpdateRewardRequestDto;
   }): Promise<UpdateRewardResponseDto> {
-    const { actant, eventId, id, updateRewardRequestDto } = req;
+    const { eventId, id, updateRewardRequestDto } = req;
 
     const event = await this.eventModel.findById(eventId).exec();
 

@@ -6,6 +6,7 @@ import {
   RegisterRequestDto,
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
+import { REFRESH_TOKEN_COOKIE_NAME } from '@lib/constants/auth.constant';
 import { JwtAuthGuard } from '@lib/guards';
 import { Serializer } from '@lib/interceptors';
 import { AuthActant } from '@lib/types/actant.type';
@@ -78,14 +79,14 @@ export class AuthController {
 
   @Post('refresh')
   @ApiOperation({ summary: '토큰 갱신' })
-  @ApiCookieAuth('refresh_token')
+  @ApiCookieAuth(REFRESH_TOKEN_COOKIE_NAME)
   @ApiResponse({
     status: 200,
     description: '토큰 갱신 성공',
   })
   @ApiResponse({ status: 401, description: '유효하지 않은 리프레시 토큰' })
   async refresh(
-    @Cookies('refresh_token') refreshToken: string,
+    @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
     const resp = await this.gatewayService.sendRequest<LoginResponseDto>(

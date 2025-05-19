@@ -15,15 +15,14 @@ import {
   UpdateEventResponseDto,
 } from '@lib/dtos/event/update-event.dto';
 import { CreateRewardRequestDto } from '@lib/dtos/reward/create-reward.dto';
-import { AuthActant } from '@lib/types/actant.type';
+import { RewardDto } from '@lib/dtos/reward/reward.dto';
+import { RpcExceptionUtil } from '@lib/index';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass, plainToInstance } from 'class-transformer';
 import { FilterQuery, Model } from 'mongoose';
 import { Reward, RewardDocument } from '../reward/schemas/reward.schema';
 import { Event, EventDocument } from './schemas/event.schema';
-import { RewardDto } from '@lib/dtos/reward/reward.dto';
-import { RpcExceptionUtil } from '@lib/index';
 
 @Injectable()
 export class EventService {
@@ -81,10 +80,9 @@ export class EventService {
   }
 
   async createEvent(req: {
-    actant: AuthActant;
     createEventRequestDto: CreateEventRequestDto;
   }): Promise<CreateEventResponseDto> {
-    const { actant, createEventRequestDto } = req;
+    const { createEventRequestDto } = req;
 
     // rewards 데이터를 제외한 이벤트 정보만 저장
     const { rewards, ...eventData } = createEventRequestDto;
@@ -135,11 +133,10 @@ export class EventService {
   }
 
   async updateEvent(req: {
-    actant: AuthActant;
     id: string;
     updateEventRequestDto: UpdateEventRequestDto;
   }): Promise<UpdateEventResponseDto> {
-    const { actant, id, updateEventRequestDto } = req;
+    const { id, updateEventRequestDto } = req;
 
     const updatedEvent = await this.eventModel
       .findByIdAndUpdate(id, updateEventRequestDto, { new: true })
@@ -156,10 +153,9 @@ export class EventService {
   }
 
   async softDeleteEvent(req: {
-    actant: AuthActant;
     id: string;
   }): Promise<SoftDeleteEventResponseDto> {
-    const { actant, id } = req;
+    const { id } = req;
 
     const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
 

@@ -256,7 +256,7 @@ export class RewardRequestService {
         case EventConditionType.LOGIN_CONSECUTIVE_DAYS: {
           const loginDays = userActivities
             .filter((act) => act.type === UserActivityType.LOGIN)
-            .map((act) => new Date(act.createdAt).toISOString().split('T')[0]); // TODO: userActivity 타입 지정후 로직 개선
+            .map((act) => new Date(act.createdAt).toISOString().split('T')[0]);
 
           const uniqueDays = [...new Set(loginDays)].sort();
 

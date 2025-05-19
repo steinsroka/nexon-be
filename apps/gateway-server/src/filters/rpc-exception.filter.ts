@@ -19,13 +19,13 @@ export class RpcExceptionFilter implements ExceptionFilter {
 
     // 요청 추적을 위한 traceId
     const traceId = request['traceId'] || 'no-trace-id';
-    
+
     // 마이크로서비스에서 반환된 예외 정보 추출
     const status = this.extractStatusCode(exception);
     const code = this.extractErrorCode(exception);
     const message = this.extractErrorMessage(exception);
     const service = this.extractServiceName(exception);
-    
+
     // 응답 형식화
     const errorResponse = {
       statusCode: status,
@@ -56,16 +56,16 @@ export class RpcExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       return exception.getStatus();
     }
-    
+
     // RPC 예외에서 상태 코드 추출 시도
     if (exception?.error?.status) {
       return exception.error.status;
     }
-    
+
     if (exception?.status) {
       return exception.status;
     }
-    
+
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
@@ -73,31 +73,32 @@ export class RpcExceptionFilter implements ExceptionFilter {
     if (exception?.error?.code) {
       return exception.error.code;
     }
-    
+
     if (exception?.code) {
       return exception.code;
     }
-    
+
     return 'INTERNAL_ERROR';
   }
 
   private extractErrorMessage(exception: any): string {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
+
       if (typeof response === 'object' && response['message']) {
         return response['message'];
       }
       return response as string;
     }
-    
+
     if (exception?.error?.message) {
       return exception.error.message;
     }
-    
+
     if (exception?.message) {
       return exception.message;
     }
-    
+
     return 'Internal server error';
   }
 
@@ -105,11 +106,11 @@ export class RpcExceptionFilter implements ExceptionFilter {
     if (exception?.error?.service) {
       return exception.error.service;
     }
-    
+
     if (exception?.service) {
       return exception.service;
     }
-    
+
     return 'unknown';
   }
 }

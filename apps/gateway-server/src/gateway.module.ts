@@ -1,4 +1,9 @@
 import { MicroServiceType } from '@lib/enums/microservice.enum';
+import {
+  DEFAULT_AUTH_SERVER_PORT,
+  DEFAULT_EVENT_SERVER_PORT,
+} from '@lib/constants/common.constant';
+import { DEFAULT_JWT_ACCESS_EXPIRES } from '@lib/constants/auth.constant';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -28,7 +33,10 @@ import { GatewayService } from './gateway.service';
           transport: Transport.TCP,
           options: {
             host: configService.get('AUTH_SERVER_HOST', 'localhost'),
-            port: configService.get('AUTH_SERVER_PORT', 3001),
+            port: configService.get(
+              'AUTH_SERVER_PORT',
+              DEFAULT_AUTH_SERVER_PORT,
+            ),
           },
         }),
         inject: [ConfigService],
@@ -39,7 +47,10 @@ import { GatewayService } from './gateway.service';
           transport: Transport.TCP,
           options: {
             host: configService.get('EVENT_SERVER_HOST', 'localhost'),
-            port: configService.get('EVENT_SERVER_PORT', 3002),
+            port: configService.get(
+              'EVENT_SERVER_PORT',
+              DEFAULT_EVENT_SERVER_PORT,
+            ),
           },
         }),
         inject: [ConfigService],
@@ -52,7 +63,10 @@ import { GatewayService } from './gateway.service';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_ACCESS_SECRET'),
         signOptions: {
-          expiresIn: configService.get('JWT_ACCESS_EXPIRES_IN'),
+          expiresIn: configService.get(
+            'JWT_ACCESS_EXPIRES_IN',
+            DEFAULT_JWT_ACCESS_EXPIRES,
+          ),
         },
       }),
     }),

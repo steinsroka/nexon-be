@@ -1,5 +1,10 @@
 import { MicroServiceType } from '@lib/enums/microservice.enum';
 import {
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+  REFRESH_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_PATH,
+} from '@lib/constants/auth.constant';
+import {
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -58,18 +63,18 @@ export class GatewayService {
       this.configService.get<string>('NODE_ENV') === 'production';
     const domain = this.configService.get<string>('COOKIE_DOMAIN');
 
-    res.cookie('refresh_token', token, {
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, token, {
       httpOnly: true,
       secure: isSecureCookie,
       sameSite: 'strict',
-      maxAge: 1 * 24 * 60 * 60 * 1000, // 1일 (밀리초)
-      path: '/auth/refresh',
+      maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE,
+      path: REFRESH_TOKEN_COOKIE_PATH,
       ...(domain && { domain }),
     });
   }
 
   public clearRefreshTokenCookie(res: Response): void {
-    res.clearCookie('refresh_token', {
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
