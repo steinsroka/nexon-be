@@ -5,6 +5,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { GatewayModule } from './gateway.module';
 import { RpcExceptionFilter } from './filters/rpc-exception.filter';
+import {
+  API_PREFIX,
+  API_VERSION,
+  DEFAULT_CORS_ORIGIN,
+  DEFAULT_GATEWAY_PORT,
+  SWAGGER_DESCRIPTION,
+  SWAGGER_PATH,
+  SWAGGER_TITLE,
+} from '@lib/constants/common.constant';
+import { REFRESH_TOKEN_COOKIE_NAME } from '@lib/constants/auth.constant';
 
 async function bootstrap() {
   const app = await NestFactory.create(GatewayModule, {
@@ -15,9 +25,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.use(cookieParser());
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(API_PREFIX);
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN', 'http://localhost:3000'), // TODO: set cors origin env
+    origin: configService.get('CORS_ORIGIN', DEFAULT_CORS_ORIGIN), // TODO: set cors origin env
     credentials: true,
   });
 
@@ -33,17 +43,17 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Nexon API')
-    .setDescription('Nexon API 문서')
-    .setVersion('1.0')
+    .setTitle(SWAGGER_TITLE)
+    .setDescription(SWAGGER_DESCRIPTION)
+    .setVersion(API_VERSION)
     .addBearerAuth()
-    .addCookieAuth('refresh_token')
+    .addCookieAuth(REFRESH_TOKEN_COOKIE_NAME)
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup(SWAGGER_PATH, app, document);
 
-  const port = configService.get('PORT', 3000);
+  const port = configService.get('PORT', DEFAULT_GATEWAY_PORT);
 
   await app.listen(port);
 

@@ -58,7 +58,7 @@ export class CreateEventRequestDto {
     type: [ConditionDto],
   })
   @IsNotEmpty()
-  conditions: ConditionDto[]; // TODO: import 위치 수정
+  conditions: ConditionDto[];
 
   @ApiProperty({
     example: [],
@@ -66,7 +66,7 @@ export class CreateEventRequestDto {
     type: [CreateRewardRequestDto],
   })
   @IsNotEmpty()
-  rewards: CreateRewardRequestDto[]; // TODO: import 위치 수정
+  rewards: CreateRewardRequestDto[];
 }
 
 export class CreateEventResponseDto extends EventDto {}

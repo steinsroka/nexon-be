@@ -1,5 +1,13 @@
 import { HttpStatus } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import {
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_CONFLICT,
+  ERROR_CODE_FORBIDDEN,
+  ERROR_CODE_INTERNAL_SERVER_ERROR,
+  ERROR_CODE_NOT_FOUND,
+  ERROR_CODE_UNAUTHORIZED,
+} from '@lib/constants/error.constant';
 
 /**
  * 표준화된 RPC 예외를 생성하는 유틸리티 클래스
@@ -15,7 +23,7 @@ export class RpcExceptionUtil {
   static create(
     message: string,
     status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
-    code: string = 'INTERNAL_SERVER_ERROR',
+    code: string = ERROR_CODE_INTERNAL_SERVER_ERROR,
   ): RpcException {
     return new RpcException({
       message,
@@ -31,7 +39,7 @@ export class RpcExceptionUtil {
    */
   static badRequest(
     message: string,
-    code: string = 'BAD_REQUEST',
+    code: string = ERROR_CODE_BAD_REQUEST,
   ): RpcException {
     return this.create(message, HttpStatus.BAD_REQUEST, code);
   }
@@ -43,7 +51,7 @@ export class RpcExceptionUtil {
    */
   static unauthorized(
     message: string,
-    code: string = 'UNAUTHORIZED',
+    code: string = ERROR_CODE_UNAUTHORIZED,
   ): RpcException {
     return this.create(message, HttpStatus.UNAUTHORIZED, code);
   }
@@ -55,7 +63,7 @@ export class RpcExceptionUtil {
    */
   static forbidden(
     message: string,
-    code: string = 'FORBIDDEN',
+    code: string = ERROR_CODE_FORBIDDEN,
   ): RpcException {
     return this.create(message, HttpStatus.FORBIDDEN, code);
   }
@@ -67,7 +75,7 @@ export class RpcExceptionUtil {
    */
   static notFound(
     message: string,
-    code: string = 'NOT_FOUND',
+    code: string = ERROR_CODE_NOT_FOUND,
   ): RpcException {
     return this.create(message, HttpStatus.NOT_FOUND, code);
   }
@@ -79,7 +87,7 @@ export class RpcExceptionUtil {
    */
   static conflict(
     message: string,
-    code: string = 'CONFLICT',
+    code: string = ERROR_CODE_CONFLICT,
   ): RpcException {
     return this.create(message, HttpStatus.CONFLICT, code);
   }

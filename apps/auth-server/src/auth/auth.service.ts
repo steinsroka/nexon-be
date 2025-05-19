@@ -5,10 +5,17 @@ import {
 } from '@lib/dtos/auth/register.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
 import { UserActivityType } from '@lib/enums/user-activity-type-enum';
+import {
+  DEFAULT_JWT_ACCESS_EXPIRES,
+  DEFAULT_JWT_ISSUER,
+  DEFAULT_JWT_REFRESH_EXPIRES,
+  JWT_ALGORITHM,
+} from '@lib/constants/auth.constant';
+import { ERROR_INVITEE_NOT_FOUND } from '@lib/msgs/auth.msg';
 import { JwtPayload } from '@lib/types';
 import { AuthActant } from '@lib/types/actant.type';
 import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
-import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
@@ -30,7 +37,7 @@ export class AuthService {
     const user = await this.userService.createUser(req);
 
     const payload: JwtPayload = {
-      iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+      iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
       sub: user._id,
       email: user.email,
       iat: Math.floor(Date.now() / 1000),
@@ -50,7 +57,7 @@ export class AuthService {
       );
 
       if (!invitee) {
-        throw RpcExceptionUtil.notFound('초대해준 유저가 존재하지 않습니다.');
+        throw RpcExceptionUtil.notFound(ERROR_INVITEE_NOT_FOUND);
       }
 
       await this.userActivityService.createUserActivity({
@@ -86,7 +93,7 @@ export class AuthService {
     const user = await this.userService.validateUser(email, password);
 
     const payload: JwtPayload = {
-      iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+      iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
       sub: user._id,
       email: user.email,
       iat: Math.floor(Date.now() / 1000),
@@ -126,7 +133,7 @@ export class AuthService {
       const user = await this.userService.findOneById(payload.sub.toString());
 
       const newPayload: JwtPayload = {
-        iss: this.configService.get<string>('JWT_ISSUER', 'nexon-auth-server'),
+        iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
         sub: user.id,
         email: user.email,
         iat: Math.floor(Date.now() / 1000),
@@ -158,17 +165,23 @@ export class AuthService {
 
   private createAccessToken(payload: JwtPayload): string {
     return this.jwtService.sign(payload, {
-      algorithm: 'HS512',
+      algorithm: JWT_ALGORITHM,
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '15m'),
+      expiresIn: this.configService.get<string>(
+        'JWT_ACCESS_EXPIRES_IN',
+        DEFAULT_JWT_ACCESS_EXPIRES,
+      ),
     });
   }
 
   private createRefreshToken(payload: JwtPayload): string {
     return this.jwtService.sign(payload, {
-      algorithm: 'HS512',
+      algorithm: JWT_ALGORITHM,
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '1h'),
+      expiresIn: this.configService.get<string>(
+        'JWT_REFRESH_EXPIRES_IN',
+        DEFAULT_JWT_REFRESH_EXPIRES,
+      ),
     });
   }
 }

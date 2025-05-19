@@ -1,6 +1,12 @@
 import { UserDto } from '@lib/dtos/user/user.dto';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtPayload } from '@lib/types';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { PassportStrategy } from '@nestjs/passport';
@@ -12,7 +18,8 @@ import { firstValueFrom } from 'rxjs';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
-    @Inject('AUTH_SERVER') private readonly authServiceClient: ClientProxy,
+    @Inject(MicroServiceType.AUTH_SERVER)
+    private readonly authServiceClient: ClientProxy,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,6 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get('JWT_ACCESS_SECRET', 'access_secret'),
     });
   }
+  logger = new Logger(JwtStrategy.name);
 
   async validate(payload: JwtPayload): Promise<UserDto> {
     try {
@@ -39,7 +47,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
       return userDto;
     } catch (error) {
-      console.error('[JwtStrategy.validate] error:', error); // TODO: logger
+      this.logger.error('[JwtStrategy.validate] error:', error);
       throw new UnauthorizedException('접근 권한이 없습니다');
     }
   }

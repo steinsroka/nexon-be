@@ -1,4 +1,4 @@
-import { Actant, Roles } from '@lib/decorators';
+import { Roles } from '@lib/decorators';
 import {
   CreateRewardRequestDto,
   CreateRewardResponseDto,
@@ -8,10 +8,10 @@ import {
   UpdateRewardResponseDto,
 } from '@lib/dtos/reward/update-reward.dto';
 import { UserRoleType } from '@lib/enums';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
 import { JwtAuthGuard } from '@lib/guards';
 import { RolesGuard } from '@lib/guards/roles.guard';
 import { Serializer } from '@lib/interceptors';
-import { AuthActant } from '@lib/types/actant.type';
 import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,7 +20,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GatewayService } from '../gateway.service';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
 
 @ApiTags('rewards')
 @Controller('events/:event_id/rewards')
@@ -39,7 +38,6 @@ export class RewardController {
   })
   @Serializer(CreateRewardResponseDto)
   async createReward(
-    @Actant() actant: AuthActant,
     @Param('event_id') eventId: string,
     @Body() createRewardRequestDto: CreateRewardRequestDto,
   ): Promise<CreateRewardResponseDto> {
@@ -47,7 +45,6 @@ export class RewardController {
       MicroServiceType.EVENT_SERVER,
       'reward_create_reward',
       {
-        actant,
         eventId,
         createRewardRequestDto,
       },
@@ -63,7 +60,6 @@ export class RewardController {
   })
   @Serializer(UpdateRewardResponseDto)
   async updateReward(
-    @Actant() actant: AuthActant,
     @Param('event_id') eventId: string,
     @Param('id') id: string,
     @Body() updateRewardRequestDto: UpdateRewardRequestDto,
@@ -72,7 +68,6 @@ export class RewardController {
       MicroServiceType.EVENT_SERVER,
       'reward_update_reward',
       {
-        actant,
         eventId,
         id,
         updateRewardRequestDto,

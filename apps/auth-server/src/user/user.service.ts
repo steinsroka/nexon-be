@@ -1,16 +1,16 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { CreateAdminRequestDto } from '@lib/dtos/user/create-admin.dto';
+import { CreateUserRequestDto } from '@lib/dtos/user/create-user.dto';
+import { UpdateRoleRequestDto } from '@lib/dtos/user/update-role.dto';
+import { UserDto } from '@lib/dtos/user/user.dto';
+import { UserRoleType } from '@lib/enums';
+import { AuthActant } from '@lib/types/actant.type';
+import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import { AuthActant } from '@lib/types/actant.type';
-import { UserRoleType } from '@lib/enums';
-import { CreateAdminRequestDto } from '@lib/dtos/user/create-admin.dto';
-import { CreateUserRequestDto } from '@lib/dtos/user/create-user.dto';
-import { UpdateRoleRequestDto } from '@lib/dtos/user/update-role.dto';
-import { UserDto } from '@lib/dtos/user/user.dto';
-import { RpcExceptionUtil } from '@lib/utils/rpc-exception.util';
 
 @Injectable()
 export class UserService {
