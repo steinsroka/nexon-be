@@ -4,8 +4,6 @@ import {
   DEFAULT_EVENT_SERVER_PORT,
 } from '@lib/constants/common.constant';
 import { MicroServiceType } from '@lib/enums/microservice.enum';
-import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
-import { JwtStrategy } from '@lib/strategies/jwt.strategy';
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -25,6 +23,8 @@ import { RewardService } from './services/reward.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { UserActivityService } from './services/user-activity.service';
 import { UserService } from './services/user.service';
+import { LoggingMiddleware } from './middlewares/logging.middleware';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
