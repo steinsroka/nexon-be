@@ -33,6 +33,7 @@ services:
       - JWT_REFRESH_EXPIRES_IN=7d
       - JWT_ISSUER='nexon-auth-server'
       - PORT=3001
+      - AUTH_SERVER_HOST=0.0.0.0
     networks:
       - nexon-network
     command: ['node', 'dist/apps/auth-server/src/main']
@@ -52,6 +53,7 @@ services:
       - NODE_ENV=local
       - MONGODB_URI=mongodb://mongodb:27017/nexon-db
       - PORT=3002
+      - EVENT_SERVER_HOST=0.0.0.0
     networks:
       - nexon-network
     command: ['node', 'dist/apps/event-server/src/main']
