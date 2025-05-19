@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // Docker 환경에서 호스트 바인딩 문제 해결을 위해 '0.0.0.0' 사용
   const host = process.env.EVENT_SERVER_HOST || '0.0.0.0';
-  const port = parseInt('3002', 10);
+  const port = parseInt(process.env.EVENT_SERVER_PORT || '3002', 10);
 
   logger.log(`Starting Event Server on ${host}:${port}`);
 

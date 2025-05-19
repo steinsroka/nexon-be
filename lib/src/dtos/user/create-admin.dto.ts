@@ -25,7 +25,7 @@ export const ROLE_INVALID = '유효하지 않은 역할입니다.';
 
 export class CreateAdminRequestDto {
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'user@nexon.com',
     description: '이메일',
   })
   @IsEmail({}, { message: EMAIL_REGEX_INVALID })

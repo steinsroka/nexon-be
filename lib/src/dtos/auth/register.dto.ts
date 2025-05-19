@@ -25,7 +25,7 @@ import { UserDto } from '../user/user.dto';
 
 export class RegisterRequestDto {
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'user@nexon.com',
     description: '이메일',
   })
   @IsEmail({}, { message: EMAIL_REGEX_INVALID })
@@ -73,7 +73,7 @@ export class RegisterRequestDto {
   name: string;
 
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'user@nexon.com',
     description: '초대한사람 email',
     required: false,
   })
@@ -99,7 +99,7 @@ export class RegisterResponseDto {
   @ApiProperty({
     example: {
       id: '64a78e6e5d32a83d8a0d3f4c',
-      email: 'user@example.com',
+      email: 'user@nexon.com',
       name: '홍길동',
       role: 'USER',
       createdAt: '2025-01-01T00:00:00.000Z',

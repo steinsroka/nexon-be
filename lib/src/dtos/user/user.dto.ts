@@ -21,7 +21,7 @@ export class UserDto {
   id: string;
 
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'user@nexon.com',
     description: '사용자 이메일 주소',
   })
   @Expose()
@@ -43,7 +43,7 @@ export class UserDto {
   role: UserRoleType;
 
   @ApiProperty({
-    example: 'example@example.com',
+    example: 'example@nexon.com',
     description: '사용자 초대 이메일 주소',
   })
   @Expose()
