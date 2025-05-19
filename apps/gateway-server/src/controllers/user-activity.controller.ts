@@ -1,7 +1,13 @@
 import { Actant, Roles } from '@lib/decorators';
+import {
+  CreateUserActivityRequestDto,
+  CreateUserActivityResponseDto,
+} from '@lib/dtos/user-activity/create-user-activity.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
+import { Serializer } from '@lib/interceptors';
+import { AuthActant } from '@lib/types';
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -9,14 +15,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GatewayService } from '../gateway.service';
-import { AuthActant } from '@lib/types';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
-import {
-  CreateUserActivityRequestDto,
-  CreateUserActivityResponseDto,
-} from '@lib/dtos/user-activity/create-user-activity.dto';
-import { Serializer } from '@lib/interceptors';
+import { UserActivityService } from '../services/user-activity.service';
 
 @ApiTags('user-activities')
 @Controller('user/:user_id/user-activity')
@@ -24,7 +23,7 @@ import { Serializer } from '@lib/interceptors';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleType.ADMIN, UserRoleType.USER)
 export class UserActivityController {
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly userActivityService: UserActivityService) {}
 
   @Post()
   @ApiOperation({ summary: '유저 활동 생성 (유저, 관리자)' })
@@ -39,10 +38,10 @@ export class UserActivityController {
     @Param('user_id') userId: string,
     @Body() createUserActivityRequestDto: CreateUserActivityRequestDto,
   ): Promise<CreateUserActivityResponseDto> {
-    return this.gatewayService.sendRequest<CreateUserActivityResponseDto>(
-      MicroServiceType.AUTH_SERVER,
-      'user_activity_create_user_activity',
-      { actant, userId, createUserActivityRequestDto },
+    return this.userActivityService.createUserActivity(
+      actant,
+      userId,
+      createUserActivityRequestDto,
     );
   }
 }

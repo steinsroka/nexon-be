@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { GatewayModule } from './gateway.module';
-import { RpcExceptionFilter } from './filters/rpc-exception.filter';
+import { RpcExceptionFilter } from '../../../lib/src/filters/rpc-exception.filter';
 import {
   API_PREFIX,
   API_VERSION,

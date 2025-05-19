@@ -39,6 +39,7 @@
     "docker:prune": "docker-compose -p nexon-be down --rmi all --volumes --remove-orphans"
   },
   "dependencies": {
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -50,6 +51,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "bcrypt": "^6.0.0",
+    "cache-manager": "^6.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
@@ -111,11 +113,10 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/apps/",
-      "<rootDir>/libs/"
+      "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@lib/(.*)$": "<rootDir>/libs/lib/src/$1"
+      "^@lib/(.*)$": "<rootDir>/lib/src/$1"
     }
   }
 }

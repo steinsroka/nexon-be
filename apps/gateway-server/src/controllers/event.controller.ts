@@ -4,8 +4,8 @@ import {
   CreateEventResponseDto,
 } from '@lib/dtos/event/create-event.dto';
 import { UserRoleType } from '@lib/enums';
-import { JwtAuthGuard } from '@lib/guards';
-import { RolesGuard } from '@lib/guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { AuthActant } from '@lib/types/actant.type';
 import {
   Body,
@@ -35,14 +35,13 @@ import {
 } from '@nestjs/swagger';
 import { GetEventByIdResponseDto } from '@lib/dtos/event/get-event-by-id.dto';
 import { Serializer } from '@lib/interceptors';
-import { GatewayService } from '../gateway.service';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { EventService } from '../services/event.service';
 import { CreateEventRewardRequestResponseDto } from '@lib/dtos/event/create-event-reward-request.dto';
 
 @ApiTags('events')
 @Controller('events')
 export class EventController {
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly eventService: EventService) {}
 
   @Get()
   @ApiOperation({ summary: '이벤트 목록 조회' })
@@ -55,11 +54,7 @@ export class EventController {
   async paginateEvents(
     @Query() paginateEventsRequestDto: PaginateEventsRequestDto,
   ): Promise<PaginateEventsResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_paginate_events',
-      { paginateEventsRequestDto },
-    );
+    return this.eventService.paginateEvents(paginateEventsRequestDto);
   }
 
   @Post()
@@ -77,11 +72,7 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Body() createEventRequestDto: CreateEventRequestDto,
   ): Promise<CreateEventResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_create_event',
-      { actant, createEventRequestDto },
-    );
+    return this.eventService.createEvent(actant, createEventRequestDto);
   }
 
   @Get(':id')
@@ -95,11 +86,7 @@ export class EventController {
   async getEventById(
     @Param('id') id: string,
   ): Promise<GetEventByIdResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_get_event_by_id',
-      { id },
-    );
+    return this.eventService.getEventById(id);
   }
 
   @Put(':id')
@@ -118,11 +105,7 @@ export class EventController {
     @Param('id') id: string,
     @Body() updateEventRequestDto: UpdateEventRequestDto,
   ): Promise<UpdateEventResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_update_event',
-      { actant, id, updateEventRequestDto },
-    );
+    return this.eventService.updateEvent(actant, id, updateEventRequestDto);
   }
 
   @Delete(':id')
@@ -140,11 +123,7 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<SoftDeleteEventResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_soft_delete_event',
-      { actant, id },
-    );
+    return this.eventService.softDeleteEvent(actant, id);
   }
 
   @Post(':id/reward-request')
@@ -161,10 +140,6 @@ export class EventController {
     @Actant() actant: AuthActant,
     @Param('id') id: string,
   ): Promise<CreateEventRewardRequestResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.EVENT_SERVER,
-      'event_create_event_reward_request',
-      { actant, id },
-    );
+    return this.eventService.createEventRewardRequest(actant, id);
   }
 }

@@ -7,10 +7,17 @@ import {
   RegisterResponseDto,
 } from '@lib/dtos/auth/register.dto';
 import { REFRESH_TOKEN_COOKIE_NAME } from '@lib/constants/auth.constant';
-import { JwtAuthGuard } from '@lib/guards';
 import { Serializer } from '@lib/interceptors';
 import { AuthActant } from '@lib/types/actant.type';
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -18,15 +25,16 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
-import { GatewayService } from './../gateway.service';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { Request, Response } from 'express';
 import { LogoutResponseDto } from '@lib/dtos/auth/logout.dto';
+import { TokenBlacklistService } from '../services/token-blacklist.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { AuthService } from '../services/auth.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @ApiOperation({ summary: '사용자 회원가입' })
@@ -41,15 +49,7 @@ export class AuthController {
     @Body() registerRequestDto: RegisterRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    const resp = await this.gatewayService.sendRequest<RegisterResponseDto>(
-      MicroServiceType.AUTH_SERVER,
-      'auth_register',
-      { registerRequestDto },
-    );
-
-    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-
-    return resp;
+    return this.authService.register(registerRequestDto, res);
   }
 
   @Post('login')
@@ -66,15 +66,7 @@ export class AuthController {
     @Body() loginRequestDto: LoginRequestDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
-      MicroServiceType.AUTH_SERVER,
-      'auth_login',
-      { loginRequestDto },
-    );
-
-    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-
-    return resp;
+    return this.authService.login(loginRequestDto, res);
   }
 
   @Post('refresh')
@@ -89,15 +81,7 @@ export class AuthController {
     @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshResponseDto> {
-    const resp = await this.gatewayService.sendRequest<LoginResponseDto>(
-      MicroServiceType.AUTH_SERVER,
-      'auth_refresh',
-      { refreshToken },
-    );
-
-    this.gatewayService.setRefreshTokenCookie(res, resp.refreshToken);
-
-    return resp;
+    return this.authService.refresh(refreshToken, res);
   }
 
   @Post('logout')
@@ -109,16 +93,18 @@ export class AuthController {
     description: '로그아웃 성공',
   })
   async logout(
+    @Req() req: Request,
     @Actant() actant: AuthActant,
     @Res({ passthrough: true }) res: Response,
+    @Cookies(REFRESH_TOKEN_COOKIE_NAME) refreshToken?: string,
   ): Promise<LogoutResponseDto> {
-    const resp = await this.gatewayService.sendRequest<LogoutResponseDto>(
-      MicroServiceType.AUTH_SERVER,
-      'auth_logout',
-      { actant },
+    const authorization = req.headers.authorization;
+    const resp = await this.authService.logout(
+      actant,
+      res,
+      authorization,
+      refreshToken,
     );
-
-    this.gatewayService.clearRefreshTokenCookie(res);
 
     return resp;
   }

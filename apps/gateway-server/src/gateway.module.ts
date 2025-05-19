@@ -1,10 +1,12 @@
-import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { DEFAULT_JWT_ACCESS_EXPIRES } from '@lib/constants/auth.constant';
 import {
   DEFAULT_AUTH_SERVER_PORT,
   DEFAULT_EVENT_SERVER_PORT,
 } from '@lib/constants/common.constant';
-import { DEFAULT_JWT_ACCESS_EXPIRES } from '@lib/constants/auth.constant';
+import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
 import { JwtStrategy } from '@lib/strategies/jwt.strategy';
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -12,12 +14,17 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './controllers/auth.controller';
 import { EventController } from './controllers/event.controller';
-import { RewardController } from './controllers/reward.controller';
-import { UserController } from './controllers/user.controller';
 import { RewardRequestController } from './controllers/reward-request.controller';
-import { LoggingMiddleware } from '@lib/middlewares/logging.middleware';
+import { RewardController } from './controllers/reward.controller';
 import { UserActivityController } from './controllers/user-activity.controller';
-import { GatewayService } from './gateway.service';
+import { UserController } from './controllers/user.controller';
+import { AuthService } from './services/auth.service';
+import { EventService } from './services/event.service';
+import { RewardRequestService } from './services/reward-request.service';
+import { RewardService } from './services/reward.service';
+import { TokenBlacklistService } from './services/token-blacklist.service';
+import { UserActivityService } from './services/user-activity.service';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -70,6 +77,10 @@ import { GatewayService } from './gateway.service';
         },
       }),
     }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 15 * 60,
+    }),
   ],
   controllers: [
     AuthController,
@@ -79,7 +90,16 @@ import { GatewayService } from './gateway.service';
     RewardController,
     RewardRequestController,
   ],
-  providers: [JwtStrategy, GatewayService],
+  providers: [
+    JwtStrategy,
+    TokenBlacklistService,
+    AuthService,
+    EventService,
+    RewardService,
+    RewardRequestService,
+    UserService,
+    UserActivityService,
+  ],
 })
 export class GatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

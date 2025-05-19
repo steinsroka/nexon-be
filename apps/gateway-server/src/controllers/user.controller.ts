@@ -14,7 +14,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@lib/guards';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../lib/src/guards/roles.guard';
 import { Actant, Roles } from '@lib/decorators';
 import { AuthActant } from '@lib/types/actant.type';
 import { UserRoleType } from '@lib/enums';
@@ -32,14 +33,12 @@ import {
   UpdateRoleResponseDto,
 } from '@lib/dtos/user/update-role.dto';
 import { UserDto } from '@lib/dtos/user/user.dto';
-import { RolesGuard } from '@lib/guards/roles.guard';
-import { GatewayService } from '../gateway.service';
-import { MicroServiceType } from '@lib/enums/microservice.enum';
+import { UserService } from '../services/user.service';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly gatewayService: GatewayService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post('admin')
   @ApiOperation({ summary: '관리자 계정 생성 (초기 설정용)' })
@@ -56,11 +55,7 @@ export class UserController {
   async createAdmin(
     @Body() createAdminRequestDto: CreateAdminRequestDto,
   ): Promise<CreateAdminResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVER,
-      'user_create_admin',
-      { createAdminRequestDto },
-    );
+    return this.userService.createAdmin(createAdminRequestDto);
   }
 
   @Post()
@@ -86,11 +81,7 @@ export class UserController {
     @Actant() actant: AuthActant,
     @Body() createUserRequestDto: CreateUserRequestDto,
   ): Promise<CreateUserResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVER,
-      'user_create_user_by_admin',
-      { actant, createUserRequestDto },
-    );
+    return this.userService.createUserByAdmin(actant, createUserRequestDto);
   }
 
   @Get()
@@ -105,11 +96,7 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findAll(): Promise<UserDto[]> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVER,
-      'user_find_all',
-      {},
-    );
+    return this.userService.findAll();
   }
 
   @Get(':id')
@@ -133,11 +120,7 @@ export class UserController {
   })
   @Serializer(UserDto)
   async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVER,
-      'user_find_one',
-      { id },
-    );
+    return this.userService.findOne(id);
   }
 
   @Patch(':id/role')
@@ -169,10 +152,6 @@ export class UserController {
     @Body() updateRoleRequestDto: UpdateRoleRequestDto,
     @Actant() actant: AuthActant,
   ): Promise<UpdateRoleResponseDto> {
-    return this.gatewayService.sendRequest(
-      MicroServiceType.AUTH_SERVER,
-      'user_update_role',
-      { actant, id, updateRoleRequestDto },
-    );
+    return this.userService.updateUserRole(id, updateRoleRequestDto, actant);
   }
 }
