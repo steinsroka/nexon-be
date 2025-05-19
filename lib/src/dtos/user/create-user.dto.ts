@@ -1,16 +1,16 @@
 import {
-  PASSWORD_MIN_LEN,
-  PASSWORD_MAX_LEN,
-  PASSWORD_REGEX,
-  NAME_MIN_LEN,
   NAME_MAX_LEN,
+  NAME_MIN_LEN,
+  PASSWORD_MAX_LEN,
+  PASSWORD_MIN_LEN,
+  PASSWORD_REGEX,
 } from '@lib/constants';
 import { UserRoleType } from '@lib/enums';
 import {
   EMAIL_REGEX_INVALID,
+  NAME_LENGTH_INVALID,
   PASSWORD_LENGTH_INVALID,
   PASSWORD_REGEX_INVALID,
-  NAME_LENGTH_INVALID,
 } from '@lib/msgs';
 import { ApiProperty } from '@nestjs/swagger';
 import {

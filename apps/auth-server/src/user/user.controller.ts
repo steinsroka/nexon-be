@@ -15,6 +15,10 @@ import { UserDto } from '@lib/dtos/user/user.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { AuthActant } from '@lib/types';
+import {
+  PaginateUsersRequestDto,
+  PaginateUsersResponseDto,
+} from '@lib/dtos/user/paginate-users.dto';
 
 @Controller()
 export class UserController {
@@ -34,13 +38,15 @@ export class UserController {
     return this.userService.createUserByAdmin(data);
   }
 
-  @MessagePattern('user_find_all')
-  async findAll(): Promise<UserDto[]> {
-    return this.userService.findAll();
+  @MessagePattern('user_paginate_users')
+  async paginateUsers(
+    @Payload() data: { paginateUsersRequestDto: PaginateUsersRequestDto },
+  ): Promise<PaginateUsersResponseDto> {
+    return this.userService.paginateUsers(data);
   }
 
   @MessagePattern('user_find_one_by_id')
-  async findOneById(@Payload() data: string): Promise<UserDto> {
+  async findOneById(@Payload() data: { id: string }): Promise<UserDto> {
     return this.userService.findOneById(data);
   }
 

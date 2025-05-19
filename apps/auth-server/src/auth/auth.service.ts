@@ -38,7 +38,7 @@ export class AuthService {
 
     const payload: JwtPayload = {
       iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
-      sub: user._id,
+      sub: user.id,
       email: user.email,
       iat: Math.floor(Date.now() / 1000),
     };
@@ -46,12 +46,9 @@ export class AuthService {
     const accessToken = this.createAccessToken(payload);
     const refreshToken = this.createRefreshToken(payload);
 
-    await this.userService.updateRefreshToken(
-      user._id.toString(),
-      refreshToken,
-    );
+    await this.userService.updateRefreshToken(user.id.toString(), refreshToken);
 
-    if (req.registerRequestDto.inviteeEmail === 'admin') {
+    if (req.registerRequestDto.inviteeEmail) {
       const invitee = await this.userService.findOneByEmail(
         req.registerRequestDto.inviteeEmail,
       );
@@ -63,14 +60,13 @@ export class AuthService {
       await this.userActivityService.createUserActivity({
         userId: invitee.id,
         createUserActivityRequestDto: {
-          // TODO: 요청이 불편해서 변경필요
           type: UserActivityType.USER_INVITE,
         },
       });
     }
 
     await this.userActivityService.createUserActivity({
-      userId: user._id.toString(),
+      userId: user.id.toString(),
       createUserActivityRequestDto: {
         type: UserActivityType.LOGIN,
       },
@@ -89,13 +85,12 @@ export class AuthService {
     loginRequestDto: LoginRequestDto;
   }): Promise<{ user: UserDto; accessToken: string; refreshToken: string }> {
     const { email, password } = req.loginRequestDto;
-    // TODO: 이미 로그인되어있는 유저가 다시 로그인 시도할 경우에 대한 처리
-    const user = await this.userService.validateUser(email, password);
+    const userDto = await this.userService.validateUser(email, password);
 
     const payload: JwtPayload = {
       iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
-      sub: user._id,
-      email: user.email,
+      sub: userDto.id,
+      email: userDto.email,
       iat: Math.floor(Date.now() / 1000),
     };
 
@@ -103,19 +98,17 @@ export class AuthService {
     const refreshToken = this.createRefreshToken(payload);
 
     await this.userService.updateRefreshToken(
-      user._id.toString(),
+      userDto.id.toString(),
       refreshToken,
     );
 
     // NOTE: 정책에 따라 로그인 기록 간격 추가 필요
     await this.userActivityService.createUserActivity({
-      userId: user._id.toString(),
+      userId: userDto.id.toString(),
       createUserActivityRequestDto: {
         type: UserActivityType.LOGIN,
       },
     });
-
-    const userDto = plainToInstance(UserDto, user);
 
     return { user: userDto, accessToken, refreshToken };
   }
@@ -125,38 +118,41 @@ export class AuthService {
   }): Promise<{ accessToken: string; refreshToken: string }> {
     const { refreshToken } = req;
 
-    // TODO: 리프레시 토큰이 만료된 경우에 대한 처리
-    try {
-      const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      });
-      const user = await this.userService.findOneById(payload.sub.toString());
+    // JWT 토큰 검증
+    const payload = this.jwtService.verify(refreshToken, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      ignoreExpiration: false,
+    });
 
-      const newPayload: JwtPayload = {
-        iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
-        sub: user.id,
-        email: user.email,
-        iat: Math.floor(Date.now() / 1000),
-      };
+    const user = await this.userService.findOneById(payload.sub.toString());
 
-      const accessToken = this.createAccessToken(newPayload);
-      const newRefreshToken = this.createRefreshToken(newPayload);
-
-      await this.userService.updateRefreshToken(
-        user.id.toString(),
-        newRefreshToken,
-      );
-
-      return { accessToken, refreshToken: newRefreshToken };
-    } catch (error) {
+    if (!user.refreshToken) {
       throw RpcExceptionUtil.unauthorized(
-        `유효하지 않은 리프레시 토큰입니다: ${error.message}`,
+        '로그아웃 상태입니다. 다시 로그인해주세요.',
+        'LOGGED_OUT_USER',
       );
     }
+
+    const newPayload: JwtPayload = {
+      iss: this.configService.get<string>('JWT_ISSUER', DEFAULT_JWT_ISSUER),
+      sub: user.id,
+      email: user.email,
+      iat: Math.floor(Date.now() / 1000),
+    };
+
+    const accessToken = this.createAccessToken(newPayload);
+    const newRefreshToken = this.createRefreshToken(newPayload);
+
+    await this.userService.updateRefreshToken(
+      user.id.toString(),
+      newRefreshToken,
+    );
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
-  async logout(actant: AuthActant): Promise<{ success: boolean }> {
-    const user = actant.user;
+  async logout(req: { actant: AuthActant }): Promise<{ success: boolean }> {
+    const user = req.actant.user;
 
     await this.userService.removeRefreshToken(user.id);
 

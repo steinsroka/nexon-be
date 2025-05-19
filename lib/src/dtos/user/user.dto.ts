@@ -43,6 +43,19 @@ export class UserDto {
   role: UserRoleType;
 
   @ApiProperty({
+    example: 'example@example.com',
+    description: '사용자 초대 이메일 주소',
+  })
+  @Expose()
+  inviteeEmail: string | null;
+
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: '사용자 리프레시 토큰',
+  })
+  refreshToken: string | null;
+
+  @ApiProperty({
     example: '2023-01-01T00:00:00.000Z',
     description: '사용자 생성 일자',
   })

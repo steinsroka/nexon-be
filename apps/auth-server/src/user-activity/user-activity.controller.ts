@@ -25,9 +25,9 @@ export class UserActivityController {
   }
 
   @MessagePattern('user_activity_get_user_activities')
-  async getUserActivities(@Payload() data: { userId: string }): Promise<{
-    userActivities: UserActivityDto[];
-  }> {
+  async getUserActivities(
+    @Payload() data: { userId: string },
+  ): Promise<UserActivityDto[]> {
     return this.userActivityService.getUserActivities(data);
   }
 }

@@ -21,7 +21,7 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
   });
 
-  const logger = new Logger('Bootstrap');
+  const logger = new Logger('GatewsyServerBootstrap');
   const configService = app.get(ConfigService);
 
   app.use(cookieParser());
