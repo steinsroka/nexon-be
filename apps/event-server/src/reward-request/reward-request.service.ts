@@ -6,7 +6,11 @@ import {
   PaginateRewardRequestsRequestDto,
   PaginateRewardRequestsResponseDto,
 } from '@lib/dtos/reward-request/paginate-reward-requests.dto';
-import { RewardRequestDto } from '@lib/dtos/reward-request/reward-request.dto';
+import {
+  RewardRequestDto,
+  RewardRequestSummaryDto,
+  RewardTransactionDto,
+} from '@lib/dtos/reward-request/reward-request.dto';
 import { UserActivityDto } from '@lib/dtos/user-activity/user-activity.dto';
 import { UserRoleType } from '@lib/enums';
 import { EventConditionType } from '@lib/enums/event-condition-type-enum';
@@ -37,6 +41,7 @@ import {
   RewardRequest,
   RewardRequestDocument,
 } from './schemas/reward-request.schema';
+import { UserDto } from '@lib/dtos/user/user.dto';
 
 @Injectable()
 export class RewardRequestService {
@@ -128,35 +133,30 @@ export class RewardRequestService {
       );
     }
 
-    const requestObj = rewardRequest.toObject();
-
-    if (
-      requestObj.rewardTransactions &&
-      requestObj.rewardTransactions.length > 0
-    ) {
-      requestObj.rewardTransactions = requestObj.rewardTransactions.map(
-        (transaction) => ({
-          ...transaction,
-          reward: transaction.rewardId,
-          rewardId: (transaction.rewardId as any)?._id || transaction.rewardId,
-        }),
-      );
-    }
-
-    const responseData = {
-      ...requestObj,
-      user: requestObj.userId,
-      event: requestObj.eventId,
-    };
-
-    return plainToInstance(
-      GetRewardRequestSummaryByIdResponseDto,
-      responseData,
-      {
+    const rewardRequestDto: RewardRequestSummaryDto = {
+      ...plainToInstance(RewardRequestDto, rewardRequest, {
         excludeExtraneousValues: true,
         enableCircularCheck: true,
-      },
-    );
+      }),
+      rewardTransactions: plainToInstance(
+        RewardTransactionDto,
+        rewardRequest.rewardTransactions,
+        {
+          excludeExtraneousValues: true,
+          enableCircularCheck: true,
+        },
+      ),
+      user: plainToInstance(UserDto, rewardRequest.userId, {
+        excludeExtraneousValues: true,
+        enableCircularCheck: true,
+      }),
+      event: plainToInstance(EventDto, rewardRequest.eventId, {
+        excludeExtraneousValues: true,
+        enableCircularCheck: true,
+      }),
+    };
+
+    return rewardRequestDto;
   }
 
   async createEventRewardRequest(req: {
@@ -269,14 +269,24 @@ export class RewardRequestService {
       .findById(rewardRequest._id)
       .exec();
 
-    return plainToInstance(
-      CreateEventRewardRequestResponseDto,
-      updatedRewardRequest,
-      {
-        excludeExtraneousValues: true,
-        enableCircularCheck: true,
-      },
-    );
+    return {
+      ...plainToInstance(
+        CreateEventRewardRequestResponseDto,
+        updatedRewardRequest,
+        {
+          excludeExtraneousValues: true,
+          enableCircularCheck: true,
+        },
+      ),
+      rewardTransactions: plainToInstance(
+        RewardTransactionDto,
+        updatedRewardRequest!.rewardTransactions,
+        {
+          excludeExtraneousValues: true,
+          enableCircularCheck: true,
+        },
+      ),
+    };
   }
 
   private getQualificationData(

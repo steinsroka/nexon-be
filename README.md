@@ -70,3 +70,56 @@ npm run prune
 
 admin@nexon.com
 password123!
+
+# 아쉬운점
+
+transaction 적용 못한거
+{
+"name": "여름방학 이벤트",
+"description": "여름방학을 맞이해 메이플이 쏜다",
+"startDate": "2025-05-01T00:00:00.000Z",
+"endDate": "2025-05-31T00:00:00.000Z",
+"status": "ACTIVE",
+"conditions": [
+{
+"type": "USER_INVITE",
+"metadata": {
+"inviteCount": 1
+},
+"description": "조건 설명"
+},
+{
+"type": "LOGIN_BETWEEN",
+"metadata": {
+"startDate": "2025-05-01T00:00:00.000Z",
+"endDate": "2025-05-31T00:00:00.000Z"
+},
+"description": "조건 설명"
+},
+{
+"type": "QUEST_CLEAR_COUNT",
+"metadata": {
+"clearCount": 1
+},
+"description": "조건 설명"
+}
+],
+"rewards": [
+{
+"type": "POINT",
+"quantity": 100,
+"description": "보상 설명"
+},
+{
+"type": "COUPON",
+"quantity": 100,
+"description": "보상 설명"
+},
+{
+"type": "ITEM",
+"itemId": "64a78e6e5d32a83d8a0d3f4c",
+"quantity": 100,
+"description": "보상 설명"
+}
+]
+}

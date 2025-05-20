@@ -70,9 +70,7 @@ export class CreateEventRequestDto {
   @ApiProperty({
     example: [
       {
-        eventId: '64a78e6e5d32a83d8a0d3f4c',
         type: RewardType.POINT,
-        itemId: 'itemId',
         quantity: 100,
         description: '보상 설명',
       },
