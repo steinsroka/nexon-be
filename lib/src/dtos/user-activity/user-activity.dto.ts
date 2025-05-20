@@ -37,9 +37,7 @@ export class UserActivityDto {
   type: UserActivityType;
 
   @ApiProperty({
-    example: 'value',
     description: '유저 활동 값',
-    type: String,
   })
   @Expose()
   metadata: ActivityMetadata;

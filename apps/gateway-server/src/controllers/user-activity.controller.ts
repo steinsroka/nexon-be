@@ -18,7 +18,7 @@ import {
 import { UserActivityService } from '../services/user-activity.service';
 
 @ApiTags('user-activities')
-@Controller('user/:user_id/user-activity')
+@Controller('users/:user_id/user-activities')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRoleType.ADMIN, UserRoleType.USER)

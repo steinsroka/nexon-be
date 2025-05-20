@@ -16,4 +16,5 @@ export interface QuestClearMetadata {
 export type ActivityMetadata =
   | LoginMetadata
   | UserInviteMetadata
+  | QuestClearMetadata
   | Record<string, any>;

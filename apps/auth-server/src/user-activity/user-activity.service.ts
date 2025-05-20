@@ -37,7 +37,18 @@ export class UserActivityService {
       metadata,
     });
 
-    return plainToInstance(CreateUserActivityResponseDto, newUserActivity);
+    const newMetadata = newUserActivity.metadata;
+
+    const userActivityDto = plainToInstance(
+      CreateUserActivityResponseDto,
+      newUserActivity,
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      },
+    );
+
+    return { ...userActivityDto, metadata: newMetadata };
   }
 
   async getUserActivities(req: { userId: string }): Promise<UserActivityDto[]> {

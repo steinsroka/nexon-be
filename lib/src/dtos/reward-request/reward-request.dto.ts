@@ -62,7 +62,7 @@ export class RewardRequestDto {
     example: true,
   })
   @Expose()
-  isRewarable: boolean;
+  isRewardable: boolean;
 
   @ApiProperty({
     description: '리워드 요청 상태',
@@ -74,11 +74,9 @@ export class RewardRequestDto {
 
   @ApiProperty({
     description: '리워드 상태',
-    type: [RewardTransactionDto],
   })
   @Expose()
-  @Type(() => Array<RewardTransactionDto>)
-  rewards: RewardTransactionDto[];
+  rewardTransactions: RewardTransactionDto[];
 
   @ApiProperty({
     description: '리워드 요청 실패 사유',

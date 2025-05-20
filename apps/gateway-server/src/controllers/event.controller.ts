@@ -126,7 +126,7 @@ export class EventController {
     return this.eventService.softDeleteEvent(actant, id);
   }
 
-  @Post(':id/reward-request')
+  @Post(':id/reward-requests')
   @ApiBearerAuth()
   @ApiOperation({ summary: '이벤트 리워드 요청' })
   @ApiResponse({
